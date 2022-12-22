@@ -6,7 +6,7 @@ from pathlib import Path
 from re import L
 
 from compas_fea2.results import Results, StepResults
-from compas_fea2.backends.abaqus.results import odb_extract
+from . import odb_extract
 from compas_fea2.utilities._utils import timer
 from compas_fea2.utilities._utils import launch_process
 

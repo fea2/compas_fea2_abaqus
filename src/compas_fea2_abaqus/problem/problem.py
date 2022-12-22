@@ -6,8 +6,8 @@ from compas_fea2.problem import _Step
 from compas_fea2.utilities._utils import timer
 from compas_fea2.utilities._utils import launch_process
 
-from compas_fea2.backends.abaqus.results import odb_extract
-from compas_fea2.backends.abaqus.job.input_file import AbaqusInputFile, AbaqusRestartInputFile
+from ..results import odb_extract
+from ..job.input_file import AbaqusInputFile, AbaqusRestartInputFile
 
 
 class AbaqusProblem(Problem):
