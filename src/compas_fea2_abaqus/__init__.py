@@ -333,7 +333,7 @@ try:
     )
 
     # build the plugin registry
-    def register_backend():
+    def _register_backend():
         backend = compas_fea2.BACKENDS['compas_fea2_abaqus']
 
 
