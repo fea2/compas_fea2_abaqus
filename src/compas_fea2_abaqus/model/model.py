@@ -50,7 +50,7 @@ class AbaqusModel(Model):
 # =============================================================================
 
     @timer(message='Model generated in ')
-    def _generate_jobdata(self):
+    def jobdata(self):
         return """**
 ** PARTS
 **
@@ -95,7 +95,7 @@ class AbaqusModel(Model):
             if isinstance(part, RigidPart):
                 part.add_group(ElementsGroup(elements=list(part.elements), name='all_elements'))
                 part.add_group(NodesGroup(nodes=[part.reference_point], name='ref_point'))
-            data = part._generate_jobdata()
+            data = part.jobdata()
             data_section.append(data)
         return '\n'.join(data_section)
 
@@ -117,11 +117,11 @@ class AbaqusModel(Model):
             if isinstance(part, RigidPart):
                 data_section.append(part._generate_rigid_body_jobdata())
             for group in part.nodesgroups:
-                data_section.append(group._generate_jobdata(instance=True))
+                data_section.append(group.jobdata(instance=True))
             for group in part.elementsgroups:
-                data_section.append(group._generate_jobdata(instance=True))
+                data_section.append(group.jobdata(instance=True))
             for group in part.facesgroups:
-                data_section.append(group._generate_jobdata())
+                data_section.append(group.jobdata())
         data_section.append('*End Assembly')
 
         return '\n'.join(data_section)
@@ -141,7 +141,7 @@ class AbaqusModel(Model):
         """
         data_section = []
         for material in self.materials:
-            data_section.append(material._generate_jobdata())
+            data_section.append(material.jobdata())
         return '\n'.join(data_section)
 
     def _generate_bcs_section(self):
@@ -160,7 +160,7 @@ class AbaqusModel(Model):
         data_section = []
         for bc, nodes in self.bcs.items():
             for part, part_nodes in groupby(nodes, lambda n: n.part):
-                data_section.append(bc._generate_jobdata('{}-1'.format(part.name), part_nodes))
+                data_section.append(bc.jobdata('{}-1'.format(part.name), part_nodes))
         return '\n'.join(data_section) or '**'
 
     def _generate_ics_section(self):
@@ -181,7 +181,7 @@ class AbaqusModel(Model):
         for ic, nodes in self.bcs.items():
             for part, part_nodes in groupby(nodes, lambda n: n.part):
                 if isinstance(ic, InitialTemperatureField):
-                    data_section.append(ic._generate_jobdata('{}-1'.format(part.name), part_nodes))
+                    data_section.append(ic.jobdata('{}-1'.format(part.name), part_nodes))
                 elif isinstance(ic, InitialStressField):
-                    data_section.append(ic._generate_jobdata(part_nodes))
+                    data_section.append(ic.jobdata(part_nodes))
         return '\n'.join(data_section) or '**'

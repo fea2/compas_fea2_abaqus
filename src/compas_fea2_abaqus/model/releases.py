@@ -12,7 +12,7 @@ class AbaqusBeamEndPinRelease(BeamEndPinRelease):
     def __init__(self, m1=False, m2=False, t=False, name=None, **kwargs):
         super(AbaqusBeamEndPinRelease, self).__init__(m1=m1, m2=m2, t=t, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters

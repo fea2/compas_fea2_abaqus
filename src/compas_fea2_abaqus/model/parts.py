@@ -5,7 +5,7 @@ from __future__ import print_function
 from compas_fea2.model import DeformablePart, RigidPart
 
 
-def _generate_jobdata(obj):
+def jobdata(obj):
     """Generate the string information for the input file.
 
     Parameters
@@ -46,7 +46,7 @@ def _generate_jobdata(obj):
 
 
 def _generate_nodes_section(obj):
-    return '\n'.join(['*Node']+[node._generate_jobdata() for node in obj.nodes])
+    return '\n'.join(['*Node']+[node.jobdata() for node in obj.nodes])
 
 
 def _generate_elements_section(obj):
@@ -65,27 +65,27 @@ def _generate_elements_section(obj):
                         orientation = orientation.split('_')
                     part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
                     for element in elements:
-                        part_data.append(element._generate_jobdata())
-                    part_data.append(section._generate_jobdata(elset_name, orientation=orientation))
+                        part_data.append(element.jobdata())
+                    part_data.append(section.jobdata(elset_name, orientation=orientation))
     else:
         for implementation, elements in grouped_elements.items():
             elset_name = 'aux_{}'.format(implementation)
             part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
             for element in elements:
-                part_data.append(element._generate_jobdata())
+                part_data.append(element.jobdata())
     return '\n'.join(part_data)
 
 
 def _generate_nodesets_section(obj):
     if obj.nodesgroups:
-        return '\n'.join([group._generate_jobdata() for group in obj.nodesgroups])
+        return '\n'.join([group.jobdata() for group in obj.nodesgroups])
     else:
         return '**'
 
 
 def _generate_elementsets_section(obj):
     if obj.elementsgroups:
-        return '\n'.join([group._generate_jobdata() for group in obj.elementsgroups])
+        return '\n'.join([group.jobdata() for group in obj.elementsgroups])
     else:
         return '**'
 
@@ -93,7 +93,7 @@ def _generate_elementsets_section(obj):
 def _generate_releases_section(obj):
     if isinstance(obj, DeformablePart):
         if obj.releases:
-            return '\n'.join(['*Release']+[release._generate_jobdata() for release in obj.releases])
+            return '\n'.join(['*Release']+[release.jobdata() for release in obj.releases])
     else:
         return '**'
 
@@ -177,8 +177,8 @@ class AbaqusDeformablePart(DeformablePart):
     #                       Generate input file data
     # =========================================================================
 
-    def _generate_jobdata(self):
-        return _generate_jobdata(self)
+    def jobdata(self):
+        return jobdata(self)
 
     def _generate_instance_jobdata(self):
         return _generate_instance_jobdata(self)
@@ -217,8 +217,8 @@ class AbaqusRigidPart(RigidPart):
 
         return grouped_elements
 
-    def _generate_jobdata(self):
-        return _generate_jobdata(self)
+    def jobdata(self):
+        return jobdata(self)
 
     def _generate_rigid_body_jobdata(self):
         return "*Rigid Body, ref node={0}-1.ref_point, elset={0}-1.all_elements".format(self.name)

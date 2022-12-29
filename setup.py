@@ -32,7 +32,7 @@ setup(
     description="abaqus plugin for compas_fea2",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="",
+    url="https://github.com/fea2/compas_fea2_abaqus",
     author="Francesco Ranaudo",
     author_email="ranaudo@arch.ethz.ch",
     license="MIT license",

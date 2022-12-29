@@ -19,7 +19,7 @@ class AbaqusInputFile(InputFile):
     # Constructor methods
     # ==============================================================================
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generate the content of the input file from the Problem object.
 
         Parameters
@@ -60,8 +60,8 @@ class AbaqusInputFile(InputFile):
              now,
              self.model.description,
              self.problem.description,
-             self.model._generate_jobdata(),
-             self.problem._generate_jobdata())
+             self.model.jobdata(),
+             self.problem.jobdata())
 
 
 class AbaqusRestartInputFile(InputFile):
@@ -107,7 +107,7 @@ class AbaqusRestartInputFile(InputFile):
 
         return restart_file
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generate the content of the input file from the Problem object.
 
         Parameters
@@ -142,7 +142,7 @@ class AbaqusRestartInputFile(InputFile):
              self.model.description,
              self.problem.description,
              self.start,
-             '\n'.join([step._generate_jobdata() for step in self.steps]))
+             '\n'.join([step.jobdata() for step in self.steps]))
 
 
 class AbaqusParametersFile(ParametersFile):
@@ -173,11 +173,11 @@ class AbaqusParametersFile(ParametersFile):
         input_file = cls()
         input_file._job_name = problem._name
         input_file._file_name = '{}.{}'.format(problem._name, input_file._extension)
-        input_file._job_data = input_file._generate_jobdata(problem, smooth)
+        input_file._job_data = input_file.jobdata(problem, smooth)
         input_file._registration = problem
         return input_file
 
-    def _generate_jobdata(self, opti_problem, smooth):
+    def jobdata(self, opti_problem, smooth):
         """Generate the content of the parameter file from the optimisation
         settings of the Problem object.
 
@@ -209,24 +209,24 @@ END_
 !
 ! ----------------------------------------------------------------
 ! Design area
-{opti_problem._design_variables._generate_jobdata()}!
+{opti_problem._design_variables.jobdata()}!
 ! ----------------------------------------------------------------
 ! Design responses
-{''.join([value._generate_jobdata() for value in opti_problem._design_responses.values()])}!
+{''.join([value.jobdata() for value in opti_problem._design_responses.values()])}!
 ! ----------------------------------------------------------------
 ! Objective Function
-{opti_problem._objective_function._generate_jobdata()}!
+{opti_problem._objective_function.jobdata()}!
 ! ----------------------------------------------------------------
 ! Constraints
-{''.join([value._generate_jobdata() for value in opti_problem._constraints.values()])}!
+{''.join([value.jobdata() for value in opti_problem._constraints.values()])}!
 ! ----------------------------------------------------------------
 ! Task
-{opti_problem._generate_jobdata()}!
+{opti_problem.jobdata()}!
 ! ----------------------------------------------------------------
 ! Parameters
-{opti_problem._parameters._generate_jobdata(opti_problem._name)}!
+{opti_problem._parameters.jobdata(opti_problem._name)}!
 !
 ! ----------------------------------------------------------------
 !
-{smooth._generate_jobdata() if smooth else '!'}
+{smooth.jobdata() if smooth else '!'}
 EXIT"""

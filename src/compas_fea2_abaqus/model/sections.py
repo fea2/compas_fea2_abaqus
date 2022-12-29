@@ -61,7 +61,7 @@ class AbaqusMassSection(MassSection):
     def __init__(self, mass, name=None, **kwargs):
         super(AbaqusMassSection, self).__init__(mass, name=name, **kwargs)
 
-    def _generate_jobdata(self, set_name):
+    def jobdata(self, set_name):
         """Generates the string information for the input file.
 
         Parameters
@@ -127,7 +127,7 @@ class AbaqusAngleSection(AngleSection):
             t = [t]*2
         self._properties = [w, h, *t]
 
-    def _generate_jobdata(self, set_name, orientation):
+    def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, 'L')
 
 
@@ -152,7 +152,7 @@ class AbaqusBoxSection(BoxSection):
             t = [t]*4
         self._properties = [w, h, *self._t]
 
-    def _generate_jobdata(self, set_name, orientation):
+    def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, 'box')
 
 
@@ -170,7 +170,7 @@ class AbaqusCircularSection(CircularSection):
         super(AbaqusCircularSection, self).__init__(r, material, name=name, **kwargs)
         self._properties = [r]
 
-    def _generate_jobdata(self, set_name, orientation):
+    def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, 'circ')
 
 
@@ -248,7 +248,7 @@ class AbaqusRectangularSection(RectangularSection):
         super(AbaqusRectangularSection, self).__init__(w=w, h=h, material=material, name=name, **kwargs)
         self._properties = [w, h]
 
-    def _generate_jobdata(self, set_name, orientation):
+    def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, 'rect')
 
 
@@ -331,7 +331,7 @@ class AbaqusShellSection(ShellSection):
         super(AbaqusShellSection, self).__init__(t, material, name=name, **kwargs)
         self.int_points = int_points
 
-    def _generate_jobdata(self, set_name, **kwargs):
+    def jobdata(self, set_name, **kwargs):
         """Generates the string information for the input file.
 
         Parameters
@@ -354,7 +354,7 @@ class AbaqusMembraneSection(MembraneSection):
     def __init__(self, t, material, name=None, **kwargs):
         super(AbaqusMembraneSection, self).__init__(t, material, name=name, **kwargs)
 
-    def _generate_jobdata(self, set_name, **kwargs):
+    def jobdata(self, set_name, **kwargs):
         """Generates the string information for the input file.
 
         Parameters
@@ -381,7 +381,7 @@ class AbaqusSolidSection(SolidSection):
     def __init__(self, material, name=None, **kwargs):
         super(AbaqusSolidSection, self).__init__(material, name=name, **kwargs)
 
-    def _generate_jobdata(self, set_name, **kwargs):
+    def jobdata(self, set_name, **kwargs):
         """Generates the string information for the input file.
 
         Parameters

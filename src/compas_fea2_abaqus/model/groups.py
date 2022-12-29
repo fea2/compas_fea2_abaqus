@@ -7,7 +7,7 @@ from compas_fea2.model import ElementsGroup
 from compas_fea2.model.groups import FacesGroup, PartsGroup
 
 
-def _generate_jobdata(self, instance):
+def jobdata(self, instance):
     """Generates the common string information for the input file for all the
     groups.
 
@@ -49,8 +49,8 @@ class AbaqusNodesGroup(NodesGroup):
         super(AbaqusNodesGroup, self).__init__(nodes=nodes, name=name, **kwargs)
         self._set_type = 'nset'
 
-    def _generate_jobdata(self, instance=None):
-        return _generate_jobdata(self, instance)
+    def jobdata(self, instance=None):
+        return jobdata(self, instance)
 
 
 class AbaqusElementsGroup(ElementsGroup):
@@ -67,8 +67,8 @@ class AbaqusElementsGroup(ElementsGroup):
         super(AbaqusElementsGroup, self).__init__(elements=elements, name=name, **kwargs)
         self._set_type = 'elset'
 
-    def _generate_jobdata(self, instance=None):
-        return _generate_jobdata(self, instance)
+    def jobdata(self, instance=None):
+        return jobdata(self, instance)
 
 
 class AbaqusFacesGroup(FacesGroup):
@@ -84,7 +84,7 @@ class AbaqusFacesGroup(FacesGroup):
     def __init__(self, *, faces, name=None, **kwargs):
         super(AbaqusFacesGroup, self).__init__(faces=faces, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters

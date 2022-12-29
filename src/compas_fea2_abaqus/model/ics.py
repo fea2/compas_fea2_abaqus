@@ -13,7 +13,7 @@ class AbaqusInitialTemperatureField(InitialTemperatureField):
     def __init__(self, temperature, name=None, **kwargs):
         super(AbaqusInitialTemperatureField, self).__init__(temperature, name, **kwargs)
 
-    def _generate_jobdata(self, instance, nodes):
+    def jobdata(self, instance, nodes):
         """Generates the string information for the input file.
 
         Parameters
@@ -40,7 +40,7 @@ class AbaqusInitialStressField(InitialStressField):
     def __init__(self, stress, name=None, **kwargs):
         super(AbaqusInitialStressField, self).__init__(stress, name, **kwargs)
 
-    def _generate_jobdata(self, elements_groups):
+    def jobdata(self, elements_groups):
         """Generates the string information for the input file.
 
         Parameters

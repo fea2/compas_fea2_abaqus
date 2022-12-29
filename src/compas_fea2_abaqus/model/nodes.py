@@ -23,7 +23,7 @@ class AbaqusNode(Node):
     def __init__(self, xyz, mass=None, name=None, **kwargs):
         super(AbaqusNode, self).__init__(xyz=xyz, mass=mass, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters

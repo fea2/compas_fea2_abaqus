@@ -19,7 +19,7 @@ class AbaqusConcrete(Concrete):
     def __init__(self, *, fck, v=0.2, density=2400, fr=None,  name=None, **kwargs):
         super(AbaqusConcrete, self).__init__(fck=fck, v=v, density=density, fr=fr, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -64,7 +64,7 @@ class AbaqusConcreteSmearedCrack(ConcreteSmearedCrack):
         super(AbaqusConcreteSmearedCrack, self).__init__(E=E, v=v, density=density,
                                                          fc=fc, ec=ec, ft=ft, et=et, fr=fr, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -109,7 +109,7 @@ class AbaqusConcreteDamagedPlasticity(ConcreteDamagedPlasticity):
         super(AbaqusConcreteDamagedPlasticity, self).__init__(E=E, v=v,
                                                               density=density, damage=damage, hardening=hardening, stiffening=stiffening, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters

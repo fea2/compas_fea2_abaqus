@@ -257,7 +257,7 @@ class AbaqusProblem(Problem):
     # =============================================================================
 
     @timer(message='Problem generated in ')
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -268,4 +268,4 @@ class AbaqusProblem(Problem):
         -------
         input file data line (str).
         """
-        return '\n'.join([step._generate_jobdata() for step in self._steps_order])
+        return '\n'.join([step.jobdata() for step in self._steps_order])
