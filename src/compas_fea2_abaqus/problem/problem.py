@@ -172,6 +172,7 @@ class AbaqusProblem(Problem):
             _description_
         """
         self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat)
+        self.model.to_cfm(self.model.path.joinpath(f'{self.model.name}.cfm'))
         return self.convert_results_to_sqlite(fields=fields)
 
     # ==========================================================================

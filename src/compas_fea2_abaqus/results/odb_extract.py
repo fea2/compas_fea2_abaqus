@@ -1,3 +1,9 @@
+"""
+Note
+----
+to debug run from terminal:
+abaqus python path_to_\compas_fea2_abaqus\results\odb_extract.py None path_to_odb odb_file_name
+"""
 from sqlite3 import Error
 import sqlite3
 
@@ -13,10 +19,14 @@ import os
 import sys
 # from collections.abc import Iterable
 
+#conversion between Field Value names and FieldValue attribute names
 invariants_dict = {'MISES': 'mises',
                    'MAX_PRINCIPAL': 'maxPrincipal',
                    'MID_PRINCIPAL': 'midPrincipal',
                    'MIN_PRINCIPAL': 'minPrincipal',
+                   'MAX_INPLANE_PRINCIPAL': 'maxInPlanePrincipal',
+                   'MIN_INPLANE_PRINCIPAL': 'minInPlanePrincipal',
+                   'OUTOFPLANE_PRINCIPAL': 'outOfPlanePrincipal',
                    'TRESCA': 'tresca',
                    'PRESS': 'press',
                    'INV3': 'inv3',
@@ -71,7 +81,6 @@ def create_connection(db_file=None):
     except Error as e:
         print(e)
     return conn
-
 
 def _create_table(conn, sql):
     """Create a table from the create_table_sql statement.
@@ -138,7 +147,6 @@ def create_field_table(conn, field, components_names, invariants_names):
         sql = """CREATE TABLE IF NOT EXISTS {} (step text, part text, type text, position text, key integer, {});""".format(
             field, ', '.join(['{} float'.format(c) for c in components_names+invariants_names]))
         _create_table(conn, sql)
-
 
 def insert_field_results(conn, field, components_data, invariants_data, step, part, key_type, position, key):
     """Insert the results of the analysis at a node.
@@ -210,6 +218,7 @@ def extract_odb_data(database_path, database_name, requested_fields):
     database = os.path.join(database_path, '{}-results.db'.format(database_name))
     if os.path.exists(database):
         os.remove(database)
+
     with create_connection(database) as conn:
         create_field_description_table(conn)
         for step_name, step in steps.items():
@@ -218,8 +227,10 @@ def extract_odb_data(database_path, database_name, requested_fields):
             for field_name, field_data in default_fields.items():
                 table_name = field_name.split(' ')[0]
                 components_names = list(field_data.componentLabels)
+
                 if any([requested_fields and not table_name in requested_fields, not components_names]):
                     continue
+
                 invariants_symbolic_constants = field_data.validInvariants
                 invariants_names = [invariants_dict[inv.name] for inv in invariants_symbolic_constants]
                 insert_field_description(conn, table_name, field_data.description, ' '.join(components_names), ' '.join(invariants_names))
