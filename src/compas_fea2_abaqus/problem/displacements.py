@@ -25,7 +25,7 @@ class AbaqusGeneralDisplacement(GeneralDisplacement):
             x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
         self._modify = ', OP=MOD' if modify else ', OP=NEW'
 
-    def _generate_jobdata(self, nodes):
+    def jobdata(self, nodes):
         """Generates the string information for the input file.
 
         Parameters

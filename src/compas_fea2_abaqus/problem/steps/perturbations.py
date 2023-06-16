@@ -10,7 +10,7 @@ from compas_fea2.problem.steps import StedyStateDynamic
 from compas_fea2.problem.steps import SubstructureGeneration
 
 
-def _generate_jobdata(obj):
+def jobdata(obj):
     """Generates the string information for the input file.
 
     Parameters
@@ -37,7 +37,7 @@ class AbaqusModalAnalysis(ModalAnalysis):
     def __init__(self, modes=1, name=None, **kwargs):
         super(AbaqusModalAnalysis, self).__init__(modes, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
        Parameters
@@ -82,8 +82,8 @@ class AbaqusBucklingAnalysis(BucklingAnalysis):
         self._nlgeom = 'NO'  # BUG this depends on the previous step -> loop through the steps order and adjust this parameter
         self._stype = 'Buckle'
 
-    def _generate_jobdata(self):
-        return _generate_jobdata(self)
+    def jobdata(self):
+        return jobdata(self)
 
 
 class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
@@ -108,8 +108,8 @@ class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
         self._nlgeom = 'NO'  # if not nlgeom else 'YES'
         self._stype = 'Static'
 
-    def _generate_jobdata(self):
-        return _generate_jobdata(self)
+    def jobdata(self):
+        return jobdata(self)
 
 
 class AbaqusStedyStateDynamic(StedyStateDynamic):

@@ -7,7 +7,7 @@ from compas_fea2.model.constraints import BeamMPC
 from compas_fea2.model.constraints import TieConstraint
 
 
-def _generate_jobdata(obj):
+def jobdata(obj):
     return '\n'.join(['** Constraint: {} Type: {}'.format(obj.name, obj.constraint_type),
                       '*MPC',
                       '{}, '.format(obj.constraint_type)])
@@ -20,8 +20,8 @@ class AbaqusTieMPC(TieMPC):
     def __init__(self, name=None, **kwargs) -> None:
         super(AbaqusTieMPC, self).__init__(name=name, constraint_type='TIE', **kwargs)
 
-    def _generate_jobdata(self):
-        return _generate_jobdata(self)
+    def jobdata(self):
+        return jobdata(self)
 
 
 class AbaqusBeamMPC(BeamMPC):
@@ -31,8 +31,8 @@ class AbaqusBeamMPC(BeamMPC):
     def __init__(self, name=None, **kwargs) -> None:
         super(AbaqusBeamMPC, self).__init__(name=name, constraint_type='BEAM', **kwargs)
 
-    def _generate_jobdata(self):
-        return _generate_jobdata(self)
+    def jobdata(self):
+        return jobdata(self)
 
 
 class AbaqusTieConstraint(TieConstraint):
@@ -43,6 +43,6 @@ class AbaqusTieConstraint(TieConstraint):
         super(AbaqusTieConstraint, self).__init__(name=name, **kwargs)
         self.adjust = 'YES'
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         return '\n'.join(['** Constraint: {} Type: Tie'.format(self.name),
                           '*Tie, name={}\n'.format(self.name, self.adjust)])

@@ -38,7 +38,7 @@ class AbaqusElasticIsotropic(ElasticIsotropic):
         super(AbaqusElasticIsotropic, self).__init__(E=E, v=v, density=density, name=name, **kwargs)
         self.unilateral = unilateral
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -76,7 +76,7 @@ class AbaqusStiff(Stiff):
     """Abaqus implementation of :class:`Stiff`\n"""
     __doc__ += Stiff.__doc__
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -116,7 +116,7 @@ class AbaqusElasticPlastic(ElasticPlastic):
         self._e
         self._f
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -184,7 +184,7 @@ class AbaqusUserMaterial(UserMaterial):
                 constants.append(self.__dict__[k])
         return constants
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters

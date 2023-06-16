@@ -64,7 +64,7 @@ class AbaqusPointLoad(PointLoad):
     def follow(self):
         return self._follow
 
-    def _generate_jobdata(self, nodes):
+    def jobdata(self, nodes):
         """Generates the string information for the input file.
 
         Parameters
@@ -113,7 +113,7 @@ class AbaqusGravityLoad(GravityLoad):
     def __init__(self, g=9.81, x=0., y=0., z=-1., name=None, **kwargs):
         super(AbaqusGravityLoad, self).__init__(g, x, y, z, name=name, **kwargs)
 
-    def _generate_jobdata(self, distribution):
+    def jobdata(self, distribution):
         """Generates the string information for the input file.
 
         Parameters

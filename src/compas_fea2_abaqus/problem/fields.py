@@ -12,7 +12,7 @@ class AbaqusPrescribedTemperatureField(PrescribedTemperatureField):
     def __init__(self, temperature, name=None, **kwargs):
         super(AbaqusPrescribedTemperatureField, self).__init__(temperature, name, **kwargs)
 
-    def _generate_jobdata(self, nodes):
+    def jobdata(self, nodes):
         """Generates the string information for the input file.
 
         Parameters

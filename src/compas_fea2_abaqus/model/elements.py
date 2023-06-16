@@ -12,7 +12,7 @@ from compas_fea2.model import TetrahedronElement
 from compas_fea2.model import HexahedronElement
 
 
-def _generate_jobdata(element):
+def jobdata(element):
     """Generates the common string information for the input file of all the
     elements.
 
@@ -44,7 +44,7 @@ class AbaqusMassElement(MassElement):
         super(AbaqusMassElement, self).__init__(nodes=[node],
                                                 section=section, name=name, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -120,9 +120,9 @@ class AbaqusBeamElement(BeamElement):
         self._elset = None
         self._orientation = frame  # FIXME this is useless
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         if any(x in self.implementation for x in ['B3', 'PIPE']):
-            return _generate_jobdata(self)
+            return jobdata(self)
         else:
             raise NotImplementedError
 
@@ -142,11 +142,11 @@ class AbaqusTrussElement(TrussElement):
         if len(nodes) not in [2, 3]:
             raise ValueError('A truss element with {} nodes cannot be created'.format(len(nodes)))
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         return getattr(self, '_'+self._type.lower())()
 
     def _t3d(self):
-        return _generate_jobdata(self)
+        return jobdata(self)
 
 # ==============================================================================
 # 2D elements
@@ -209,17 +209,17 @@ class AbaqusShellElement(ShellElement):
         self._optional = optional
         self._warping = warping
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         return getattr(self, '_'+self._type.lower())()
 
     def _s(self):
-        return _generate_jobdata(self)
+        return jobdata(self)
 
     def _sc(self):
         raise NotImplementedError()
 
     def _r3d4(self):
-        return _generate_jobdata(self)
+        return jobdata(self)
 
 
 class AbaqusMembraneElement(MembraneElement):
@@ -262,10 +262,10 @@ class AbaqusMembraneElement(MembraneElement):
         if len(self._nodes) not in (3, 4, 6, 8, 9):
             raise ValueError('A membrane element with {} nodes cannot be created.'.format(len(nodes)))
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         if self._type != 'M3D':
             raise ValueError('{} is not a valid implementation model.'.format(self._type))
-        return _generate_jobdata(self)
+        return jobdata(self)
 
 
 # ==============================================================================
@@ -318,7 +318,7 @@ class _AbaqusElement3D(_Element3D):
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
             raise ValueError('A solid element with {} nodes cannot be created.'.format(len(nodes)))
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         try:
             return getattr(self, '_'+self.implementation[:4])()
         except:
@@ -344,7 +344,7 @@ class _AbaqusElement3D(_Element3D):
     #                            's6': (0, 3, 4, 7)
     #                            }
     #     self._faces = self._construct_faces(self._face_indices)
-    #     return _generate_jobdata(self)
+    #     return jobdata(self)
 
     # def _css(self):
     #     raise NotImplementedError
@@ -415,14 +415,14 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
             raise ValueError('A solid element with {} nodes cannot be created.'.format(len(nodes)))
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         try:
             return getattr(self, '_'+self.implementation[:4].lower())()  # BUG cannot reach c3d10
         except:
             raise ValueError('{} is not a valid implementation.'.format(self._implementation))
 
     def _c3d4(self):
-        return _generate_jobdata(self)
+        return jobdata(self)
 
     def _c3d10(self):
         raise NotImplementedError
@@ -473,11 +473,11 @@ class AbaqusHexahedronElement(HexahedronElement):
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
             raise ValueError('A solid element with {} nodes cannot be created.'.format(len(nodes)))
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         try:
             return getattr(self, '_'+self.implementation[:4].lower())()
         except:
             raise ValueError('{} is not a valid implementation.'.format(self._implementation))
 
     def _c3d4(self):
-        return _generate_jobdata(self)
+        return jobdata(self)

@@ -172,6 +172,7 @@ class AbaqusProblem(Problem):
             _description_
         """
         self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat)
+        self.model.to_cfm(self.model.path.joinpath(f'{self.model.name}.cfm'))
         return self.convert_results_to_sqlite(fields=fields)
 
     # ==========================================================================
@@ -257,7 +258,7 @@ class AbaqusProblem(Problem):
     # =============================================================================
 
     @timer(message='Problem generated in ')
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -268,4 +269,4 @@ class AbaqusProblem(Problem):
         -------
         input file data line (str).
         """
-        return '\n'.join([step._generate_jobdata() for step in self._steps_order])
+        return '\n'.join([step.jobdata() for step in self._steps_order])

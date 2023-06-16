@@ -37,7 +37,7 @@ class AbaqusStaticStep(StaticStep):
         self._stype = 'Static'
         self._restart = restart
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -85,13 +85,13 @@ class AbaqusStaticStep(StaticStep):
         return ''.join(data_section)
 
     def _generate_displacements_section(self):
-        return '\n'.join([pattern.load._generate_jobdata(pattern.distribution) for pattern in self.displacements]) or '**'
+        return '\n'.join([pattern.load.jobdata(pattern.distribution) for pattern in self.displacements]) or '**'
 
     def _generate_loads_section(self):
-        return '\n'.join([pattern.load._generate_jobdata(pattern.distribution) for pattern in self.loads]) or '**'
+        return '\n'.join([pattern.load.jobdata(pattern.distribution) for pattern in self.loads]) or '**'
 
     def _generate_fields_section(self):
-        return '\n'.join([pattern.load._generate_jobdata(pattern.distribution) for pattern in self.fields]) or '**'
+        return '\n'.join([pattern.load.jobdata(pattern.distribution) for pattern in self.fields]) or '**'
 
     def _generate_output_section(self):
         # TODO check restart option
@@ -100,10 +100,10 @@ class AbaqusStaticStep(StaticStep):
                         "**"]
         if self._field_outputs:
             for foutput in self._field_outputs:
-                data_section.append(foutput._generate_jobdata())
+                data_section.append(foutput.jobdata())
         if self._history_outputs:
             for houtput in self._history_outputs:
-                data_section.append(houtput._generate_jobdata())
+                data_section.append(houtput.jobdata())
         return '\n'.join(data_section)
 
 class AbaqusStaticRiksStep(StaticRiksStep):

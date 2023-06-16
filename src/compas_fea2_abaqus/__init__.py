@@ -332,9 +332,10 @@ try:
         AbaqusParametersFile,
     )
 
-    @plugin(category='fea_backends')
+    # build the plugin registry
     def _register_backend():
-        backend = compas_fea2.BACKENDS['abaqus']
+        backend = compas_fea2.BACKENDS['compas_fea2_abaqus']
+
 
         backend[Model] = AbaqusModel
 

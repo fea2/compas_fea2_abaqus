@@ -13,7 +13,7 @@ class AbaqusTimber(Timber):
         super(AbaqusTimber, self).__init__(name=name, **kwargs)
         raise NotImplementedError('The current material is not available in Abaqus')
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters

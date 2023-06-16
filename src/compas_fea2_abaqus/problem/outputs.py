@@ -28,7 +28,7 @@ class AbaqusFieldOutput(FieldOutput):
     def frequency(self):
         return self._frequency
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -61,7 +61,7 @@ class AbaqusHistoryOutput(HistoryOutput):
     def __init__(self):
         super(AbaqusHistoryOutput, self).__init__()
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
