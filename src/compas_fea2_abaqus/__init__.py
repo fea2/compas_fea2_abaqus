@@ -333,7 +333,7 @@ try:
     )
 
     @plugin(category='fea_backends')
-    def register_backend():
+    def _register_backend():
         backend = compas_fea2.BACKENDS['abaqus']
 
         backend[Model] = AbaqusModel
