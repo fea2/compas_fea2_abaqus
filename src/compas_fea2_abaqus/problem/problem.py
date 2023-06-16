@@ -6,7 +6,7 @@ from compas_fea2.problem import _Step
 from compas_fea2.utilities._utils import timer
 from compas_fea2.utilities._utils import launch_process
 
-from ..results import odb_extract
+from ..results import results_to_sql
 from ..job.input_file import AbaqusInputFile, AbaqusRestartInputFile
 
 
@@ -196,7 +196,7 @@ class AbaqusProblem(Problem):
         print('\nExtracting data from Abaqus .odb file...')
         database_path = database_path or self.path
         database_name = database_name or self.name
-        args = ['abaqus', 'python', Path(odb_extract.__file__), ','.join(fields) if fields else 'None',
+        args = ['abaqus', 'python', Path(results_to_sql.__file__), ','.join(fields) if fields else 'None',
                 database_path, database_name]
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)
@@ -246,7 +246,7 @@ class AbaqusProblem(Problem):
         print('\nExtracting data from Abaqus .odb file...')
         database_path = database_path or self.path
         database_name = database_name or self.name
-        args = ['abaqus', 'python', Path(odb_extract.__file__), ','.join(fields) if fields else 'None',
+        args = ['abaqus', 'python', Path(results_to_sql.__file__), ','.join(fields) if fields else 'None',
                 database_path, database_name]
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)
