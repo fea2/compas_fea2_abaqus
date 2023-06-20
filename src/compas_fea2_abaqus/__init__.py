@@ -171,7 +171,7 @@ from compas_fea2.problem import Problem
 # Results
 from compas_fea2.results import (
     Results,
-    StepResults,
+    NodeFieldResults,
 )
 
 # Input File
@@ -323,7 +323,7 @@ try:
     # Abaqus Results
     from .results import (
         AbaqusResults,
-        AbaqusStepResults,
+        AbaqusNodeFieldResults,
     )
 
     # Abaqus Input File
@@ -437,7 +437,7 @@ try:
         backend[HistoryOutput] = AbaqusHistoryOutput
 
         backend[Results] = AbaqusResults
-        backend[StepResults] = AbaqusStepResults
+        backend[NodeFieldResults] = AbaqusNodeFieldResults
 
         backend[InputFile] = AbaqusInputFile
         backend[ParametersFile] = AbaqusParametersFile

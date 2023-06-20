@@ -11,7 +11,7 @@ Results
     :toctree: generated/
 
     AbaqusResults
-    AbaqusStepResults
+    AbaqusNodeFieldResults
 
 """
 
@@ -22,5 +22,5 @@ from __future__ import print_function
 # additional software-based classes
 from .results import (
     AbaqusResults,
-    AbaqusStepResults,
+    AbaqusNodeFieldResults,
 )
