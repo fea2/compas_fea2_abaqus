@@ -24,6 +24,7 @@ class AbaqusModel(Model):
 
     def __init__(self, name=None, description=None, author=None, **kwargs):
         super(AbaqusModel, self).__init__(name=name, description=description, author=author, **kwargs)
+        self._starting_key = 1
 
     @classmethod
     def from_cae(cls, filepath):
@@ -160,7 +161,7 @@ class AbaqusModel(Model):
         data_section = []
         for bc, nodes in self.bcs.items():
             for part, part_nodes in groupby(nodes, lambda n: n.part):
-                data_section.append(bc.jobdata('{}-1'.format(part.name), part_nodes))
+                data_section.append(bc.jobdata(part_nodes))
         return '\n'.join(data_section) or '**'
 
     def _generate_ics_section(self):

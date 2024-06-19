@@ -1,14 +1,14 @@
 import os
 from pathlib import Path
 from compas_fea2.problem import Problem
-from compas_fea2.problem import _Step
+from compas_fea2.problem import Step
 
 from compas_fea2.utilities._utils import timer
 from compas_fea2.utilities._utils import launch_process
 
 from ..results import results_to_sql
 from ..job.input_file import AbaqusInputFile, AbaqusRestartInputFile
-
+import compas_fea2_abaqus
 
 class AbaqusProblem(Problem):
     """Abaqus implementation of :class:`Problem`.\n"""
@@ -22,27 +22,25 @@ class AbaqusProblem(Problem):
     # =========================================================================
     def _build_command(self, path, name, **kwargs):
         # Set options
-        option_keywords = []
         overwrite_kw = ''
         user_sub_kw = ''
-        exe_kw = 'abaqus'
+        exe_cmd = os.path.join(kwargs.get('exe', None) or compas_fea2_abaqus.EXE, 'abaqus')
+
+        option_keywords = []
         if kwargs.get('overwrite', None):
             option_keywords.append('ask_delete=OFF')
         if kwargs.get('user_mat', None):
             raise NotImplementedError
             umat_path = problem.materials[user_mat].sub_path
             user_sub_kw = 'user={}'.format(umat_path)
-        if kwargs.get('exe', None):
-            raise NotImplementedError()
-            raise NotADirectoryError()
-            exe_kw = exe
         if kwargs.get('oldjob', None):
             option_keywords.append('oldjob={}'.format(kwargs['oldjob']))
         if kwargs.get('cpus', None):
             option_keywords.append('cpus={}'.format(kwargs['cpus']))
 
-        return 'cd {} && abaqus job={} interactive resultsformat=odb {}'.format(
-            path, name, ' '.join(option_keywords))
+        option_keywords = ' '.join(option_keywords)
+
+        return f'cd {path} && {exe_cmd} job={name} interactive resultsformat=odb {option_keywords}'
         # return 'cd {} && {} {} cpus={} job={} interactive resultsformat=odb {}'.format(
         #     path, exe_kw, user_sub_kw, cpus, name, overwrite_kw)
 
@@ -172,14 +170,14 @@ class AbaqusProblem(Problem):
             _description_
         """
         self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat)
-        self.model.to_cfm(self.model.path.joinpath(f'{self.model.name}.cfm'))
+        # self.model.to_cfm(self.model.path.joinpath(f'{self.model.name}.cfm'))
         return self.convert_results_to_sqlite(fields=fields)
 
     # ==========================================================================
     # Extract results
     # ==========================================================================
     @timer(message='Data extracted from Abaqus .odb file in')
-    def convert_results_to_sqlite(self, database_path=None, database_name=None, fields=None):
+    def convert_results_to_sqlite(self, database_path=None, database_name=None, fields=None, **kwargs):
         """Extract data from the Abaqus .odb file and store into a SQLite database.
 
         Parameters
@@ -196,7 +194,7 @@ class AbaqusProblem(Problem):
         print('\nExtracting data from Abaqus .odb file...')
         database_path = database_path or self.path
         database_name = database_name or self.name
-        args = ['abaqus', 'python', Path(results_to_sql.__file__), ','.join(fields) if fields else 'None',
+        args = [os.path.join(kwargs.get('exe', None) or compas_fea2_abaqus.EXE, 'abaqus'), 'python', Path(results_to_sql.__file__), ','.join(fields) if fields else 'None',
                 database_path, database_name]
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)

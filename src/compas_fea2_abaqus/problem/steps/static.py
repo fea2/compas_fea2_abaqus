@@ -85,13 +85,13 @@ class AbaqusStaticStep(StaticStep):
         return ''.join(data_section)
 
     def _generate_displacements_section(self):
-        return '\n'.join([pattern.load.jobdata(pattern.distribution) for pattern in self.displacements]) or '**'
+        return '\n'.join([load.jobdata(node) for pattern in self.displacements for node, load in pattern.node_load]) or '**'
 
     def _generate_loads_section(self):
-        return '\n'.join([pattern.load.jobdata(pattern.distribution) for pattern in self.loads]) or '**'
+        return '\n'.join([load.jobdata(node) for pattern in self.loads for node, load in pattern.node_load]) or '**'
 
     def _generate_fields_section(self):
-        return '\n'.join([pattern.load.jobdata(pattern.distribution) for pattern in self.fields]) or '**'
+        return '\n'.join([load.jobdata(node) for pattern in self.fields for node, load in pattern.node_load]) or '**'
 
     def _generate_output_section(self):
         # TODO check restart option

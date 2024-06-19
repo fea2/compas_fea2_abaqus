@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 from compas_fea2.model import DeformablePart, RigidPart
-
+from collections import defaultdict
 
 def jobdata(obj):
     """Generate the string information for the input file.
@@ -146,30 +146,18 @@ class AbaqusDeformablePart(DeformablePart):
             {implementation:{section:{orientation: [elements]},},}
         """
 
-        # group elements by type and section
-        implementations = set(map(lambda x: x._implementation, self.elements))
-        # group by type
-        grouped_elements = {implementation: [
-            el for el in self.elements if el._implementation == implementation] for implementation in implementations}
-        # subgroup by section
-        for implementation, elements in grouped_elements.items():
-            sections = set(map(lambda x: x.section, elements))
-            elements = {section: [el for el in elements if el.section == section] for section in sections}
-            # subgroup by orientation
-            for section, sub_elements in elements.items():
-                orientations = set(map(lambda x: '_'.join(str(i) for i in x._orientation)
-                                       if hasattr(x, '_orientation') else None, sub_elements))
-                elements_by_orientation = {}
-                for orientation in orientations:
-                    elements_by_orientation.setdefault(orientation, set())
-                    for el in sub_elements:
-                        if hasattr(el, '_orientation'):
-                            if '_'.join(str(i) for i in el._orientation) == orientation:
-                                elements_by_orientation[orientation].add(el)
-                        else:
-                            elements_by_orientation[None].add(el)
-                elements[section] = elements_by_orientation
-            grouped_elements[implementation] = elements
+        # Group elements by implementation
+        grouped_elements = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+
+        for el in self.elements:
+            implementation = el._implementation
+            section = el.section
+            try:
+                orientation = '_'.join(str(i) for i in el.frame.xaxis)
+            except:
+                orientation = None
+
+            grouped_elements[implementation][section][orientation].add(el)
 
         return grouped_elements
 

@@ -2,9 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from compas_fea2.problem import PointLoad
-from compas_fea2.problem import LineLoad
-from compas_fea2.problem import AreaLoad
+from compas_fea2.problem import NodeLoad
 from compas_fea2.problem import GravityLoad
 from compas_fea2.problem import TributaryLoad
 from compas_fea2.problem import PrestressLoad
@@ -17,9 +15,9 @@ from typing import Iterable
 dofs = ['x',  'y',  'z',  'xx', 'yy', 'zz']
 
 
-class AbaqusPointLoad(PointLoad):
+class AbaqusNodeLoad(NodeLoad):
     """Abaqus implementation of :class:`PointLoad`.\n"""
-    __doc__ += PointLoad.__doc__
+    __doc__ += NodeLoad.__doc__
     """
     Additional Parameters
     ---------------------
@@ -51,7 +49,7 @@ class AbaqusPointLoad(PointLoad):
     """
 
     def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes='global', modify=False, follow=False, name=None, **kwargs):
-        super(AbaqusPointLoad, self).__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
+        super(AbaqusNodeLoad, self).__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
 
         self._modify = ', OP={}'.format(modify) if modify else ''  # In abaqus the default is MOD
         self._follow = ', follower' if follow else ''
@@ -86,24 +84,6 @@ class AbaqusPointLoad(PointLoad):
                 if getattr(self, dof):
                     data_section += ['{}-1.{}, {}, {}'.format(node.part.name, node.key+1, comp, self.components[dof])]
         return '\n'.join(data_section)
-
-
-class AbaqusLineLoad(LineLoad):
-    """Abaqus implementation of :class:`LineLoad`.\n"""
-    __doc__ += LineLoad.__doc__
-
-    def __init__(self, elements, x, y, z, xx, yy, zz, axes, name=None, **kwargs):
-        super(AbaqusLineLoad, self).__init__(elements, x, y, z, xx, yy, zz, axes, name=name, **kwargs)
-        raise NotImplementedError
-
-
-class AbaqusAreaLoad(AreaLoad):
-    """Abaqus implementation of :class:`AreaLoad`.\n"""
-    __doc__ += AreaLoad.__doc__
-
-    def __init__(self, elements, x, y, z, axes, name=None, **kwargs):
-        super(AbaqusAreaLoad, self).__init__(elements, x, y, z, axes, name=name, **kwargs)
-        raise NotImplementedError
 
 
 class AbaqusGravityLoad(GravityLoad):

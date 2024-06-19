@@ -26,9 +26,7 @@ from .displacements import (
 
 # Abaqus Loads
 from .loads import (
-    AbaqusPointLoad,
-    AbaqusLineLoad,
-    AbaqusAreaLoad,
+    AbaqusNodeLoad,
     AbaqusGravityLoad,
     AbaqusPrestressLoad,
     AbaqusHarmonicPointLoad,

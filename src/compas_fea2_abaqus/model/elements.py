@@ -10,9 +10,10 @@ from compas_fea2.model import MembraneElement
 from compas_fea2.model import _Element3D
 from compas_fea2.model import TetrahedronElement
 from compas_fea2.model import HexahedronElement
+from compas_fea2.model import LinkElement
 
 
-def jobdata(element):
+def _jobdata(element):
     """Generates the common string information for the input file of all the
     elements.
 
@@ -30,7 +31,7 @@ def jobdata(element):
     input file data line (str).
 
     """
-    return '{0}, {1}'.format(element.key+1, ','.join(str(node.key+1) for node in element.nodes))
+    return '{0}, {1}'.format(element.input_key, ','.join(str(node.input_key) for node in element.nodes))
 
 
 # ==============================================================================
@@ -118,11 +119,10 @@ class AbaqusBeamElement(BeamElement):
         self._interpolation = interpolation
         self._hybrid = hybrid
         self._elset = None
-        self._orientation = frame  # FIXME this is useless
 
     def jobdata(self):
         if any(x in self.implementation for x in ['B3', 'PIPE']):
-            return jobdata(self)
+            return _jobdata(self)
         else:
             raise NotImplementedError
 
@@ -146,7 +146,15 @@ class AbaqusTrussElement(TrussElement):
         return getattr(self, '_'+self._type.lower())()
 
     def _t3d(self):
-        return jobdata(self)
+        return _jobdata(self)
+
+
+class AbaqusLinkElement(LinkElement):
+    """Abaqus implementation of :class:`TrussElement`\n"""
+    __doc__ += TrussElement.__doc__
+
+    def __init__(self, nodes, section, implementation=None, rigid=False, **kwargs):
+        super(AbaqusLinkElement, self).__init__(nodes, section=section, implementation=implementation, rigid=rigid, **kwargs)
 
 # ==============================================================================
 # 2D elements
@@ -194,8 +202,8 @@ class AbaqusShellElement(ShellElement):
     The `Open Section(OS)` formulation is currently under development.
     """
 
-    def __init__(self, nodes, section, frame=None, type='S', reduced=False, optional=None, warping=False, implementation=None, rigid=False, name=None, **kwargs):
-        super(AbaqusShellElement, self).__init__(nodes=nodes, section=section, frame=frame,
+    def __init__(self, nodes, section, type='S', reduced=False, optional=None, warping=False, implementation=None, rigid=False, name=None, **kwargs):
+        super(AbaqusShellElement, self).__init__(nodes=nodes, section=section,
                                                  implementation=implementation or ''.join([type if not rigid else 'R3D',
                                                                                            str(len(nodes)),
                                                                                            'R' if reduced else '',
@@ -213,13 +221,13 @@ class AbaqusShellElement(ShellElement):
         return getattr(self, '_'+self._type.lower())()
 
     def _s(self):
-        return jobdata(self)
+        return _jobdata(self)
 
     def _sc(self):
         raise NotImplementedError()
 
     def _r3d4(self):
-        return jobdata(self)
+        return _jobdata(self)
 
 
 class AbaqusMembraneElement(MembraneElement):
@@ -265,7 +273,7 @@ class AbaqusMembraneElement(MembraneElement):
     def jobdata(self):
         if self._type != 'M3D':
             raise ValueError('{} is not a valid implementation model.'.format(self._type))
-        return jobdata(self)
+        return _jobdata(self)
 
 
 # ==============================================================================
@@ -422,7 +430,7 @@ class AbaqusTetrahedronElement(TetrahedronElement):
             raise ValueError('{} is not a valid implementation.'.format(self._implementation))
 
     def _c3d4(self):
-        return jobdata(self)
+        return _jobdata(self)
 
     def _c3d10(self):
         raise NotImplementedError
@@ -480,4 +488,4 @@ class AbaqusHexahedronElement(HexahedronElement):
             raise ValueError('{} is not a valid implementation.'.format(self._implementation))
 
     def _c3d4(self):
-        return jobdata(self)
+        return _jobdata(self)

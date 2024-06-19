@@ -6,13 +6,14 @@ compas_fea2_abaqus
 
 from __future__ import print_function
 
+import os
+from dotenv import load_dotenv
+
 __author__ = ["Francesco Ranaudo"]
 __copyright__ = "Francesco Ranaudo"
 __license__ = "MIT License"
 __email__ = "ranaudo@arch.ethz.ch"
 __version__ = "0.1.0"
-
-import os
 
 HERE = os.path.dirname(__file__)
 
@@ -29,80 +30,22 @@ import compas_fea2
 
 from compas.plugins import plugin
 
-# Materials
-from compas_fea2.model.materials import (
-    ElasticIsotropic,
-    ElasticOrthotropic,
-    ElasticPlastic,
-    Stiff,
-    UserMaterial,
-    Concrete,
-    ConcreteDamagedPlasticity,
-    ConcreteSmearedCrack,
-    Steel,
-    Timber,
-)
-
-# Boundary Conditions
-from compas_fea2.model.bcs import (
-    GeneralBC,
-    FixedBC,
-    ClampBCXX,
-    ClampBCYY,
-    ClampBCZZ,
-    PinnedBC,
-    RollerBCX,
-    RollerBCXY,
-    RollerBCXZ,
-    RollerBCY,
-    RollerBCYZ,
-    RollerBCZ,
-)
-
-# Constraints
-from compas_fea2.model.constraints import (
-    TieMPC,
-    BeamMPC,
-    TieConstraint,
-)
-
-# Intial Conditions
-from compas_fea2.model.ics import (
-    InitialTemperatureField,
-    InitialStressField,
-)
+# Models
+from compas_fea2.model import Model
+from compas_fea2.model import DeformablePart
+from compas_fea2.model import RigidPart
+from compas_fea2.model import Node
 
 # Elements
 from compas_fea2.model.elements import (
     MassElement,
+    LinkElement,
     BeamElement,
     TrussElement,
     MembraneElement,
     ShellElement,
     _Element3D,
     TetrahedronElement,
-    HexahedronElement,
-)
-
-# Groups
-from compas_fea2.model.groups import (
-    NodesGroup,
-    ElementsGroup,
-    FacesGroup,
-)
-
-# Models
-from compas_fea2.model import Model
-
-# Nodes
-from compas_fea2.model import Node
-
-# Parts
-from compas_fea2.model import DeformablePart, RigidPart
-
-# Releases
-from compas_fea2.model.releases import (
-    BeamEndPinRelease,
 )
 
 # Sections
@@ -126,6 +69,66 @@ from compas_fea2.model.sections import (
     SolidSection,
 )
 
+# Materials
+from compas_fea2.model.materials.material import (
+    ElasticIsotropic,
+    ElasticOrthotropic,
+    ElasticPlastic,
+    Stiff,
+    UserMaterial,
+)
+from compas_fea2.model.materials.concrete import (
+    Concrete,
+    ConcreteDamagedPlasticity,
+    ConcreteSmearedCrack,
+)
+from compas_fea2.model.materials.steel import (
+    Steel,
+)
+
+# Groups
+from compas_fea2.model.groups import (
+    NodesGroup,
+    ElementsGroup,
+    FacesGroup,
+)
+
+# Constraints
+from compas_fea2.model.constraints import (
+    TieConstraint,
+)
+
+# Connectors
+from compas_fea2.model.connectors import (
+    SpringConnector,
+    ZeroLengthSpringConnector,
+)
+
+# Releases
+from compas_fea2.model.releases import (
+    BeamEndPinRelease,
+)
+
+# Boundary Conditions
+from compas_fea2.model.bcs import (
+    FixedBC,
+    FixedBCX,
+    FixedBCY,
+    FixedBCZ,
+    ClampBCXX,
+    ClampBCYY,
+    ClampBCZZ,
+    PinnedBC,
+    RollerBCX,
+    RollerBCXY,
+    RollerBCXZ,
+    RollerBCY,
+    RollerBCYZ,
+    RollerBCZ,
+)
+
+# Problem
+from compas_fea2.problem import Problem
 
 # Steps
 from compas_fea2.problem.steps import (
@@ -138,25 +141,27 @@ from compas_fea2.problem.steps import (
     QuasiStaticStep,
     DirectCyclicStep,
 )
-# Displacements
-from compas_fea2.problem.displacements import (
-    GeneralDisplacement,
-)
-# Fields
-from compas_fea2.problem.fields import (
-    PrescribedTemperatureField,
-)
+
 # Loads
 from compas_fea2.problem.loads import (
-    PointLoad,
-    LineLoad,
-    AreaLoad,
+    NodeLoad,
+    EdgeLoad,
+    FaceLoad,
     TributaryLoad,
     PrestressLoad,
     GravityLoad,
     HarmonicPointLoad,
     HarmonicPressureLoad,
-    ThermalLoad
+)
+
+# Displacements
+from compas_fea2.problem.displacements import (
+    GeneralDisplacement,
+)
+
+# Displacements
+from compas_fea2.problem.combinations import (
+    LoadCombination,
 )
 
 # Outputs
@@ -165,13 +170,13 @@ from compas_fea2.problem.outputs import (
     HistoryOutput,
 )
 
-# Problem
-from compas_fea2.problem import Problem
-
 # Results
 from compas_fea2.results import (
-    Results,
-    NodeFieldResults,
+    Result,
+    DisplacementResult,
+    StressResult,
+    DisplacementFieldResults,
+    StressFieldResults,
 )
 
 # Input File
@@ -179,26 +184,28 @@ from compas_fea2.job import (
     InputFile,
     ParametersFile,
 )
+
 # =========================================================================
-#                           ABAQUS CLASSES
+#                           Abaqus CLASSES
 # =========================================================================
 
 try:
     # Abaqus Models
     from .model import AbaqusModel
-    from .model import AbaqusDeformablePart, AbaqusRigidPart
+    from .model import AbaqusDeformablePart
+    from .model import AbaqusRigidPart
     from .model import AbaqusNode
 
     # Abaqus Elements
     from .model.elements import (
         AbaqusMassElement,
+        AbaqusLinkElement,
         AbaqusBeamElement,
         AbaqusTrussElement,
         AbaqusMembraneElement,
         AbaqusShellElement,
         _AbaqusElement3D,
         AbaqusTetrahedronElement,
-        AbaqusHexahedronElement,
     )
 
     # Abaqus Sections
@@ -223,17 +230,20 @@ try:
     )
 
     # Abaqus Materials
-    from .model.materials import (
+    from .model.materials.material import (
         AbaqusElasticIsotropic,
         AbaqusElasticOrthotropic,
         AbaqusElasticPlastic,
         AbaqusStiff,
         AbaqusUserMaterial,
+    )
+    from .model.materials.concrete import (
         AbaqusConcrete,
         AbaqusConcreteDamagedPlasticity,
         AbaqusConcreteSmearedCrack,
+    )
+    from .model.materials.steel import (
         AbaqusSteel,
-        AbaqusTimber,
     )
 
     # Abaqus Groups
@@ -245,15 +255,13 @@ try:
 
     # Abaqus Constraints
     from .model.constraints import (
-        AbaqusTieMPC,
-        AbaqusBeamMPC,
         AbaqusTieConstraint,
     )
 
-    # Abaqus Initial Conditions
-    from .model.ics import (
-        AbaqusInitialTemperatureField,
-        AbaqusInitialStressField,
+    # Abaqus Connectors
+    from .model.connectors import (
+    AbaqusSpringConnector,
+    AbaqusZeroLengthSpringConnector,
     )
 
     # Abaqus release
@@ -263,11 +271,13 @@ try:
 
     # Abaqus Boundary Conditions
     from .model.bcs import (
-        AbaqusGeneralBC,
         AbaqusFixedBC,
-        AbaqusFixedBCXX,
-        AbaqusFixedBCYY,
-        AbaqusFixedBCZZ,
+        AbaqusFixedBCX,
+        AbaqusFixedBCY,
+        AbaqusFixedBCZ,
+        AbaqusClampBCXX,
+        AbaqusClampBCYY,
+        AbaqusClampBCZZ,
         AbaqusPinnedBC,
         AbaqusRollerBCX,
         AbaqusRollerBCXY,
@@ -291,27 +301,25 @@ try:
         AbaqusQuasiStaticStep,
         AbaqusDirectCyclicStep,
     )
+
     # Abaqus Loads
     from .problem.loads import (
-        AbaqusPointLoad,
-        AbaqusLineLoad,
-        AbaqusAreaLoad,
+        AbaqusNodeLoad,
         AbaqusTributaryLoad,
         AbaqusPrestressLoad,
         AbaqusGravityLoad,
         AbaqusHarmonicPointLoad,
         AbaqusHarmonicPressureLoad,
-        AbaqusThermalLoad,
-    )
-
-    # Abaqus Fields
-    from .problem.fields import (
-        AbaqusPrescribedTemperatureField,
     )
 
     # Abaqus Displacements
     from .problem.displacements import (
         AbaqusGeneralDisplacement,
+    )
+
+    # Abaqus Displacements
+    from .problem.combinations import (
+        AbaqusLoadCombination,
     )
 
     # Abaqus outputs
@@ -322,36 +330,36 @@ try:
 
     # Abaqus Results
     from .results import (
-        AbaqusResults,
-        AbaqusNodeFieldResults,
+        AbaqusResult,
+        AbaqusDisplacementResult,
+        AbaqusStressResult,
+        AbaqusDisplacementFieldResults,
+        AbaqusStressFieldResults,
     )
 
     # Abaqus Input File
-    from .job import(
+    from .job import (
         AbaqusInputFile,
         AbaqusParametersFile,
     )
 
     # build the plugin registry
     def _register_backend():
-        backend = compas_fea2.BACKENDS['compas_fea2_abaqus']
-
+        backend = compas_fea2.BACKENDS["compas_fea2_abaqus"]
 
         backend[Model] = AbaqusModel
-
         backend[DeformablePart] = AbaqusDeformablePart
         backend[RigidPart] = AbaqusRigidPart
-
         backend[Node] = AbaqusNode
 
         backend[MassElement] = AbaqusMassElement
+        backend[LinkElement] = AbaqusLinkElement
         backend[BeamElement] = AbaqusBeamElement
         backend[TrussElement] = AbaqusTrussElement
         backend[MembraneElement] = AbaqusMembraneElement
         backend[ShellElement] = AbaqusShellElement
         backend[_Element3D] = _AbaqusElement3D
         backend[TetrahedronElement] = AbaqusTetrahedronElement
-        backend[HexahedronElement] = AbaqusHexahedronElement
 
         backend[AngleSection] = AbaqusAngleSection
         backend[BeamSection] = AbaqusBeamSection
@@ -380,26 +388,25 @@ try:
         backend[ConcreteDamagedPlasticity] = AbaqusConcreteDamagedPlasticity
         backend[ConcreteSmearedCrack] = AbaqusConcreteSmearedCrack
         backend[Steel] = AbaqusSteel
-        backend[Timber] = AbaqusTimber
 
         backend[NodesGroup] = AbaqusNodesGroup
         backend[ElementsGroup] = AbaqusElementsGroup
         backend[FacesGroup] = AbaqusFacesGroup
 
-        backend[TieMPC] = AbaqusTieMPC
-        backend[BeamMPC] = AbaqusBeamMPC
         backend[TieConstraint] = AbaqusTieConstraint
+
+        backend[SpringConnector] = AbaqusSpringConnector
+        backend[ZeroLengthSpringConnector] = AbaqusZeroLengthSpringConnector
 
         backend[BeamEndPinRelease] = AbaqusBeamEndPinRelease
 
-        backend[InitialTemperatureField] = AbaqusInitialTemperatureField
-        backend[InitialStressField] = AbaqusInitialStressField
-
-        backend[GeneralBC] = AbaqusGeneralBC
         backend[FixedBC] = AbaqusFixedBC
-        backend[ClampBCXX] = AbaqusFixedBCXX
-        backend[ClampBCYY] = AbaqusFixedBCYY
-        backend[ClampBCZZ] = AbaqusFixedBCZZ
+        backend[FixedBCX] = AbaqusFixedBCX
+        backend[FixedBCY] = AbaqusFixedBCY
+        backend[FixedBCZ] = AbaqusFixedBCZ
+        backend[ClampBCXX] = AbaqusClampBCXX
+        backend[ClampBCYY] = AbaqusClampBCYY
+        backend[ClampBCZZ] = AbaqusClampBCZZ
         backend[PinnedBC] = AbaqusPinnedBC
         backend[RollerBCX] = AbaqusRollerBCX
         backend[RollerBCXY] = AbaqusRollerBCXY
@@ -420,28 +427,76 @@ try:
         backend[DirectCyclicStep] = AbaqusDirectCyclicStep
 
         backend[GravityLoad] = AbaqusGravityLoad
-        backend[PointLoad] = AbaqusPointLoad
-        backend[LineLoad] = AbaqusLineLoad
-        backend[AreaLoad] = AbaqusAreaLoad
+        backend[NodeLoad] = AbaqusNodeLoad
         backend[TributaryLoad] = AbaqusTributaryLoad
         backend[PrestressLoad] = AbaqusPrestressLoad
         backend[HarmonicPointLoad] = AbaqusHarmonicPointLoad
         backend[HarmonicPressureLoad] = AbaqusHarmonicPressureLoad
-        backend[ThermalLoad] = AbaqusThermalLoad
 
         backend[GeneralDisplacement] = AbaqusGeneralDisplacement
 
-        backend[PrescribedTemperatureField] = AbaqusPrescribedTemperatureField
+        backend[LoadCombination] = AbaqusLoadCombination
 
         backend[FieldOutput] = AbaqusFieldOutput
         backend[HistoryOutput] = AbaqusHistoryOutput
 
-        backend[Results] = AbaqusResults
-        backend[NodeFieldResults] = AbaqusNodeFieldResults
+        backend[Result] = AbaqusResult
+        backend[DisplacementResult] = AbaqusDisplacementResult
+        backend[StressResult] = AbaqusStressResult
+        backend[DisplacementFieldResults] = AbaqusDisplacementFieldResults
+        backend[StressFieldResults] = AbaqusStressFieldResults
 
         backend[InputFile] = AbaqusInputFile
         backend[ParametersFile] = AbaqusParametersFile
 
-        print('Abaqus implementations registered...')
+        print("Abaqus implementations registered...")
+
 except:
     raise ErrorDuringImport()
+
+def init_fea2_abaqus(exe):
+    """Create a default environment file if it doesn't exist and loads its variables.
+
+    Parameters
+    ----------
+    verbose : bool, optional
+        Be verbose when printing output, by default False
+    point_overlap : bool, optional
+        Allow two nodes to be at the same location, by default True
+    global_tolerance : int, optional
+        Tolerance for the model, by default 1
+    precision : str, optional
+        Values approximation, by default '3f'
+
+    """
+
+    env_path = os.path.abspath(os.path.join(HERE, ".env"))
+    with open(env_path, "x") as f:
+        f.write(
+            "\n".join(
+                [
+                    "EXE={}".format(exe),
+                ]
+            )
+        )
+    load_dotenv(env_path)
+
+
+if not load_dotenv():
+
+    from sys import platform
+
+    if platform == "linux" or platform == "linux2":
+        # linux
+        raise NotImplementedError()
+    elif platform == "darwin":
+        # OS X
+        raise SystemError("Abaqus is not available on Mac")
+    elif platform == "win32":
+        # Windows
+        exe = "C:/SIMULIA/Commands"
+    else:
+        raise ValueError("you must specify the location of the solver.")
+    init_fea2_abaqus(exe)
+
+EXE = os.getenv("EXE")

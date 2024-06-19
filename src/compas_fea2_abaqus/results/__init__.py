@@ -21,6 +21,9 @@ from __future__ import print_function
 
 # additional software-based classes
 from .results import (
-    AbaqusResults,
-    AbaqusNodeFieldResults,
+    AbaqusResult,
+    AbaqusDisplacementResult,
+    AbaqusStressResult,
+    AbaqusDisplacementFieldResults,
+    AbaqusStressFieldResults,
 )
