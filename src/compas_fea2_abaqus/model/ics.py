@@ -29,7 +29,7 @@ class AbaqusInitialTemperatureField(InitialTemperatureField):
         data_section = ['** Name: {} Type: Temperature Field'.format(self.name),
                         '*Initial Conditions, type=TEMPERATURE']
         for node in nodes:
-            data_section += ['{}.{}, {}'.format(instance, node.key+1, self._t)]
+            data_section += ['{}.{}, {}'.format(instance, node.input_key, self._t)]
         return '\n'.join(data_section)
 
 

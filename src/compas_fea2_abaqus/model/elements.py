@@ -10,7 +10,6 @@ from compas_fea2.model import MembraneElement
 from compas_fea2.model import _Element3D
 from compas_fea2.model import TetrahedronElement
 from compas_fea2.model import HexahedronElement
-from compas_fea2.model import LinkElement
 
 
 def _jobdata(element):
@@ -31,7 +30,7 @@ def _jobdata(element):
     input file data line (str).
 
     """
-    return '{0}, {1}'.format(element.input_key, ','.join(str(node.input_key) for node in element.nodes))
+    return "{0}, {1}".format(element.input_key, ",".join(str(node.input_key) for node in element.nodes))
 
 
 # ==============================================================================
@@ -39,11 +38,11 @@ def _jobdata(element):
 # ==============================================================================
 class AbaqusMassElement(MassElement):
     """Abaqus implementation of :class:`MassElement`\n"""
+
     __doc__ += MassElement.__doc__
 
     def __init__(self, *, node, section, name=None, **kwargs):
-        super(AbaqusMassElement, self).__init__(nodes=[node],
-                                                section=section, name=name, **kwargs)
+        super(AbaqusMassElement, self).__init__(nodes=[node], section=section, name=name, **kwargs)
 
     def jobdata(self):
         """Generates the string information for the input file.
@@ -61,12 +60,15 @@ class AbaqusMassElement(MassElement):
 {0}, {1}
 *MASS, ELSET={0}
 {1}
-""".format(self.elset, self.node)
+""".format(
+            self.elset, self.node
+        )
 
 
 # ==============================================================================
 # 1D elements
 # ==============================================================================
+
 
 class AbaqusBeamElement(BeamElement):
     """Abaqus implementation of :class:`BeamElement`.
@@ -80,6 +82,7 @@ class AbaqusBeamElement(BeamElement):
 
 
     """
+
     __doc__ += BeamElement.__doc__
     __doc__ += """
     Additional Parameters
@@ -110,18 +113,33 @@ class AbaqusBeamElement(BeamElement):
 
     """
 
-    def __init__(self, nodes, section, frame=[0.0, 0.0, -1.0], type='B3', interpolation=1, hybrid=None, implementation=None, name=None, **kwargs):
-        super(AbaqusBeamElement, self).__init__(nodes=nodes, section=section,
-                                                frame=frame, implementation=implementation or ''.join([type,
-                                                                                                       str(interpolation),
-                                                                                                       'H' if hybrid else '']), name=name, **kwargs)
+    def __init__(
+        self,
+        nodes,
+        section,
+        frame=[0.0, 0.0, -1.0],
+        type="B3",
+        interpolation=1,
+        hybrid=None,
+        implementation=None,
+        name=None,
+        **kwargs
+    ):
+        super(AbaqusBeamElement, self).__init__(
+            nodes=nodes,
+            section=section,
+            frame=frame,
+            implementation=implementation or "".join([type, str(interpolation), "H" if hybrid else ""]),
+            name=name,
+            **kwargs
+        )
         self._type = type
         self._interpolation = interpolation
         self._hybrid = hybrid
         self._elset = None
 
     def jobdata(self):
-        if any(x in self.implementation for x in ['B3', 'PIPE']):
+        if any(x in self.implementation for x in ["B3", "PIPE"]):
             return _jobdata(self)
         else:
             raise NotImplementedError
@@ -129,32 +147,34 @@ class AbaqusBeamElement(BeamElement):
 
 class AbaqusTrussElement(TrussElement):
     """Abaqus implementation of :class:`TrussElement`\n"""
+
     __doc__ += TrussElement.__doc__
 
-    def __init__(self, nodes, section, type='T3D', name=None, **kwargs):
-        super(AbaqusTrussElement, self).__init__(nodes=nodes, section=section,
-                                                 implementation=''.join([type,
-                                                                         str(len(nodes)),
-                                                                         ]), name=name, **kwargs)
+    def __init__(self, nodes, section, type="T3D", name=None, **kwargs):
+        super(AbaqusTrussElement, self).__init__(
+            nodes=nodes,
+            section=section,
+            implementation="".join(
+                [
+                    type,
+                    str(len(nodes)),
+                ]
+            ),
+            name=name,
+            **kwargs
+        )
         self._elset = None
         self._orientation = None
         self._type = type
         if len(nodes) not in [2, 3]:
-            raise ValueError('A truss element with {} nodes cannot be created'.format(len(nodes)))
+            raise ValueError("A truss element with {} nodes cannot be created".format(len(nodes)))
 
     def jobdata(self):
-        return getattr(self, '_'+self._type.lower())()
+        return getattr(self, "_" + self._type.lower())()
 
     def _t3d(self):
         return _jobdata(self)
 
-
-class AbaqusLinkElement(LinkElement):
-    """Abaqus implementation of :class:`TrussElement`\n"""
-    __doc__ += TrussElement.__doc__
-
-    def __init__(self, nodes, section, implementation=None, rigid=False, **kwargs):
-        super(AbaqusLinkElement, self).__init__(nodes, section=section, implementation=implementation, rigid=rigid, **kwargs)
 
 # ==============================================================================
 # 2D elements
@@ -172,23 +192,23 @@ class AbaqusShellElement(ShellElement):
 
 
     """
+
     __doc__ += ShellElement.__doc__
     __doc__ += """
     Additional Parameters
     ---------------------
-    type : str, optional
-        Name of the implementation model.
+    implementation : str, optional
+        Name of the implementation model to be used, by default `None`. This can
+        be used alternatively to the `type`, `reduced`, `optional` and `warping parameters
+        to directly define the model to be used. If both are specified, the
+        `implementation` overwrites the others.
     reduced : bool, optional
         Reduce the integration points, by default ``False``.
     optional : str, optional
         String with additional optional parameters, by default `None`.
     warping : str, optional
         Include warping effects, by default `False`.
-    implementation : str, optional
-        Name of the implementation model to be used, by default `None`. This can
-        be used alternatively to the `type`, `reduced`, `optional` and `warping parameters
-        to directly define the model to be used. If both are specified, the
-        `implementation` overwrites the others.
+
 
     Note
     ----
@@ -196,31 +216,48 @@ class AbaqusShellElement(ShellElement):
     The available implementations are listed below
 
         - S
+        - R3D
 
     Warning
     -------
     The `Open Section(OS)` formulation is currently under development.
     """
 
-    def __init__(self, nodes, section, type='S', reduced=False, optional=None, warping=False, implementation=None, rigid=False, name=None, **kwargs):
-        super(AbaqusShellElement, self).__init__(nodes=nodes, section=section,
-                                                 implementation=implementation or ''.join([type if not rigid else 'R3D',
-                                                                                           str(len(nodes)),
-                                                                                           'R' if reduced else '',
-                                                                                           optional or '',
-                                                                                           'W' if warping else '']),
-                                                 rigid=rigid,
-                                                 name=name, **kwargs)
+    def __init__(
+        self,
+        nodes,
+        section,
+        implementation="S",
+        reduced=False,
+        optional=None,
+        warping=False,
+        rigid=False,
+        name=None,
+        **kwargs
+    ):
+        implementation="".join(
+                [implementation or "S" if not rigid else "R3D", str(len(nodes)), "R" if reduced else "", optional or "", "W" if warping else ""]
+            )
+        super(AbaqusShellElement, self).__init__(
+            nodes=nodes,
+            section=section,
+            implementation=implementation,
+            rigid=rigid,
+            name=name,
+            **kwargs
+        )
         self._elset = None
-        self._type = type
         self._reduced = reduced
         self._optional = optional
         self._warping = warping
 
     def jobdata(self):
-        return getattr(self, '_'+self._type.lower())()
+        return getattr(self, "_" + self._implementation.lower())()
 
-    def _s(self):
+    def _s3(self):
+        return _jobdata(self)
+
+    def _s4(self):
         return _jobdata(self)
 
     def _sc(self):
@@ -242,6 +279,7 @@ class AbaqusMembraneElement(MembraneElement):
         - https://help.3ds.com/2022x/English/DSDoc/SIMA3DXELMRefMap/simaelm-r-membranelibrary.htm?contextscope=cloud&id=2e94e8c91da249a0bdf25601839722ed
 
     """
+
     __doc__ += MembraneElement.__doc__
     __doc__ += """
     Additional Parameters
@@ -257,22 +295,31 @@ class AbaqusMembraneElement(MembraneElement):
         `implementation` overwrites the others.
     """
 
-    def __init__(self, nodes, section, frame=None, type='M3D', reduced=False, implementation=None, name=None, **kwargs):
-        super(AbaqusMembraneElement, self).__init__(nodes=nodes, section=section, frame=frame,
-                                                    implementation=implementation or ''.join([type,
-                                                                                              str(len(nodes)),
-                                                                                              'R' if reduced and len(
-                                                                                                  nodes) > 3 else '',
-                                                                                              ]), name=name, **kwargs)
+    def __init__(self, nodes, section, frame=None, type="M3D", reduced=False, implementation=None, name=None, **kwargs):
+        super(AbaqusMembraneElement, self).__init__(
+            nodes=nodes,
+            section=section,
+            frame=frame,
+            implementation=implementation
+            or "".join(
+                [
+                    type,
+                    str(len(nodes)),
+                    "R" if reduced and len(nodes) > 3 else "",
+                ]
+            ),
+            name=name,
+            **kwargs
+        )
         self._type = type.upper()
         self._reduced = reduced
         self._elset = None
         if len(self._nodes) not in (3, 4, 6, 8, 9):
-            raise ValueError('A membrane element with {} nodes cannot be created.'.format(len(nodes)))
+            raise ValueError("A membrane element with {} nodes cannot be created.".format(len(nodes)))
 
     def jobdata(self):
-        if self._type != 'M3D':
-            raise ValueError('{} is not a valid implementation model.'.format(self._type))
+        if self._type != "M3D":
+            raise ValueError("{} is not a valid implementation model.".format(self._type))
         return _jobdata(self)
 
 
@@ -293,6 +340,7 @@ class _AbaqusElement3D(_Element3D):
         - https://help.3ds.com/2022x/English/DSDoc/SIMA3DXELMRefMap/simaelm-r-3delem.htm?contextscope=cloud&id=ef2239f0cc404c199127f51c39a2834f
 
     """
+
     __doc__ += _Element3D.__doc__
     __doc__ += """
     Additional Parameters
@@ -311,26 +359,46 @@ class _AbaqusElement3D(_Element3D):
 
     """
 
-    def __init__(self, nodes, section=None, type='C3D', reduced=False, hybrid=False, optional=None, implementation=None, name=None, **kwargs):
-        super(_AbaqusElement3D, self).__init__(nodes=nodes, section=section,
-                                               implementation=implementation or ''.join([type,
-                                                                                         str(len(nodes)),
-                                                                                         'R' if reduced else '',
-                                                                                         'H' if hybrid else '',
-                                                                                         optional or '',
-                                                                                         ]), name=name, **kwargs)
+    def __init__(
+        self,
+        nodes,
+        section=None,
+        type="C3D",
+        reduced=False,
+        hybrid=False,
+        optional=None,
+        implementation=None,
+        name=None,
+        **kwargs
+    ):
+        super(_AbaqusElement3D, self).__init__(
+            nodes=nodes,
+            section=section,
+            implementation=implementation
+            or "".join(
+                [
+                    type,
+                    str(len(nodes)),
+                    "R" if reduced else "",
+                    "H" if hybrid else "",
+                    optional or "",
+                ]
+            ),
+            name=name,
+            **kwargs
+        )
         self._type = type.upper()
         self._reduced = reduced
         self._hybrid = hybrid
         self._optional = optional
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
-            raise ValueError('A solid element with {} nodes cannot be created.'.format(len(nodes)))
+            raise ValueError("A solid element with {} nodes cannot be created.".format(len(nodes)))
 
     def jobdata(self):
         try:
-            return getattr(self, '_'+self.implementation[:4])()
+            return getattr(self, "_" + self.implementation[:4])()
         except:
-            raise ValueError('{} is not a valid implementation.'.format(self._implementation))
+            raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
     # def _c3d8(self):
     #     """A Solid cuboid element with 6 faces (extruded rectangle).
@@ -388,6 +456,7 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         - https://help.3ds.com/2022x/English/DSDoc/SIMA3DXELMRefMap/simaelm-r-3delem.htm?contextscope=cloud&id=ef2239f0cc404c199127f51c39a2834f
 
     """
+
     __doc__ += TetrahedronElement.__doc__
     __doc__ += """
     Additional Parameters
@@ -406,28 +475,46 @@ class AbaqusTetrahedronElement(TetrahedronElement):
 
     """
 
-    def __init__(self, nodes, section=None, type='C3D', reduced=False, hybrid=False, optional=None, implementation=None, name=None, **kwargs):
-        super(AbaqusTetrahedronElement, self).__init__(nodes=nodes, section=section,
-                                                       implementation=implementation or ''.join([type,
-                                                                                                 str(len(
-                                                                                                     nodes)),
-                                                                                                 'R' if reduced else '',
-                                                                                                 'H' if hybrid else '',
-                                                                                                 optional or '',
-                                                                                                 ]),
-                                                       name=name, **kwargs)
+    def __init__(
+        self,
+        nodes,
+        section=None,
+        type="C3D",
+        reduced=False,
+        hybrid=False,
+        optional=None,
+        implementation=None,
+        name=None,
+        **kwargs
+    ):
+        super(AbaqusTetrahedronElement, self).__init__(
+            nodes=nodes,
+            section=section,
+            implementation=implementation
+            or "".join(
+                [
+                    type,
+                    str(len(nodes)),
+                    "R" if reduced else "",
+                    "H" if hybrid else "",
+                    optional or "",
+                ]
+            ),
+            name=name,
+            **kwargs
+        )
         self._type = type.upper()
         self._reduced = reduced
         self._hybrid = hybrid
         self._optional = optional
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
-            raise ValueError('A solid element with {} nodes cannot be created.'.format(len(nodes)))
+            raise ValueError("A solid element with {} nodes cannot be created.".format(len(nodes)))
 
     def jobdata(self):
         try:
-            return getattr(self, '_'+self.implementation[:4].lower())()  # BUG cannot reach c3d10
+            return getattr(self, "_" + self.implementation[:4].lower())()  # BUG cannot reach c3d10
         except:
-            raise ValueError('{} is not a valid implementation.'.format(self._implementation))
+            raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
     def _c3d4(self):
         return _jobdata(self)
@@ -447,6 +534,7 @@ class AbaqusHexahedronElement(HexahedronElement):
         - https://help.3ds.com/2022x/English/DSDoc/SIMA3DXELMRefMap/simaelm-r-3delem.htm?contextscope=cloud&id=ef2239f0cc404c199127f51c39a2834f
 
     """
+
     __doc__ += HexahedronElement.__doc__
     __doc__ += """
     Additional Parameters
@@ -465,27 +553,46 @@ class AbaqusHexahedronElement(HexahedronElement):
 
     """
 
-    def __init__(self, nodes, section=None, type='C3D', reduced=False, hybrid=False, optional=None, implementation=None, name=None, **kwargs):
-        super(AbaqusHexahedronElement, self).__init__(nodes=nodes, section=section,
-                                                      implementation=implementation or ''.join([type,
-                                                                                                str(len(
-                                                                                                    nodes)),
-                                                                                                'R' if reduced else '',
-                                                                                                'H' if hybrid else '',
-                                                                                                optional or '',
-                                                                                                ]), name=name, **kwargs)
+    def __init__(
+        self,
+        nodes,
+        section=None,
+        type="C3D",
+        reduced=False,
+        hybrid=False,
+        optional=None,
+        implementation=None,
+        name=None,
+        **kwargs
+    ):
+        super(AbaqusHexahedronElement, self).__init__(
+            nodes=nodes,
+            section=section,
+            implementation=implementation
+            or "".join(
+                [
+                    type,
+                    str(len(nodes)),
+                    "R" if reduced else "",
+                    "H" if hybrid else "",
+                    optional or "",
+                ]
+            ),
+            name=name,
+            **kwargs
+        )
         self._type = type.upper()
         self._reduced = reduced
         self._hybrid = hybrid
         self._optional = optional
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
-            raise ValueError('A solid element with {} nodes cannot be created.'.format(len(nodes)))
+            raise ValueError("A solid element with {} nodes cannot be created.".format(len(nodes)))
 
     def jobdata(self):
         try:
-            return getattr(self, '_'+self.implementation[:4].lower())()
+            return getattr(self, "_" + self.implementation[:4].lower())()
         except:
-            raise ValueError('{} is not a valid implementation.'.format(self._implementation))
+            raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
     def _c3d4(self):
         return _jobdata(self)

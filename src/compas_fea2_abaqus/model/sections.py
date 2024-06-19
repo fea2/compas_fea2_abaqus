@@ -87,9 +87,11 @@ class AbaqusSpringSection(SpringSection):
 
     """
 
-    def __init__(self, forces=None, displacements=None, stiffness=None, name=None, **kwargs):
-        super().__init__(forces, displacements, stiffness, name, **kwargs)
-        raise NotImplementedError('{self.__class__.__name__} is not available in Abaqus')
+    def __init__(self, axial, lateral, rotational, **kwargs):
+        super(AbaqusSpringSection, self).__init__(axial, lateral, rotational, **kwargs)
+
+    def jobdata(self, elset):
+        return f"*Spring, elset=Springs/Dashpots-{elset}\n{1}, {1}\n1000000."
 
 # ==============================================================================
 # 1D

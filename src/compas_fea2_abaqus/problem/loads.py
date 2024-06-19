@@ -51,7 +51,7 @@ class AbaqusNodeLoad(NodeLoad):
     def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes='global', modify=False, follow=False, name=None, **kwargs):
         super(AbaqusNodeLoad, self).__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
 
-        self._modify = ', OP={}'.format(modify) if modify else ''  # In abaqus the default is MOD
+        self._modify = ', OP={}'.format(modify) if modify else ', OP=MOD'  # In abaqus the default is MOD
         self._follow = ', follower' if follow else ''
 
     @property
@@ -82,7 +82,7 @@ class AbaqusNodeLoad(NodeLoad):
         for node in nodes:
             for comp, dof in enumerate(dofs, 1):
                 if getattr(self, dof):
-                    data_section += ['{}-1.{}, {}, {}'.format(node.part.name, node.key+1, comp, self.components[dof])]
+                    data_section += ['{}-1.{}, {}, {}'.format(node.part.name, node.input_key, comp, self.components[dof])]
         return '\n'.join(data_section)
 
 

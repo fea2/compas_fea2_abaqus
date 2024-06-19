@@ -28,5 +28,5 @@ class AbaqusPrescribedTemperatureField(PrescribedTemperatureField):
         data_section = ['** Name: {} Type: Temperature Field'.format(self.name),
                         '*Temperature']
         for node in nodes:
-            data_section += ['{}-1.{}, {}'.format(node.part.name, node.key+1, self._t)]
+            data_section += ['{}-1.{}, {}'.format(node.part.name, node.input_key, self._t)]
         return '\n'.join(data_section)

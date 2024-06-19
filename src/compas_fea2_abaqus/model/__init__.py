@@ -2,16 +2,21 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-# Abaqus Models
+# Abaqus Model
 from .model import AbaqusModel
-from .parts import AbaqusDeformablePart
-from .parts import AbaqusRigidPart
+
+# Abaqus Parts
+from .parts import (
+    AbaqusDeformablePart,
+    AbaqusRigidPart,
+)
+
+# Abaqus Nodes
 from .nodes import AbaqusNode
 
 # Abaqus Elements
 from .elements import (
     AbaqusMassElement,
-    AbaqusLinkElement,
     AbaqusBeamElement,
     AbaqusTrussElement,
     AbaqusMembraneElement,
@@ -96,4 +101,16 @@ from .bcs import (
 
 from .releases import (
     AbaqusBeamEndPinRelease
+)
+
+# Abaqus Interactions
+from .interactions import (
+    AbaqusHardContactFrictionPenalty,
+    AbaqusHardContactRough,
+    AbaqusLinearContactFrictionPenalty,
+)
+
+# Abaqus Interfaces
+from .interfaces import (
+    AbaqusInterface
 )

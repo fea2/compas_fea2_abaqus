@@ -28,7 +28,7 @@ def jobdata(self, instance):
         line = ', instance='.join([line, self.part.name+'-1'])
 
     data_section.append(line)
-    data = [str(member.key+1) for member in self._members]
+    data = [str(member.input_key) for member in self._members]
     chunks = [data[x:x+15] for x in range(0, len(data), 15)]  # split data for readibility
     for chunk in chunks:
         data_section.append(', '.join(chunk))
@@ -98,7 +98,7 @@ class AbaqusFacesGroup(FacesGroup):
         """
         lines = ['*Surface, type=ELEMENT, name={}_i'.format(self._name)]
         for face in self.faces:
-            lines.append('{}-1.{}, {}'.format(self.part.name, face.element.key+1, face.tag))
+            lines.append('{}-1.{}, {}'.format(self.part.name, face.element.input_key, face.tag))
         lines.append('**')
         return '\n'.join(lines)
 

@@ -127,6 +127,21 @@ from compas_fea2.model.bcs import (
     RollerBCZ,
 )
 
+# Interactions
+from compas_fea2.model.interactions import (
+    _Interaction,
+    Contact,
+    HardContactFrictionPenalty,
+    HardContactNoFriction,
+    HardContactRough,
+    LinearContactFrictionPenalty,
+)
+
+# Interfaces
+from compas_fea2.model.interfaces import (
+    Interface
+)
+
 # Problem
 from compas_fea2.problem import Problem
 
@@ -199,7 +214,6 @@ try:
     # Abaqus Elements
     from .model.elements import (
         AbaqusMassElement,
-        AbaqusLinkElement,
         AbaqusBeamElement,
         AbaqusTrussElement,
         AbaqusMembraneElement,
@@ -287,6 +301,18 @@ try:
         AbaqusRollerBCZ,
     )
 
+    # Interactions
+    from .model.interactions import (
+        AbaqusHardContactFrictionPenalty,
+        AbaqusHardContactRough,
+        AbaqusLinearContactFrictionPenalty,
+    )
+
+    # Abaqus Interfaces
+    from .model.interfaces import (
+        AbaqusInterface
+    )
+
     # Abaqus Problem
     from .problem import AbaqusProblem
 
@@ -353,7 +379,6 @@ try:
         backend[Node] = AbaqusNode
 
         backend[MassElement] = AbaqusMassElement
-        backend[LinkElement] = AbaqusLinkElement
         backend[BeamElement] = AbaqusBeamElement
         backend[TrussElement] = AbaqusTrussElement
         backend[MembraneElement] = AbaqusMembraneElement
@@ -414,6 +439,12 @@ try:
         backend[RollerBCY] = AbaqusRollerBCY
         backend[RollerBCYZ] = AbaqusRollerBCYZ
         backend[RollerBCZ] = AbaqusRollerBCZ
+
+        backend[HardContactFrictionPenalty] = AbaqusHardContactFrictionPenalty
+        backend[HardContactRough] = AbaqusHardContactRough
+        backend[LinearContactFrictionPenalty] = AbaqusLinearContactFrictionPenalty
+
+        backend[Interface] = AbaqusInterface
 
         backend[Problem] = AbaqusProblem
 
