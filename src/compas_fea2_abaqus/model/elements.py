@@ -30,7 +30,7 @@ def _jobdata(element):
     input file data line (str).
 
     """
-    return "{0}, {1}".format(element.input_key, ",".join(str(node.input_key) for node in element.nodes))
+    return "{0}, {1}".format(element.input_key, ", ".join(str(node.input_key) for node in element.nodes))
 
 
 # ==============================================================================

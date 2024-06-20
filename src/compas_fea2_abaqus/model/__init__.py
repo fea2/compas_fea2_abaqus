@@ -73,12 +73,15 @@ from .groups import (
 # Abaqus Constraints
 from .constraints import (
     AbaqusTieConstraint,
+    AbaqusTieMPC,
+    AbaqusBeamMPC,
 )
 
 # Abaqus Connectors
 from .connectors import (
     AbaqusSpringConnector,
     AbaqusZeroLengthSpringConnector,
+    AbaqusGroundSpringConnector,
 )
 
 # Abaqus Boundary Conditions

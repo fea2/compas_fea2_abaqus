@@ -91,7 +91,7 @@ class AbaqusSpringSection(SpringSection):
         super(AbaqusSpringSection, self).__init__(axial, lateral, rotational, **kwargs)
 
     def jobdata(self, elset):
-        return f"*Spring, elset=Springs/Dashpots-{elset}\n{1}, {1}\n1000000."
+        return f"*Spring, elset=Springs/Dashpots-{elset}\n{3}\n{self.axial}"
 
 # ==============================================================================
 # 1D

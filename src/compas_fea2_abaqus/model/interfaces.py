@@ -40,7 +40,7 @@ class AbaqusInterface(Interface):
              self._slave.name)
 
         elif isinstance(self.behavior, _Constraint):
-            return "{}{}_i, {}_i\n**".format(self.behavior._generate_jobdata(), self._slave.name, self._master.name,)
+            return "{}{}_i, {}_i\n**".format(self.behavior.jobdata(), self._slave.name, self._master.name,)
 
     def _generate_controls_jobdata(self):
         return """**

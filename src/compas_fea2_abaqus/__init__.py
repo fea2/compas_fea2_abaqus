@@ -96,12 +96,15 @@ from compas_fea2.model.groups import (
 # Constraints
 from compas_fea2.model.constraints import (
     TieConstraint,
+    TieMPC,
+    BeamMPC,
 )
 
 # Connectors
 from compas_fea2.model.connectors import (
     SpringConnector,
     ZeroLengthSpringConnector,
+    GroundSpringConnector,
 )
 
 # Releases
@@ -270,12 +273,15 @@ try:
     # Abaqus Constraints
     from .model.constraints import (
         AbaqusTieConstraint,
+        AbaqusBeamMPC,
+        AbaqusTieMPC,
     )
 
     # Abaqus Connectors
     from .model.connectors import (
     AbaqusSpringConnector,
     AbaqusZeroLengthSpringConnector,
+    AbaqusGroundSpringConnector,
     )
 
     # Abaqus release
@@ -419,9 +425,12 @@ try:
         backend[FacesGroup] = AbaqusFacesGroup
 
         backend[TieConstraint] = AbaqusTieConstraint
+        backend[TieMPC] = AbaqusTieMPC
+        backend[BeamMPC] = AbaqusBeamMPC
 
         backend[SpringConnector] = AbaqusSpringConnector
         backend[ZeroLengthSpringConnector] = AbaqusZeroLengthSpringConnector
+        backend[GroundSpringConnector] = AbaqusGroundSpringConnector
 
         backend[BeamEndPinRelease] = AbaqusBeamEndPinRelease
 
