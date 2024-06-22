@@ -130,6 +130,12 @@ from compas_fea2.model.bcs import (
     RollerBCZ,
 )
 
+# Initial Conditions
+from compas_fea2.model.ics import (
+    InitialTemperatureField,
+    InitialStressField,
+)
+
 # Interactions
 from compas_fea2.model.interactions import (
     _Interaction,
@@ -307,6 +313,12 @@ try:
         AbaqusRollerBCZ,
     )
 
+    # Initial Conditions
+    from .model.ics import (
+        AbaqusInitialTemperatureField,
+        AbaqusInitialStressField,
+    )
+
     # Interactions
     from .model.interactions import (
         AbaqusHardContactFrictionPenalty,
@@ -448,6 +460,9 @@ try:
         backend[RollerBCY] = AbaqusRollerBCY
         backend[RollerBCYZ] = AbaqusRollerBCYZ
         backend[RollerBCZ] = AbaqusRollerBCZ
+
+        backend[InitialStressField] = AbaqusInitialStressField
+        backend[InitialTemperatureField] = AbaqusInitialTemperatureField
 
         backend[HardContactFrictionPenalty] = AbaqusHardContactFrictionPenalty
         backend[HardContactRough] = AbaqusHardContactRough

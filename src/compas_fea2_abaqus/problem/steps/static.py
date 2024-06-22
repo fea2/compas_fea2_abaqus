@@ -88,6 +88,7 @@ class AbaqusStaticStep(StaticStep):
         return '\n'.join([load.jobdata(node) for pattern in self.displacements for node, load in pattern.node_load]) or '**'
 
     def _generate_loads_section(self):
+        #FIXME Loads are not summed between steps
         return '\n'.join([load.jobdata(node) for pattern in self.loads for node, load in pattern.node_load]) or '**'
 
     def _generate_fields_section(self):

@@ -8,7 +8,6 @@ from compas_fea2.model import Model, RigidPart
 from compas_fea2.model import ElementsGroup, NodesGroup
 from compas_fea2.model import _Constraint, _Interaction
 from compas_fea2.model import InitialStressField, InitialTemperatureField
-from compas_fea2.model.parts import DeformablePart
 from compas_fea2.utilities._utils import timer
 
 
@@ -226,12 +225,4 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-
-        data_section = []
-        for ic, nodes in self.bcs.items():
-            for part, part_nodes in groupby(nodes, lambda n: n.part):
-                if isinstance(ic, InitialTemperatureField):
-                    data_section.append(ic.jobdata('{}-1'.format(part.name), part_nodes))
-                elif isinstance(ic, InitialStressField):
-                    data_section.append(ic.jobdata(part_nodes))
-        return '\n'.join(data_section) or '**'
+        return '\n'.join([ic.jobdata() for ic in self.ics]) or '**'

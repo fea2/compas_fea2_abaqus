@@ -8,12 +8,14 @@ from compas_fea2.model import InitialStressField
 
 class AbaqusInitialTemperatureField(InitialTemperatureField):
     """Abaqus implementation of :class:`InitialTemperatureField`\n"""
+
     __doc__ += InitialTemperatureField.__doc__
 
-    def __init__(self, temperature, name=None, **kwargs):
-        super(AbaqusInitialTemperatureField, self).__init__(temperature, name, **kwargs)
+    def __init__(self, nodes, temperature, **kwargs):
+        super(AbaqusInitialTemperatureField, self).__init__(nodes, temperature, **kwargs)
+        self._ictype = "TEMPERATURE"
 
-    def jobdata(self, instance, nodes):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -25,22 +27,22 @@ class AbaqusInitialTemperatureField(InitialTemperatureField):
         input file data line (str).
 
         """
-
-        data_section = ['** Name: {} Type: Temperature Field'.format(self.name),
-                        '*Initial Conditions, type=TEMPERATURE']
-        for node in nodes:
-            data_section += ['{}.{}, {}'.format(instance, node.input_key, self._t)]
-        return '\n'.join(data_section)
+        data_section = [f"** Name: {self.name} Type: Temperature Field\n*Initial Conditions, type={self._ictype}"]
+        for f in self.field:
+            data_section += ["{}-1.{}, {}".format(f.part.name, f.input_key, self._field_value)]
+        return "\n".join(data_section)
 
 
 class AbaqusInitialStressField(InitialStressField):
     """Abaqus implementation of :class:`InitialStressField`\n"""
+
     __doc__ += InitialStressField.__doc__
 
-    def __init__(self, stress, name=None, **kwargs):
-        super(AbaqusInitialStressField, self).__init__(stress, name, **kwargs)
+    def __init__(self, elements, stress, **kwargs):
+        super(AbaqusInitialStressField, self).__init__(elements, stress, **kwargs)
+        self._ictype = "STRESS"
 
-    def jobdata(self, elements_groups):
+    def jobdata(self):
         """Generates the string information for the input file.
 
         Parameters
@@ -52,9 +54,9 @@ class AbaqusInitialStressField(InitialStressField):
         input file data line (str).
 
         """
-
-        data_section = ['** Name: {} Type: Stress Field'.format(self.name),
-                        '*Initial Conditions, type=STRESS']
-        for elements_group in elements_groups:
-            data_section += ['{}_i, {}'.format(elements_group.name, ', '.join(str(s) for s in self._s))]
-        return '\n'.join(data_section)
+        data_section = [f"** Name: {self.name} Type: Stress Field\n*Initial Conditions, type={self._ictype}"]
+        for f in self.field:
+            data_section += [
+                "{}-1.{}, {}".format(f.part.name, f.input_key, ", ".join(str(v) for v in self._field_value))
+            ]
+        return "\n".join(data_section)

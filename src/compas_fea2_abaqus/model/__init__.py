@@ -102,6 +102,11 @@ from .bcs import (
     AbaqusRollerBCZ,
 )
 
+from .ics import(
+    AbaqusInitialStressField,
+    AbaqusInitialTemperatureField,
+)
+
 from .releases import (
     AbaqusBeamEndPinRelease
 )
