@@ -16,11 +16,3 @@ class AbaqusLoadCombination(LoadCombination):
 
     def __init__(self, factors, name=None, **kwargs):
         super(AbaqusLoadCombination, self).__init__(factors=factors, name=name, **kwargs)
-
-    def jobdata(self):
-        index = self.problem._steps_order.index(self.step)
-        factor = 1
-        #TODO check if possible to create LC in OpenSees
-        loads = '\n'.join([load.jobdata(node) for node, load in self.node_load])
-
-        return f"pattern Plain {index} {index} -fact {factor} {{\n{loads}\n}}"

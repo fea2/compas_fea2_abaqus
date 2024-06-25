@@ -22,7 +22,7 @@ from compas_fea2.model import RollerBCXZ
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
 
 
-def _jobdata(bc, nodes):
+def _jobdata(bc):
     """Generates the string information for the input file.
 
     Note
@@ -62,7 +62,7 @@ def _jobdata(bc, nodes):
 
     """
     data_section = ["** Name: {} Type: BC/Rotation".format(bc.name), "*Boundary, op=NEW"]
-    for node in nodes:
+    for node in bc.nodes:
         for comp, dof in enumerate(dofs, 1):
             if getattr(bc, dof):
                 data_section += ["{}.{}, {}, 0".format('{}-1'.format(node.part.name), node.input_key, comp)]
@@ -74,11 +74,11 @@ class AbaqusGeneralBC(GeneralBC):
 
     __doc__ += GeneralBC.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusGeneralBC, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusGeneralBC, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusFixedBC(FixedBC):
@@ -86,11 +86,11 @@ class AbaqusFixedBC(FixedBC):
 
     __doc__ += FixedBC.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusFixedBC, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusFixedBC, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusFixedBCX(FixedBCX):
@@ -98,11 +98,11 @@ class AbaqusFixedBCX(FixedBCX):
 
     __doc__ += FixedBCX.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusFixedBCX, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusFixedBCX, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusFixedBCY(FixedBCY):
@@ -110,11 +110,11 @@ class AbaqusFixedBCY(FixedBCY):
 
     __doc__ += FixedBCY.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusFixedBCY, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusFixedBCY, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusFixedBCZ(FixedBCZ):
@@ -122,11 +122,11 @@ class AbaqusFixedBCZ(FixedBCZ):
 
     __doc__ += FixedBCZ.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusFixedBCZ, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusFixedBCZ, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusPinnedBC(PinnedBC):
@@ -134,11 +134,11 @@ class AbaqusPinnedBC(PinnedBC):
 
     __doc__ += PinnedBC.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusPinnedBC, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusPinnedBC, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusClampBCXX(ClampBCXX):
@@ -146,11 +146,11 @@ class AbaqusClampBCXX(ClampBCXX):
 
     __doc__ += ClampBCXX.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusClampBCXX, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusClampBCXX, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusClampBCYY(ClampBCYY):
@@ -158,11 +158,11 @@ class AbaqusClampBCYY(ClampBCYY):
 
     __doc__ += ClampBCYY.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusClampBCYY, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusClampBCYY, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusClampBCZZ(ClampBCZZ):
@@ -170,11 +170,11 @@ class AbaqusClampBCZZ(ClampBCZZ):
 
     __doc__ += ClampBCZZ.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusClampBCZZ, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusClampBCZZ, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusRollerBCX(RollerBCX):
@@ -182,11 +182,11 @@ class AbaqusRollerBCX(RollerBCX):
 
     __doc__ += RollerBCX.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusRollerBCX, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusRollerBCX, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusRollerBCY(RollerBCY):
@@ -194,11 +194,11 @@ class AbaqusRollerBCY(RollerBCY):
 
     __doc__ += RollerBCY.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusRollerBCY, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusRollerBCY, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusRollerBCZ(RollerBCZ):
@@ -206,11 +206,11 @@ class AbaqusRollerBCZ(RollerBCZ):
 
     __doc__ += RollerBCZ.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusRollerBCZ, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusRollerBCZ, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusRollerBCXY(RollerBCXY):
@@ -218,11 +218,11 @@ class AbaqusRollerBCXY(RollerBCXY):
 
     __doc__ += RollerBCXY.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusRollerBCXY, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusRollerBCXY, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusRollerBCYZ(RollerBCYZ):
@@ -230,11 +230,11 @@ class AbaqusRollerBCYZ(RollerBCYZ):
 
     __doc__ += RollerBCYZ.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusRollerBCYZ, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusRollerBCYZ, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)
 
 
 class AbaqusRollerBCXZ(RollerBCXZ):
@@ -242,8 +242,8 @@ class AbaqusRollerBCXZ(RollerBCXZ):
 
     __doc__ += RollerBCXZ.__doc__
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusRollerBCXZ, self).__init__(name=name, **kwargs)
+    def __init__(self, nodes, name=None, **kwargs):
+        super(AbaqusRollerBCXZ, self).__init__(nodes=nodes, name=name, **kwargs)
 
-    def jobdata(self, nodes):
-        return _jobdata(self, nodes)
+    def jobdata(self):
+        return _jobdata(self)

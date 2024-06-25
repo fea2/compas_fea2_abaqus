@@ -254,7 +254,7 @@ def extract_odb_data(database_path, database_name, requested_fields):
                     while len(components_data) < len(components_names):
                         components_data.append(0.)
                     insert_field_results(conn, table_name, components_data, invariants_data, step_name,
-                                         value.instance.name[:-2], key_type, position, key-1)
+                                         value.instance.name[:-2], key_type, position, key)
         conn.commit()
 
 
@@ -269,5 +269,8 @@ if __name__ == "__main__":
     database_name = sys.argv[-1]
     fields = None if sys.argv[-3] == 'None' else sys.argv[-3].split(',')
 
-    extract_odb_data(database_path=database_path, database_name=database_name,
-                     requested_fields=fields)
+    extract_odb_data(
+        database_path=database_path,
+        database_name=database_name,
+        requested_fields=fields
+        )

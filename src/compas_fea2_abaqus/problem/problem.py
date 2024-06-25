@@ -46,7 +46,7 @@ class AbaqusProblem(Problem):
 
     @timer(message='Finished writing input file in')
     def write_restart_file(self, path, start, steps):
-        # type: (str, float, list(_Step)) -> AbaqusRestartInputFile
+        # type: (str, float, list(Step)) -> AbaqusRestartInputFile
         """Writes the abaqus input file.
 
         Parameters
@@ -201,55 +201,6 @@ class AbaqusProblem(Problem):
 
         return Path(database_path).joinpath('{}-results.db'.format(database_name))
 
-    @timer(message='Data extracted from Abaqus .odb file in')
-    def convert_results_to_json(self, database_path=None, database_name=None, fields=None):
-        """Extract data from the Abaqus .odb file.
-
-        Parameters
-        ----------
-        fields : list
-            Output fields to extract, by default 'None'. If `None` all available
-            fields will be extracted, which might require considerable time.
-
-        Note
-        ----
-        The results are serialized according to the following schema:
-        {
-            Step1:{Part1:{"nodes":{nodekey1:{field1: value1,
-                                              field2: value2,
-                                              ..},
-                                      nodekey2:{...},
-                                      ...
-                                    },
-                           "elements":{elementkey1:{field1: value1,
-                                                    field2: value2,
-                                                    ...},
-                                       elementkey2:{...},
-                                       ...
-                                       }
-                           },
-                     Part2:{...},
-                     ...
-                     },
-            Step2:{...},
-            ...
-        }
-
-        Returns
-        -------
-        None
-
-        """
-        raise NotImplementedError()
-        print('\nExtracting data from Abaqus .odb file...')
-        database_path = database_path or self.path
-        database_name = database_name or self.name
-        args = ['abaqus', 'python', Path(results_to_sql.__file__), ','.join(fields) if fields else 'None',
-                database_path, database_name]
-        for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
-            print(line)
-
-        return Path(database_path).joinpath('{}-results.db'.format(database_name))
 
     # =============================================================================
     #                               Job data

@@ -206,11 +206,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        data_section = []
-        for bc, nodes in self.bcs.items():
-            for part, part_nodes in groupby(nodes, lambda n: n.part):
-                data_section.append(bc.jobdata(part_nodes))
-        return '\n'.join(data_section) or '**'
+        return '\n'.join([bc.jobdata() for bc in self.bcs]) or '**'
 
     def _generate_ics_section(self):
         """Generate the content relatitive to the initial conditions section
