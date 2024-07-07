@@ -266,6 +266,9 @@ class AbaqusShellElement(ShellElement):
     def _r3d4(self):
         return _jobdata(self)
 
+    def _r3d3(self):
+        return _jobdata(self)
+
 
 class AbaqusMembraneElement(MembraneElement):
     """Abaqus implementation of :class:`MembraneElement`.
@@ -479,28 +482,26 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         self,
         nodes,
         section=None,
-        type="C3D",
+        type="C3D", #FIXME remove this
         reduced=False,
         hybrid=False,
         optional=None,
         implementation=None,
-        name=None,
+        rigid=False,
         **kwargs
     ):
         super(AbaqusTetrahedronElement, self).__init__(
             nodes=nodes,
             section=section,
-            implementation=implementation
-            or "".join(
-                [
-                    type,
+            implementation="".join(
+                [implementation or "C3D" if not rigid else "R3D",
                     str(len(nodes)),
                     "R" if reduced else "",
                     "H" if hybrid else "",
                     optional or "",
                 ]
             ),
-            name=name,
+            rigid=rigid,
             **kwargs
         )
         self._type = type.upper()
@@ -515,6 +516,9 @@ class AbaqusTetrahedronElement(TetrahedronElement):
             return getattr(self, "_" + self.implementation[:4].lower())()  # BUG cannot reach c3d10
         except:
             raise ValueError("{} is not a valid implementation.".format(self._implementation))
+
+    def _r3d4(self):
+        return _jobdata(self)
 
     def _c3d4(self):
         return _jobdata(self)
@@ -562,7 +566,7 @@ class AbaqusHexahedronElement(HexahedronElement):
         hybrid=False,
         optional=None,
         implementation=None,
-        name=None,
+        rigid=False,
         **kwargs
     ):
         super(AbaqusHexahedronElement, self).__init__(
@@ -578,7 +582,7 @@ class AbaqusHexahedronElement(HexahedronElement):
                     optional or "",
                 ]
             ),
-            name=name,
+            rigid=rigid,
             **kwargs
         )
         self._type = type.upper()

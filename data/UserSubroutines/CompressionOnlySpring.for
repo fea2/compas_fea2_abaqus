@@ -1,0 +1,45 @@
+SUBROUTINE UEL(KS, KSTEP, KINC, TIME, DTIME, CMNAME, COORDS,
+    1    NDOFEL, JTYPE, PROPS, NPROPS, COORDS0, VARS, STRESS,
+    2    STATEV, ENER, SENER, SVARS, DDSDDE, DDSDDE33, DDSDDE3333,
+    3    PNEWDT, JSTAT, KDU, LDU, IDU)
+C
+     INCLUDE 'ABA_PARAM.INC'
+C
+     CHARACTER*80 CMNAME
+     INTEGER KS, KSTEP, KINC, JTYPE, NPROPS, NDOFEL, JSTAT, IDU
+     DOUBLE PRECISION TIME(2), DTIME, COORDS(2,2), PROPS(NPROPS)
+     DOUBLE PRECISION COORDS0(2,2), VARS(2), STRESS(1), STATEV(1)
+     DOUBLE PRECISION ENER, SENER, SVARS(1), DDSDDE(2,2)
+     DOUBLE PRECISION DDSDDE33(3,3), DDSDDE3333(3,3,3,3), PNEWDT
+     DOUBLE PRECISION KDU(LDU, 2), U0(2)
+C
+     INTEGER I
+     DOUBLE PRECISION KSPRING, UREL, FORCE
+C
+     KSPRING = PROPS(1)
+C
+C     Initialize the force and stiffness matrix
+     FORCE = 0.0D0
+     DDSDDE(1,1) = 0.0D0
+     DDSDDE(2,2) = 0.0D0
+     DDSDDE(1,2) = 0.0D0
+     DDSDDE(2,1) = 0.0D0
+C
+C     Calculate relative displacement
+     UREL = COORDS(2,1) - COORDS(1,1)
+C
+C     Apply force only if the spring is in compression
+     IF (UREL .LT. 0.0D0) THEN
+         FORCE = KSPRING * UREL
+         DDSDDE(1,1) = KSPRING
+         DDSDDE(2,2) = KSPRING
+     END IF
+C
+     VARS(1) = FORCE
+C
+C     Set reaction force at the nodes
+     KDU(1,1) = FORCE
+     KDU(2,1) = -FORCE
+C
+     RETURN
+     END

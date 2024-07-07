@@ -30,9 +30,8 @@ class AbaqusProblem(Problem):
         if kwargs.get('overwrite', None):
             option_keywords.append('ask_delete=OFF')
         if kwargs.get('user_mat', None):
-            raise NotImplementedError
-            umat_path = problem.materials[user_mat].sub_path
-            user_sub_kw = 'user={}'.format(umat_path)
+            # umat_path = problem.materials[user_mat].sub_path
+            option_keywords.append('user={}'.format(r"C:\code\FEA2\compas_fea2_abaqus\data\UserSubroutines\CompressionOnlySpring.for"))
         if kwargs.get('oldjob', None):
             option_keywords.append('oldjob={}'.format(kwargs['oldjob']))
         if kwargs.get('cpus', None):

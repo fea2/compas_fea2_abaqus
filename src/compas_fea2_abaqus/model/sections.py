@@ -380,8 +380,8 @@ class AbaqusSolidSection(SolidSection):
     """Abaqus implementation of the :class:`SolidSection`.\n"""
     __doc__ += SolidSection.__doc__
 
-    def __init__(self, material, name=None, **kwargs):
-        super(AbaqusSolidSection, self).__init__(material, name=name, **kwargs)
+    def __init__(self, material, **kwargs):
+        super(AbaqusSolidSection, self).__init__(material, **kwargs)
 
     def jobdata(self, set_name, **kwargs):
         """Generates the string information for the input file.

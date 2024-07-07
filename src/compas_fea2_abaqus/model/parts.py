@@ -54,25 +54,19 @@ def _generate_elements_section(obj):
     # Write elements, elsets and sections
     # this check is needed for rigid parts ->ugly, change!
     grouped_elements = obj._group_elements()
-    if not isinstance(obj, RigidPart):
-        for implementation, sections in grouped_elements.items():
-            for section, orientations in sections.items():
-                for orientation, elements in orientations.items():
-                    # Write elements
-                    elset_name = 'aux_{}_{}'.format(implementation, section.name)
-                    if orientation:
-                        elset_name += '_{}'.format(orientation.replace(".", ""))
-                        orientation = orientation.split('_')
-                    part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
-                    for element in elements:
-                        part_data.append(element.jobdata())
-                    part_data.append(section.jobdata(elset_name, orientation=orientation))
-    else:
-        for implementation, elements in grouped_elements.items():
-            elset_name = 'aux_{}'.format(implementation)
-            part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
-            for element in elements:
-                part_data.append(element.jobdata())
+    for implementation, sections in grouped_elements.items():
+        for section, orientations in sections.items():
+            for orientation, elements in orientations.items():
+                # Write elements
+                elset_name = 'aux_{}_{}'.format(implementation, section.name) if not isinstance(obj, RigidPart) else 'all_elements'
+                if orientation:
+                    elset_name += '_{}'.format(orientation.replace(".", ""))
+                    orientation = orientation.split('_')
+                part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
+                for element in elements:
+                    part_data.append(element.jobdata())
+                # if not isinstance(obj, RigidPart):
+                part_data.append(section.jobdata(elset_name, orientation=orientation))
     return '\n'.join(part_data)
 
 
@@ -123,6 +117,34 @@ def _generate_instance_jobdata(obj):
     return '\n'.join(['*Instance, name={}-1, part={}'.format(obj.name, obj.name),
                       '*End Instance\n**'])
 
+def _group_elements(obj):
+    """Group the elements. This is used internally to generate the input
+    file.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    dict
+        {implementation:{section:{orientation: [elements]},},}
+    """
+
+    # Group elements by implementation
+    grouped_elements = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+
+    for el in obj.elements:
+        implementation = el._implementation
+        section = el.section
+        try:
+            orientation = '_'.join(str(i) for i in el.frame.xaxis)
+        except:
+            orientation = None
+
+        grouped_elements[implementation][section][orientation].add(el)
+
+    return grouped_elements
 
 class AbaqusDeformablePart(DeformablePart):
     """Abaqus implementation of :class:`DeformablePart`.
@@ -132,38 +154,11 @@ class AbaqusDeformablePart(DeformablePart):
     def __init__(self, name=None, **kwargs):
         super(AbaqusDeformablePart, self).__init__(name=name, **kwargs)
 
-    def _group_elements(self):
-        """Group the elements. This is used internally to generate the input
-        file.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        dict
-            {implementation:{section:{orientation: [elements]},},}
-        """
-
-        # Group elements by implementation
-        grouped_elements = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
-
-        for el in self.elements:
-            implementation = el._implementation
-            section = el.section
-            try:
-                orientation = '_'.join(str(i) for i in el.frame.xaxis)
-            except:
-                orientation = None
-
-            grouped_elements[implementation][section][orientation].add(el)
-
-        return grouped_elements
-
     # =========================================================================
     #                       Generate input file data
     # =========================================================================
+    def _group_elements(self):
+        return _group_elements(self)
 
     def jobdata(self):
         return jobdata(self)
@@ -176,34 +171,26 @@ class AbaqusRigidPart(RigidPart):
     def __init__(self, name=None, **kwargs):
         super(AbaqusRigidPart, self).__init__(name=name, **kwargs)
 
+    # def _generate_rigid_boundary(self):
+    #     from compas_fea2.model import ShellElement
+
+    #     mesh = self.discretized_boundary_mesh
+    #     vertex_node = {vertex: self.find_closest_nodes_to_point(point=mesh.vertex_coordinates(vertex), distance=0.1, number_of_nodes=1)[0] for vertex in mesh.vertices()}
+    #     rigid_faces = []
+    #     for k, face in enumerate(mesh.faces()):
+    #         nodes = [vertex_node[vertex] for vertex in mesh.face_vertices(face)]
+    #         element = ShellElement(nodes=nodes, section=None, rigid=True)
+    #         element._key = k
+    #         element._registration = self
+    #         rigid_faces.append(element)
+    #     return rigid_faces
+
     # =========================================================================
     #                       Generate input file data
     # =========================================================================
 
     def _group_elements(self):
-        """Group the elements. This is used internally to generate the input
-        file.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        dict
-            {implementation:{section:{orientation: [elements]},},}
-        """
-
-        # group elements by type and section
-        implementations = set(map(lambda x: x._implementation, self.elements))
-        # group by type
-        grouped_elements = {implementation: [
-            el for el in self.elements if el._implementation == implementation] for implementation in implementations}
-        # subgroup by section
-        for implementation, elements in grouped_elements.items():
-            grouped_elements[implementation] = elements
-
-        return grouped_elements
+        return _group_elements(self)
 
     def jobdata(self):
         return jobdata(self)
