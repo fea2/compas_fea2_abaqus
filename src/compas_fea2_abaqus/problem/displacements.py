@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Iterable
+
 from compas_fea2.problem import GeneralDisplacement
 
 dofs = ['x',  'y',  'z',  'xx', 'yy', 'zz']
@@ -38,6 +40,8 @@ class AbaqusGeneralDisplacement(GeneralDisplacement):
         """
         data_section = ['** Name: {} Type:  Displacement/Rotation'.format(self.name),
                         '*Boundary{}'.format(self._modify)]
+        if not isinstance(nodes, Iterable):
+            nodes = [nodes]
         for node in nodes:
             for comp, dof in enumerate(dofs, 1):
                 if getattr(self, dof):
