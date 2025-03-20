@@ -7,7 +7,7 @@ from .model import AbaqusModel
 
 # Abaqus Parts
 from .parts import (
-    AbaqusDeformablePart,
+    AbaqusPart,
     AbaqusRigidPart,
 )
 
@@ -81,7 +81,7 @@ from .constraints import (
 from .connectors import (
     AbaqusSpringConnector,
     AbaqusZeroLengthSpringConnector,
-    AbaqusGroundSpringConnector,
+    # AbaqusGroundSpringConnector,
 )
 
 # Abaqus Boundary Conditions

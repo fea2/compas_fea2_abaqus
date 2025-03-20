@@ -28,25 +28,18 @@ class AbaqusInterface(Interface):
 
     def _generate_jobdata(self):
         if isinstance(self.behavior, Contact):
-            return """** Interface: {}
-*Contact Pair, interaction={}, type=SURFACE TO SURFACE{}{}{}
-{}_i, {}_i
-**""".format(self._name,
-             self._behavior.name,
-             self._no_tickness,
-             self._small_sliding,
-             self._adjust,
-             self._master.name,
-             self._slave.name)
+            return f"""** Interface: {self._name}
+*Contact Pair, interaction={self._behavior.name}, type=SURFACE TO SURFACE{self._no_tickness}{self._small_sliding}{self._adjust}
+{self._master.name}_i, {self._slave.name}_i
+**"""
 
         elif isinstance(self.behavior, _Constraint):
-            return "{}{}_i, {}_i\n**".format(self.behavior.jobdata(), self._slave.name, self._master.name,)
+            return f"{self.behavior.jobdata()}{self._slave.name}_i, { self._master.name}_i\n**"
 
     def _generate_controls_jobdata(self):
-        return """**
-*CONTACT CONTROLS,  STABILIZE, MASTER={}_i, SLAVE ={}_i
-**""".format(self._master.name,
-             self._slave.name)
+        return f"""**
+*CONTACT CONTROLS,  STABILIZE, MASTER={self._master.name}_i, SLAVE ={self._slave.name}_i
+**"""
 
 #         return """**
 # *CONTACT CONTROLS, APPROACH, MASTER={}, SLAVE ={}

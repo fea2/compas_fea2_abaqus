@@ -4,8 +4,6 @@ compas_fea2_abaqus
 ********************************************************************************
 """
 
-from __future__ import print_function
-
 import os
 from dotenv import load_dotenv
 
@@ -32,7 +30,7 @@ from compas.plugins import plugin
 
 # Models
 from compas_fea2.model import Model
-from compas_fea2.model import DeformablePart
+from compas_fea2.model import Part
 from compas_fea2.model import RigidPart
 from compas_fea2.model import Node
 
@@ -102,9 +100,11 @@ from compas_fea2.model.constraints import (
 
 # Connectors
 from compas_fea2.model.connectors import (
+    RigidLinkConnector,
     SpringConnector,
     ZeroLengthSpringConnector,
-    GroundSpringConnector,
+    ZeroLengthContactConnector,
+    # GroundSpringConnector,
 )
 
 # Releases
@@ -168,9 +168,9 @@ from compas_fea2.problem.steps import (
 
 # Loads
 from compas_fea2.problem.loads import (
-    NodeLoad,
-    EdgeLoad,
-    FaceLoad,
+    ConcentratedLoad,
+    # EdgeLoad,
+    # FaceLoad,
     TributaryLoad,
     PrestressLoad,
     GravityLoad,
@@ -188,19 +188,12 @@ from compas_fea2.problem.combinations import (
     LoadCombination,
 )
 
-# Outputs
-from compas_fea2.problem.outputs import (
-    FieldOutput,
-    HistoryOutput,
-)
-
 # Results
 from compas_fea2.results import (
-    Result,
-    DisplacementResult,
-    StressResult,
     DisplacementFieldResults,
+    ReactionFieldResults,
     StressFieldResults,
+    SectionForcesFieldResults,
 )
 
 # Input File
@@ -216,7 +209,7 @@ from compas_fea2.job import (
 try:
     # Abaqus Models
     from .model import AbaqusModel
-    from .model import AbaqusDeformablePart
+    from .model import AbaqusPart
     from .model import AbaqusRigidPart
     from .model import AbaqusNode
 
@@ -287,7 +280,7 @@ try:
     from .model.connectors import (
     AbaqusSpringConnector,
     AbaqusZeroLengthSpringConnector,
-    AbaqusGroundSpringConnector,
+    # AbaqusGroundSpringConnector,
     )
 
     # Abaqus release
@@ -348,7 +341,7 @@ try:
 
     # Abaqus Loads
     from .problem.loads import (
-        AbaqusNodeLoad,
+        AbaqusConcentratedLoad,
         AbaqusTributaryLoad,
         AbaqusPrestressLoad,
         AbaqusGravityLoad,
@@ -366,17 +359,9 @@ try:
         AbaqusLoadCombination,
     )
 
-    # Abaqus outputs
-    from .problem.outputs import (
-        AbaqusFieldOutput,
-        AbaqusHistoryOutput,
-    )
-
     # Abaqus Results
     from .results import (
-        AbaqusResult,
-        AbaqusDisplacementResult,
-        AbaqusStressResult,
+        AbaqusStressFieldResults,
         AbaqusDisplacementFieldResults,
         AbaqusStressFieldResults,
     )
@@ -392,7 +377,7 @@ try:
         backend = compas_fea2.BACKENDS["compas_fea2_abaqus"]
 
         backend[Model] = AbaqusModel
-        backend[DeformablePart] = AbaqusDeformablePart
+        backend[Part] = AbaqusPart
         backend[RigidPart] = AbaqusRigidPart
         backend[Node] = AbaqusNode
 
@@ -442,7 +427,7 @@ try:
 
         backend[SpringConnector] = AbaqusSpringConnector
         backend[ZeroLengthSpringConnector] = AbaqusZeroLengthSpringConnector
-        backend[GroundSpringConnector] = AbaqusGroundSpringConnector
+        # backend[GroundSpringConnector] = AbaqusGroundSpringConnector
 
         backend[BeamEndPinRelease] = AbaqusBeamEndPinRelease
 
@@ -482,7 +467,7 @@ try:
         backend[DirectCyclicStep] = AbaqusDirectCyclicStep
 
         backend[GravityLoad] = AbaqusGravityLoad
-        backend[NodeLoad] = AbaqusNodeLoad
+        backend[ConcentratedLoad] = AbaqusConcentratedLoad
         backend[TributaryLoad] = AbaqusTributaryLoad
         backend[PrestressLoad] = AbaqusPrestressLoad
         backend[HarmonicPointLoad] = AbaqusHarmonicPointLoad
@@ -492,12 +477,7 @@ try:
 
         backend[LoadCombination] = AbaqusLoadCombination
 
-        backend[FieldOutput] = AbaqusFieldOutput
-        backend[HistoryOutput] = AbaqusHistoryOutput
-
-        backend[Result] = AbaqusResult
-        backend[DisplacementResult] = AbaqusDisplacementResult
-        backend[StressResult] = AbaqusStressResult
+        backend[StressFieldResults] = AbaqusStressFieldResults
         backend[DisplacementFieldResults] = AbaqusDisplacementFieldResults
         backend[StressFieldResults] = AbaqusStressFieldResults
 

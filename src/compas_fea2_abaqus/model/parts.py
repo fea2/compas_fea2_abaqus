@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from compas_fea2.model import DeformablePart, RigidPart
+from compas_fea2.model import Part, RigidPart
 from collections import defaultdict
 
 def jobdata(obj):
@@ -17,32 +17,27 @@ def jobdata(obj):
     str
         input file data lines.
     """
-    return """**
-*Part, name={}
+    return f"""**
+*Part, name={obj.name}
 **
 ** - Nodes
 **   -----
-{}
+{_generate_nodes_section(obj) or '**'}
 **
 ** - Elements
 **   --------
-{}
+{_generate_elements_section(obj) or '**'}
 **
 ** - Sets
 **   ----
-{}
-{}
+{_generate_nodesets_section(obj) or '**'}
+{_generate_elementsets_section(obj) or '**'}
 **
 ** - Releases
 **   --------
-{}
+{_generate_releases_section(obj) or '**'}
 **
-*End Part""".format(obj.name,
-                    _generate_nodes_section(obj),
-                    _generate_elements_section(obj) or '**',
-                    _generate_nodesets_section(obj) or '**',
-                    _generate_elementsets_section(obj) or '**',
-                    _generate_releases_section(obj) or '**')
+*End Part"""
 
 
 def _generate_nodes_section(obj):
@@ -71,6 +66,7 @@ def _generate_elements_section(obj):
 
 
 def _generate_nodesets_section(obj):
+    return None
     if obj.nodesgroups:
         return '\n'.join([group.jobdata() for group in obj.nodesgroups])
     else:
@@ -78,6 +74,7 @@ def _generate_nodesets_section(obj):
 
 
 def _generate_elementsets_section(obj):
+    return None
     if obj.elementsgroups:
         return '\n'.join([group.jobdata() for group in obj.elementsgroups])
     else:
@@ -85,7 +82,7 @@ def _generate_elementsets_section(obj):
 
 
 def _generate_releases_section(obj):
-    if isinstance(obj, DeformablePart):
+    if isinstance(obj, Part):
         if obj.releases:
             return '\n'.join(['*Release']+[release.jobdata() for release in obj.releases])
     else:
@@ -146,13 +143,13 @@ def _group_elements(obj):
 
     return grouped_elements
 
-class AbaqusDeformablePart(DeformablePart):
-    """Abaqus implementation of :class:`DeformablePart`.
+class AbaqusPart(Part):
+    """Abaqus implementation of :class:`Part`.
     """
-    __doc__ += DeformablePart.__doc__
+    __doc__ += Part.__doc__
 
     def __init__(self, name=None, **kwargs):
-        super(AbaqusDeformablePart, self).__init__(name=name, **kwargs)
+        super(AbaqusPart, self).__init__(name=name, **kwargs)
 
     # =========================================================================
     #                       Generate input file data
@@ -168,8 +165,8 @@ class AbaqusDeformablePart(DeformablePart):
 
 
 class AbaqusRigidPart(RigidPart):
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusRigidPart, self).__init__(name=name, **kwargs)
+    def __init__(self, **kwargs):
+        super(AbaqusRigidPart, self).__init__(**kwargs)
 
     # def _generate_rigid_boundary(self):
     #     from compas_fea2.model import ShellElement

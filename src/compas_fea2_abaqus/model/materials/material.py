@@ -24,7 +24,7 @@ class AbaqusElasticOrthotropic(ElasticOrthotropic):
 
     """
 
-    def __init__(self, *, Ex, Ey, Ez, vxy, vyz, vzx, Gxy, Gyz, Gzx, density, name=None, **kwargs):
+    def __init__(self, Ex, Ey, Ez, vxy, vyz, vzx, Gxy, Gyz, Gzx, density, name=None, **kwargs):
         super(ElasticOrthotropic, self).__init__(Ex=Ex, Ey=Ey, Ez=Ez, vxy=vxy, vyz=vyz, vzx=vzx,
                                                  Gxy=Gxy, Gyz=Gyz, Gzx=Gzx, density=density, name=name, **kwargs)
         raise NotImplementedError
@@ -34,7 +34,7 @@ class AbaqusElasticIsotropic(ElasticIsotropic):
     """Abaqus implementation of :class:`ElasticIsotropic`\n"""
     __doc__ += ElasticIsotropic.__doc__
 
-    def __init__(self, *, E, v, density, unilateral=None, name=None, **kwargs):
+    def __init__(self, E, v, density, unilateral=None, name=None, **kwargs):
         super(AbaqusElasticIsotropic, self).__init__(E=E, v=v, density=density, name=name, **kwargs)
         self.unilateral = unilateral
 
@@ -109,7 +109,7 @@ class AbaqusElasticPlastic(ElasticPlastic):
 
     """
 
-    def __init__(self, *, E, v, density, strain_stress, name=None, **kwargs):
+    def __init__(self, E, v, density, strain_stress, name=None, **kwargs):
         super(AbaqusElasticPlastic, self).__init__(E=E, v=v, density=density,
                                                    strain_stress=strain_stress, name=name, **kwargs)
         raise NotImplementedError

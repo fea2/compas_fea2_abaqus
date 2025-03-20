@@ -51,41 +51,35 @@ class AbaqusModel(Model):
 
     @timer(message='Model generated in ')
     def jobdata(self):
-        return """**
+        self.assign_keys()
+        return f"""**
 ** PARTS
 **
-{}
+{self._generate_part_section()}
 **
 ** ASSEMBLY
 **
-{}
+{self._generate_assembly_section()}
 **
 **
 ** MATERIALS
 **
-{}
+{self._generate_material_section()}
 **
 ** INTERACTIONS
 **
-{}
+{self._generate_interactions_section() or '**'}
 **
 ** INTERFACES
 **
-{}
+{self._generate_interfaces_section() or '**'}
 **
 ** INITIAL and BOUNDARY CONDITIONS
 **
-{}
+{self._generate_bcs_section() or '**'}
 **
-{}
-""".format(self._generate_part_section(),
-           self._generate_assembly_section(),
-           self._generate_material_section(),
-           self._generate_interactions_section(),
-           self._generate_interfaces_section(),
-           self._generate_bcs_section(),
-           self._generate_ics_section()
-           )
+{self._generate_ics_section() or '**'}
+"""
 
 
     def _generate_part_section(self):
@@ -127,17 +121,20 @@ class AbaqusModel(Model):
             data_section.append(part._generate_instance_jobdata())
             if isinstance(part, RigidPart):
                 data_section.append(part._generate_rigid_body_jobdata())
-            for group in part.nodesgroups:
-                data_section.append(group.jobdata(instance=True))
-            for group in part.elementsgroups:
-                data_section.append(group.jobdata(instance=True))
-            for group in part.facesgroups:
-                data_section.append(group.jobdata())
+            # for group in part.nodesgroups:
+            #     data_section.append(group.jobdata(instance=True))
+            # for group in part.elementsgroups:
+            #     data_section.append(group.jobdata(instance=True))
+            # for group in part.facesgroups:
+            #     data_section.append(group.jobdata())
         data_section.append("**\n** CONNECTORS\n**")
         for connector in self.connectors:
             data_section.append("\n".join([connector.section.jobdata(connector.name), connector.jobdata()]))
         for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
             data_section.append(interface._generate_jobdata())
+        for interface in self.interfaces:
+            data_section.append(interface.master.jobdata())
+            data_section.append(interface.slave.jobdata())
         data_section.append('*End Assembly')
 
         return '\n'.join(data_section)
@@ -174,6 +171,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
+        # return None
         return '\n'.join(interaction._generate_jobdata() for interaction in self.interactions) if self.interactions else '**'
 
     def _generate_interfaces_section(self):
@@ -189,6 +187,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
+        # return None
         interfaces = list(filter(lambda i: isinstance(i.behavior, _Interaction), self.interfaces))
         return '\n'.join(interface._generate_jobdata() for interface in interfaces) if interfaces else '**'
 
@@ -206,7 +205,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        return '\n'.join([bc.jobdata() for bc in self.bcs]) or '**'
+        return '\n'.join([bc.jobdata(nodes) for bc, nodes in self.bcs.items()]) or '**'
 
     def _generate_ics_section(self):
         """Generate the content relatitive to the initial conditions section
@@ -221,4 +220,4 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        return '\n'.join([ic.jobdata() for ic in self.ics]) or '**'
+        return '\n'.join([ic.jobdata(nodes) for ic, nodes in self.ics.items()]) or '**'

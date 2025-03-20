@@ -45,8 +45,8 @@ class AbaqusNodesGroup(NodesGroup):
     """
     __doc__ += NodesGroup.__doc__
 
-    def __init__(self, *, nodes, name=None, **kwargs):
-        super(AbaqusNodesGroup, self).__init__(nodes=nodes, name=name, **kwargs)
+    def __init__(self, nodes, **kwargs):
+        super(AbaqusNodesGroup, self).__init__(nodes=nodes, **kwargs)
         self._set_type = 'nset'
 
     def jobdata(self, instance=None):
@@ -63,8 +63,8 @@ class AbaqusElementsGroup(ElementsGroup):
     """
     __doc__ += ElementsGroup.__doc__
 
-    def __init__(self,  *, elements, name=None, **kwargs):
-        super(AbaqusElementsGroup, self).__init__(elements=elements, name=name, **kwargs)
+    def __init__(self, elements, **kwargs):
+        super(AbaqusElementsGroup, self).__init__(elements=elements, **kwargs)
         self._set_type = 'elset'
 
     def jobdata(self, instance=None):
@@ -81,8 +81,8 @@ class AbaqusFacesGroup(FacesGroup):
     """
     __doc__ += NodesGroup.__doc__
 
-    def __init__(self, *, faces, name=None, **kwargs):
-        super(AbaqusFacesGroup, self).__init__(faces=faces, name=name, **kwargs)
+    def __init__(self, faces, **kwargs):
+        super(AbaqusFacesGroup, self).__init__(faces=faces, **kwargs)
 
     def jobdata(self):
         """Generates the string information for the input file.
@@ -98,7 +98,7 @@ class AbaqusFacesGroup(FacesGroup):
         """
         lines = ['*Surface, type=ELEMENT, name={}_i'.format(self._name)]
         for face in self.faces:
-            lines.append('{}-1.{}, {}'.format(self.part.name, face.element.input_key, face.tag))
+            lines.append('{}-1.{}, {}'.format(face.part.name, face.element.key, face.tag))
         lines.append('**')
         return '\n'.join(lines)
 
@@ -107,6 +107,6 @@ class AbaqusPartsGroup(PartsGroup):
     """Abaqus implementation of the :class:`PartsGroup`.\n"""
     __doc__ += PartsGroup.__doc__
 
-    def __init__(self, *, parts, model=None, name=None, **kwargs):
-        super(AbaqusPartsGroup, self).__init__(parts=parts, model=model, name=name, **kwargs)
+    def __init__(self, parts, **kwargs):
+        super(AbaqusPartsGroup, self).__init__(parts=parts, **kwargs)
         raise NotImplementedError

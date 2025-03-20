@@ -20,10 +20,7 @@ from __future__ import division
 from __future__ import print_function
 
 # additional software-based classes
-from .results import (
-    AbaqusResult,
-    AbaqusDisplacementResult,
-    AbaqusStressResult,
+from .fields import (
     AbaqusDisplacementFieldResults,
     AbaqusStressFieldResults,
 )

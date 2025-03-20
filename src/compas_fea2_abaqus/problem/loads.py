@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from compas_fea2.problem import NodeLoad
+from compas_fea2.problem import ConcentratedLoad
 from compas_fea2.problem import GravityLoad
 from compas_fea2.problem import TributaryLoad
 from compas_fea2.problem import PrestressLoad
@@ -15,9 +15,9 @@ from typing import Iterable
 dofs = ['x',  'y',  'z',  'xx', 'yy', 'zz']
 
 
-class AbaqusNodeLoad(NodeLoad):
+class AbaqusConcentratedLoad(ConcentratedLoad):
     """Abaqus implementation of :class:`PointLoad`.\n"""
-    __doc__ += NodeLoad.__doc__
+    __doc__ += ConcentratedLoad.__doc__
     """
     Additional Parameters
     ---------------------
@@ -49,7 +49,7 @@ class AbaqusNodeLoad(NodeLoad):
     """
 
     def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes='global', modify=False, follow=False, name=None, **kwargs):
-        super(AbaqusNodeLoad, self).__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
+        super().__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
 
         self._modify = ', OP={}'.format(modify) if modify else ', OP=MOD'  # In abaqus the default is MOD
         self._follow = ', follower' if follow else ''

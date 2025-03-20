@@ -10,7 +10,7 @@ from compas_fea2.problem.steps import StedyStateDynamic
 from compas_fea2.problem.steps import SubstructureGeneration
 
 
-def jobdata(obj):
+def _jobdata(obj):
     """Generates the string information for the input file.
 
     Parameters
@@ -83,7 +83,7 @@ class AbaqusBucklingAnalysis(BucklingAnalysis):
         self._stype = 'Buckle'
 
     def jobdata(self):
-        return jobdata(self)
+        return _jobdata(self)
 
 
 class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
@@ -105,12 +105,71 @@ class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
         super(AbaqusLinearStaticPerturbation, self).__init__(name=name, **kwargs)
 
         # BUG this depends on the previous step -> loop through the steps order and adjust this parameter
-        self._nlgeom = 'NO'  # if not nlgeom else 'YES'
-        self._stype = 'Static'
 
     def jobdata(self):
-        return jobdata(self)
+        """Generates the string information for the input file.
 
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+        """
+
+        return f"""**
+{self._generate_header_section()}
+** - Displacements
+**   -------------
+{self._generate_displacements_section()}
+**
+** - Loads
+**   -----
+{self._generate_loads_section()}
+**
+** - Predefined Fields
+**   -----------------
+{self._generate_fields_section()}
+**
+** - Output Requests
+**   ---------------
+{self._generate_output_section()}
+**
+*End Step
+**"""
+
+    def _generate_header_section(self):
+        data_section = []
+        line = ("** PERTURBATION STEP: {0}\n"
+                "**\n"
+                "*Step, name={0}, nlgeom={1}, perturbation\n"
+                "*Static").format(self.name, 'YES' if self.step._nlgeom else 'NO')
+        data_section.append(line)
+        return ''.join(data_section)
+
+    def _generate_displacements_section(self):
+        return '\n'.join([displacement.jobdata(node) for pattern in self.displacements for node, displacement in pattern.node_displacement]) or '**'
+
+    def _generate_loads_section(self):
+        #FIXME Loads are not summed between steps
+        return '\n'.join([load.jobdata(node) for pattern in self.loads for node, load in pattern.node_load]) or '**'
+
+    def _generate_fields_section(self):
+        return '\n'.join([load.jobdata(node) for pattern in self.fields for node, load in pattern.node_load]) or '**'
+
+    def _generate_output_section(self):
+        # TODO check restart option
+        data_section = ["**",
+                        "*Restart, write, frequency={}".format(self.restart or 0),
+                        "**"]
+        if self._field_outputs:
+            for foutput in self._field_outputs:
+                data_section.append(foutput.jobdata())
+        if self._history_outputs:
+            for houtput in self._history_outputs:
+                data_section.append(houtput.jobdata())
+        return '\n'.join(data_section)
 
 class AbaqusStedyStateDynamic(StedyStateDynamic):
     def __init__(self, name=None, **kwargs):

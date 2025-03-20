@@ -11,8 +11,8 @@ from compas_fea2.job.input_file import ParametersFile
 class AbaqusInputFile(InputFile):
     """"""
 
-    def __init__(self, name=None, **kwargs):
-        super(AbaqusInputFile, self).__init__(name=name, **kwargs)
+    def __init__(self, problem, **kwargs):
+        super(AbaqusInputFile, self).__init__(problem=problem, **kwargs)
         self._extension = 'inp'
 
     # ==============================================================================
@@ -33,13 +33,13 @@ class AbaqusInputFile(InputFile):
             content of the input file
         """
         now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        return """*Heading
-** Job name: {}
-** Generated using compas_fea2 version {}
-** Author: {}
-** Date: {}
-** Model Description : {}
-** Problem Description : {}
+        return f"""*Heading
+** Job name: {self.problem.name}
+** Generated using compas_fea2 version {compas_fea2.__version__}
+** Author: {self.model.author}
+** Date: {now}
+** Model Description : {self.model.description}
+** Problem Description : {self.problem.description}
 **
 *PHYSICAL CONSTANTS, ABSOLUTE ZERO=-273.15, STEFAN BOLTZMANN=5.67e-8
 **
@@ -49,19 +49,13 @@ class AbaqusInputFile(InputFile):
 **------------------------------------------------------------------
 **------------------------------------------------------------------
 **
-{}**
+{self.model.jobdata()}**
 **------------------------------------------------------------------
 **------------------------------------------------------------------
 ** PROBLEM
 **------------------------------------------------------------------
 **------------------------------------------------------------------
-{}""".format(self._job_name, compas_fea2.__version__,
-             self.model.author,
-             now,
-             self.model.description,
-             self.problem.description,
-             self.model.jobdata(),
-             self.problem.jobdata())
+{self.problem.jobdata()}"""
 
 
 class AbaqusRestartInputFile(InputFile):

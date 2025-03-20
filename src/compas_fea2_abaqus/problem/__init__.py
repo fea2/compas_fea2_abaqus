@@ -26,7 +26,7 @@ from .displacements import (
 
 # Abaqus Loads
 from .loads import (
-    AbaqusNodeLoad,
+    AbaqusConcentratedLoad,
     AbaqusGravityLoad,
     AbaqusPrestressLoad,
     AbaqusHarmonicPointLoad,
@@ -35,11 +35,6 @@ from .loads import (
     AbaqusThermalLoad,
 )
 
-# Abaqus outputs
-from .outputs import (
-    AbaqusFieldOutput,
-    AbaqusHistoryOutput,
-)
 
 # Abaqus Problem
 from .problem import AbaqusProblem

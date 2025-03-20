@@ -37,6 +37,7 @@ class AbaqusStaticStep(StaticStep):
         self._stype = 'Static'
         self._restart = restart
 
+
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -49,30 +50,24 @@ class AbaqusStaticStep(StaticStep):
         input file data line (str).
         """
 
-        return """**
-{}
+        return f"""**
+{self._generate_header_section()}
 ** - Displacements
 **   -------------
-{}
 **
 ** - Loads
 **   -----
-{}
 **
 ** - Predefined Fields
 **   -----------------
-{}
 **
 ** - Output Requests
 **   ---------------
-{}
 **
-*End Step""".format(self._generate_header_section(),
-                    self._generate_displacements_section(),
-                    self._generate_loads_section(),
-                    self._generate_fields_section(),
-                    self._generate_output_section(),
-                    )
+*End Step
+**
+**
+"""
 
     def _generate_header_section(self):
         data_section = []
@@ -106,6 +101,12 @@ class AbaqusStaticStep(StaticStep):
             for houtput in self._history_outputs:
                 data_section.append(houtput.jobdata())
         return '\n'.join(data_section)
+
+    def _generate_perturbations_section(self):
+        if self._perturbations:
+            return '\n'.join([perturbation.jobdata() for perturbation in self.perturbations])
+        else:
+            return '**'
 
 class AbaqusStaticRiksStep(StaticRiksStep):
     def __init__(self, max_increments=100, initial_inc_size=1, min_inc_size=0.00001, time=1, nlgeom=False, modify=True, name=None, **kwargs):
