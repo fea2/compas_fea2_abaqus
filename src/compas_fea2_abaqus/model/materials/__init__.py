@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 # basic materials
 from .material import AbaqusElasticIsotropic  # noqa : F401
 from .material import AbaqusElasticOrthotropic  # noqa : F401

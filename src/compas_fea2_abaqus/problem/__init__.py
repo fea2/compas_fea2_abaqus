@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 # Abaqus Steps
 from .steps import (
     AbaqusModalAnalysis,
@@ -34,7 +30,6 @@ from .loads import (
     AbaqusTributaryLoad,
     AbaqusThermalLoad,
 )
-
 
 # Abaqus Problem
 from .problem import AbaqusProblem

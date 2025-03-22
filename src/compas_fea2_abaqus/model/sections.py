@@ -1,8 +1,3 @@
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from compas_fea2.model import BeamSection
 from compas_fea2.model import AngleSection
 from compas_fea2.model import BoxSection

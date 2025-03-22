@@ -147,9 +147,7 @@ from compas_fea2.model.interactions import (
 )
 
 # Interfaces
-from compas_fea2.model.interfaces import (
-    Interface
-)
+from compas_fea2.model.interfaces import Interface
 
 # Problem
 from compas_fea2.problem import Problem
@@ -278,9 +276,9 @@ try:
 
     # Abaqus Connectors
     from .model.connectors import (
-    AbaqusSpringConnector,
-    AbaqusZeroLengthSpringConnector,
-    # AbaqusGroundSpringConnector,
+        AbaqusSpringConnector,
+        AbaqusZeroLengthSpringConnector,
+        # AbaqusGroundSpringConnector,
     )
 
     # Abaqus release
@@ -320,9 +318,7 @@ try:
     )
 
     # Abaqus Interfaces
-    from .model.interfaces import (
-        AbaqusInterface
-    )
+    from .model.interfaces import AbaqusInterface
 
     # Abaqus Problem
     from .problem import AbaqusProblem
@@ -354,16 +350,10 @@ try:
         AbaqusGeneralDisplacement,
     )
 
-    # Abaqus Displacements
-    from .problem.combinations import (
-        AbaqusLoadCombination,
-    )
-
     # Abaqus Results
     from .results import (
         AbaqusStressFieldResults,
         AbaqusDisplacementFieldResults,
-        AbaqusStressFieldResults,
     )
 
     # Abaqus Input File
@@ -475,8 +465,6 @@ try:
 
         backend[GeneralDisplacement] = AbaqusGeneralDisplacement
 
-        backend[LoadCombination] = AbaqusLoadCombination
-
         backend[StressFieldResults] = AbaqusStressFieldResults
         backend[DisplacementFieldResults] = AbaqusDisplacementFieldResults
         backend[StressFieldResults] = AbaqusStressFieldResults
@@ -488,6 +476,7 @@ try:
 
 except:
     raise ErrorDuringImport()
+
 
 def init_fea2_abaqus(exe):
     """Create a default environment file if it doesn't exist and loads its variables.
@@ -526,7 +515,8 @@ if not load_dotenv():
         raise NotImplementedError()
     elif platform == "darwin":
         # OS X
-        raise SystemError("Abaqus is not available on Mac")
+        # raise SystemError("Abaqus is not available on Mac")
+        exe = NotImplementedError()
     elif platform == "win32":
         # Windows
         exe = "C:/SIMULIA/Commands"
