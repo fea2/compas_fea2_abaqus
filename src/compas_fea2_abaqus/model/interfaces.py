@@ -2,8 +2,6 @@ from compas_fea2.model import Interface
 from compas_fea2.model import Contact
 from compas_fea2.model import _Constraint
 
-# TODO maybe move the extra parameters to base
-
 
 class AbaqusInterface(Interface):
     """Abaqus implementation of :class:`Interface`.
@@ -13,14 +11,15 @@ class AbaqusInterface(Interface):
     This is equivalent to a `Contact Pair` in Abaqus.
 
     """
+
     __doc__ += Interface.__doc__
 
     def __init__(self, master, slave, behavior, small_sliding=False, adjust=0, no_tickness=False, **kwargs):
         super(AbaqusInterface, self).__init__(master=master, slave=slave, behavior=behavior, **kwargs)
 
-        self._small_sliding = ', small sliding' if small_sliding else ''
-        self._no_tickness = ', no tickness' if no_tickness else ''
-        self._adjust = ', adjust={}'.format(adjust) if adjust else ''
+        self._small_sliding = ", small sliding" if small_sliding else ""
+        self._no_tickness = ", no tickness" if no_tickness else ""
+        self._adjust = ", adjust={}".format(adjust) if adjust else ""
 
     def _generate_jobdata(self):
         if isinstance(self.behavior, Contact):
@@ -36,8 +35,3 @@ class AbaqusInterface(Interface):
         return f"""**
 *CONTACT CONTROLS,  STABILIZE, MASTER={self._master.name}_i, SLAVE ={self._slave.name}_i
 **"""
-
-#         return """**
-# *CONTACT CONTROLS, APPROACH, MASTER={}, SLAVE ={}
-# **""".format(self._master.name,
-#              self._slave.name)

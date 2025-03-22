@@ -51,14 +51,12 @@ class AbaqusMassElement(MassElement):
         -------
         input file data line (str).
         """
-        return """
-*ELEMENT, TYPE=MASS, ELSET={0}
-{0}, {1}
-*MASS, ELSET={0}
-{1}
-""".format(
-            self.elset, self.node
-        )
+        return f"""
+*ELEMENT, TYPE=MASS, ELSET={self.elset}
+{self.elset}, {self.node}
+*MASS, ELSET={self.elset}
+{self.node}
+"""
 
 
 # ==============================================================================
@@ -119,7 +117,7 @@ class AbaqusBeamElement(BeamElement):
         hybrid=None,
         implementation=None,
         name=None,
-        **kwargs
+        **kwargs,
     ):
         super(AbaqusBeamElement, self).__init__(
             nodes=nodes,
@@ -127,7 +125,7 @@ class AbaqusBeamElement(BeamElement):
             frame=frame,
             implementation=implementation or "".join([type, str(interpolation), "H" if hybrid else ""]),
             name=name,
-            **kwargs
+            **kwargs,
         )
         self._type = type
         self._interpolation = interpolation
@@ -157,7 +155,7 @@ class AbaqusTrussElement(TrussElement):
                 ]
             ),
             name=name,
-            **kwargs
+            **kwargs,
         )
         self._elset = None
         self._orientation = None
@@ -229,18 +227,19 @@ class AbaqusShellElement(ShellElement):
         warping=False,
         rigid=False,
         name=None,
-        **kwargs
+        **kwargs,
     ):
-        implementation="".join(
-                [implementation or "S" if not rigid else "R3D", str(len(nodes)), "R" if reduced else "", optional or "", "W" if warping else ""]
-            )
+        implementation = "".join(
+            [
+                implementation or "S" if not rigid else "R3D",
+                str(len(nodes)),
+                "R" if reduced else "",
+                optional or "",
+                "W" if warping else "",
+            ]
+        )
         super(AbaqusShellElement, self).__init__(
-            nodes=nodes,
-            section=section,
-            implementation=implementation,
-            rigid=rigid,
-            name=name,
-            **kwargs
+            nodes=nodes, section=section, implementation=implementation, rigid=rigid, name=name, **kwargs
         )
         self._elset = None
         self._reduced = reduced
@@ -308,7 +307,7 @@ class AbaqusMembraneElement(MembraneElement):
                 ]
             ),
             name=name,
-            **kwargs
+            **kwargs,
         )
         self._type = type.upper()
         self._reduced = reduced
@@ -368,7 +367,7 @@ class _AbaqusElement3D(_Element3D):
         optional=None,
         implementation=None,
         name=None,
-        **kwargs
+        **kwargs,
     ):
         super(_AbaqusElement3D, self).__init__(
             nodes=nodes,
@@ -384,7 +383,7 @@ class _AbaqusElement3D(_Element3D):
                 ]
             ),
             name=name,
-            **kwargs
+            **kwargs,
         )
         self._type = type.upper()
         self._reduced = reduced
@@ -478,19 +477,20 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         self,
         nodes,
         section=None,
-        type="C3D", #FIXME remove this
+        type="C3D",  # FIXME remove this
         reduced=False,
         hybrid=False,
         optional=None,
         implementation=None,
         rigid=False,
-        **kwargs
+        **kwargs,
     ):
         super(AbaqusTetrahedronElement, self).__init__(
             nodes=nodes,
             section=section,
             implementation="".join(
-                [implementation or "C3D",
+                [
+                    implementation or "C3D",
                     str(len(nodes)),
                     "R" if reduced else "",
                     "H" if hybrid else "",
@@ -498,7 +498,7 @@ class AbaqusTetrahedronElement(TetrahedronElement):
                 ]
             ),
             rigid=rigid,
-            **kwargs
+            **kwargs,
         )
         self._type = type.upper()
         self._reduced = reduced
@@ -563,7 +563,7 @@ class AbaqusHexahedronElement(HexahedronElement):
         optional=None,
         implementation=None,
         rigid=False,
-        **kwargs
+        **kwargs,
     ):
         super(AbaqusHexahedronElement, self).__init__(
             nodes=nodes,
@@ -579,7 +579,7 @@ class AbaqusHexahedronElement(HexahedronElement):
                 ]
             ),
             rigid=rigid,
-            **kwargs
+            **kwargs,
         )
         self._type = type.upper()
         self._reduced = reduced

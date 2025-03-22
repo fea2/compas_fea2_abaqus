@@ -1,6 +1,6 @@
 from compas_fea2.model import NodesGroup
 from compas_fea2.model import ElementsGroup
-from compas_fea2.model.groups import FacesGroup, PartsGroup
+from compas_fea2.model.groups import FacesGroup
 
 
 def jobdata(self, instance):
@@ -18,17 +18,17 @@ def jobdata(self, instance):
     input file data line (str).
     """
     data_section = []
-    name = self.name if not instance else '{}_i'.format(self.name)
-    line = '*{0}, {0}={1}'.format(self._set_type, name)
+    name = self.name if not instance else "{}_i".format(self.name)
+    line = "*{0}, {0}={1}".format(self._set_type, name)
     if instance:
-        line = ', instance='.join([line, self.part.name+'-1'])
+        line = ", instance=".join([line, self.part.name + "-1"])
 
     data_section.append(line)
     data = [str(member.key) for member in self._members]
-    chunks = [data[x:x+15] for x in range(0, len(data), 15)]  # split data for readibility
+    chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
     for chunk in chunks:
-        data_section.append(', '.join(chunk))
-    return '\n'.join(data_section)
+        data_section.append(", ".join(chunk))
+    return "\n".join(data_section)
 
 
 class AbaqusNodesGroup(NodesGroup):
@@ -39,11 +39,12 @@ class AbaqusNodesGroup(NodesGroup):
     This is equivalent to a node set in Abaqus
 
     """
+
     __doc__ += NodesGroup.__doc__
 
     def __init__(self, nodes, **kwargs):
         super(AbaqusNodesGroup, self).__init__(nodes=nodes, **kwargs)
-        self._set_type = 'nset'
+        self._set_type = "nset"
 
     def jobdata(self, instance=None):
         return jobdata(self, instance)
@@ -57,24 +58,26 @@ class AbaqusElementsGroup(ElementsGroup):
     This is equivalent to a element set in Abaqus
 
     """
+
     __doc__ += ElementsGroup.__doc__
 
     def __init__(self, elements, **kwargs):
         super(AbaqusElementsGroup, self).__init__(elements=elements, **kwargs)
-        self._set_type = 'elset'
+        self._set_type = "elset"
 
     def jobdata(self, instance=None):
         return jobdata(self, instance)
 
 
 class AbaqusFacesGroup(FacesGroup):
-    """Abaqus implementation of :class:`NodesGroup`
+    """Abaqus implementation of :class:`FacesGroup`
 
     Notes
     -----
     This is equivalent to a `Surface` in Abaqus
 
     """
+
     __doc__ += NodesGroup.__doc__
 
     def __init__(self, faces, **kwargs):
@@ -92,17 +95,8 @@ class AbaqusFacesGroup(FacesGroup):
         str
             input file data line.
         """
-        lines = ['*Surface, type=ELEMENT, name={}_i'.format(self._name)]
+        lines = ["*Surface, type=ELEMENT, name={}_i".format(self._name)]
         for face in self.faces:
-            lines.append('{}-1.{}, {}'.format(face.part.name, face.element.key, face.tag))
-        lines.append('**')
-        return '\n'.join(lines)
-
-
-class AbaqusPartsGroup(PartsGroup):
-    """Abaqus implementation of the :class:`PartsGroup`.\n"""
-    __doc__ += PartsGroup.__doc__
-
-    def __init__(self, parts, **kwargs):
-        super(AbaqusPartsGroup, self).__init__(parts=parts, **kwargs)
-        raise NotImplementedError
+            lines.append("{}-1.{}, {}".format(face.part.name, face.element.key, face.tag))
+        lines.append("**")
+        return "\n".join(lines)

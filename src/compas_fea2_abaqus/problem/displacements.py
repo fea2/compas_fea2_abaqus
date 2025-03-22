@@ -2,13 +2,12 @@ from typing import Iterable
 
 from compas_fea2.problem import GeneralDisplacement
 
-dofs = ['x',  'y',  'z',  'xx', 'yy', 'zz']
-
-# TODO check if `modify` can be moved to _base
+dofs = ["x", "y", "z", "xx", "yy", "zz"]
 
 
 class AbaqusGeneralDisplacement(GeneralDisplacement):
     """Abaqus implementation of :class:`GeneralDisplacement`.\n"""
+
     __doc__ += GeneralDisplacement.__doc__
     __doc__ += """
     Additional Parameters
@@ -18,10 +17,8 @@ class AbaqusGeneralDisplacement(GeneralDisplacement):
         add the displacement to the previous. By defult is ``True``.
     """
 
-    def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes='global', modify=True, name=None, **kwargs):
-        super(AbaqusGeneralDisplacement, self).__init__(
-            x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
-        self._modify = ', OP=MOD' if modify else ', OP=NEW'
+    def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes="global", **kwargs):
+        super(AbaqusGeneralDisplacement, self).__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, **kwargs)
 
     def jobdata(self, nodes):
         """Generates the string information for the input file.
@@ -34,13 +31,14 @@ class AbaqusGeneralDisplacement(GeneralDisplacement):
         -------
         input file data line (str).
         """
-        data_section = ['** Name: {} Type:  Displacement/Rotation'.format(self.name),
-                        '*Boundary{}'.format(self._modify)]
+        data_section = [
+            f"** Name: {self.name} Type:  Displacement/Rotation".format(),
+            "*Boundary, OP=MOD",
+        ]
         if not isinstance(nodes, Iterable):
             nodes = [nodes]
         for node in nodes:
             for comp, dof in enumerate(dofs, 1):
                 if getattr(self, dof):
-                    data_section += ['{0}-1.{1}, {2}, {2}, {3}'.format(
-                        node.part.name, node.key, comp, self.components[dof])]
-        return '\n'.join(data_section)
+                    data_section += [f"{node.part.name}-1.{node.key}, {comp}, {comp}, {self.components[dof]}"]
+        return "\n".join(data_section)

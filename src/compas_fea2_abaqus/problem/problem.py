@@ -1,17 +1,18 @@
 import os
 from pathlib import Path
 from compas_fea2.problem import Problem
-from compas_fea2.problem import Step
 
 from compas_fea2.utilities._utils import timer
 from compas_fea2.utilities._utils import launch_process
 
 from ..results import results_to_sql
-from ..job.input_file import AbaqusInputFile, AbaqusRestartInputFile
+from ..job.input_file import AbaqusRestartInputFile
 import compas_fea2_abaqus
+
 
 class AbaqusProblem(Problem):
     """Abaqus implementation of :class:`Problem`.\n"""
+
     __doc__ += Problem.__doc__
 
     def __init__(self, name=None, description=None, **kwargs):
@@ -20,32 +21,24 @@ class AbaqusProblem(Problem):
     # =========================================================================
     #                         Analysis methods
     # =========================================================================
-    def _build_command(self, path, name, **kwargs):
+    def _build_command(self, path: str, name: str, **kwargs):
+        # Set solver path
+        exe_cmd = os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus")
         # Set options
-        overwrite_kw = ''
-        user_sub_kw = ''
-        exe_cmd = os.path.join(kwargs.get('exe', None) or compas_fea2_abaqus.EXE, 'abaqus')
-
         option_keywords = []
-        if kwargs.get('overwrite', None):
-            option_keywords.append('ask_delete=OFF')
-        if kwargs.get('user_mat', None):
-            # umat_path = problem.materials[user_mat].sub_path
-            option_keywords.append('user={}'.format(r"C:\code\FEA2\compas_fea2_abaqus\data\UserSubroutines\CompressionOnlySpring.for"))
-        if kwargs.get('oldjob', None):
-            option_keywords.append('oldjob={}'.format(kwargs['oldjob']))
-        if kwargs.get('cpus', None):
-            option_keywords.append('cpus={}'.format(kwargs['cpus']))
+        if kwargs.get("overwrite", None):
+            option_keywords.append("ask_delete=OFF")
+        if umat := kwargs.get("user_mat", None):
+            option_keywords.append(f"user={umat.path}")
+        if oldjob := kwargs.get("oldjob", None):
+            option_keywords.append(f"oldjob={oldjob}")
+        if cpus := kwargs.get("cpus", None):
+            option_keywords.append(f"cpus={cpus}")
+        option_keywords = " ".join(option_keywords)
 
-        option_keywords = ' '.join(option_keywords)
+        return f"cd {path} && {exe_cmd} job={name} interactive resultsformat=odb {option_keywords}"
 
-        return f'cd {path} && {exe_cmd} job={name} interactive resultsformat=odb {option_keywords}'
-        # return 'cd {} && {} {} cpus={} job={} interactive resultsformat=odb {}'.format(
-        #     path, exe_kw, user_sub_kw, cpus, name, overwrite_kw)
-
-    @timer(message='Finished writing input file in')
-    def write_restart_file(self, path, start, steps):
-        # type: (str, float, list(Step)) -> AbaqusRestartInputFile
+    def write_restart_file(self, path: str, start: str, steps):
         """Writes the abaqus input file.
 
         Parameters
@@ -66,7 +59,6 @@ class AbaqusProblem(Problem):
         restart_file.write_to_file(self.path)
         return restart_file
 
-    @timer(message='Analysis completed in')
     def analyse(self, path, exe=None, cpus=1, verbose=False, overwrite=True, user_mat=None, *args, **kwargs):
         """Runs the analysis through abaqus.
 
@@ -95,17 +87,16 @@ class AbaqusProblem(Problem):
         None
 
         """
-        print('\nBegin the analysis...')
-        self._check_analysis_path(path)
+        print("\nBegin the analysis...")
+        self._check_analysis_path(path, kwargs.get("erase_data", False))
         self.write_input_file()
-        cmd = self._build_command(overwrite=overwrite, user_mat=user_mat, exe=exe,
-                                  path=self.path, name=self.name, cpus=cpus)
+        cmd = self._build_command(
+            overwrite=overwrite, user_mat=user_mat, exe=exe, path=self.path, name=self.name, cpus=cpus
+        )
         for line in launch_process(cmd_args=cmd, cwd=self.path, verbose=verbose):
             print(line)
 
-    @timer(message='Analysis completed in')
     def restart_analysis(self, start, steps, exe=None, cpus=1, output=True, overwrite=True):
-        # type: (Problem, float, list(_Step), str, int, bool, bool) -> None
         """Runs the analysis through abaqus.
 
         Parameters
@@ -129,16 +120,25 @@ class AbaqusProblem(Problem):
 
         """
         if not self.path:
-            raise AttributeError('No analysis path found! Are you sure you analysed this problem?')
+            raise AttributeError("No analysis path found! Are you sure you analysed this problem?")
         restart_file = self.write_restart_file(path=self.path, start=start, steps=steps)
-        cmd = self._build_command(overwrite=overwrite, user_mat=None, exe=exe,
-                                  path=self.path, name=restart_file._job_name, cpus=cpus, oldjob=self.name)
-        print('\n\n*** RESTARTING PREVIOUS JOB ***\n')
+        cmd = self._build_command(
+            overwrite=overwrite,
+            user_mat=None,
+            exe=exe,
+            path=self.path,
+            name=restart_file._job_name,
+            cpus=cpus,
+            oldjob=self.name,
+        )
+        print("\n\n*** RESTARTING PREVIOUS JOB ***\n")
         for line in launch_process(cmd_args=cmd, cwd=self.path, verbose=output):
             print(line)
 
-    @timer(message='Analysis and extraction completed in')
-    def analyse_and_extract(self, path, exe=None, cpus=1, output=True, overwrite=True, user_mat=None, fields=None, *args, **kwargs):
+    @timer(message="Analysis and extraction completed in")
+    def analyse_and_extract(
+        self, path, exe=None, cpus=1, output=True, overwrite=True, user_mat=None, fields=None, *args, **kwargs
+    ):
         """_summary_
 
         Parameters
@@ -168,14 +168,13 @@ class AbaqusProblem(Problem):
         _type_
             _description_
         """
-        self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat)
-        # self.model.to_cfm(self.model.path.joinpath(f'{self.model.name}.cfm'))
+        self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat, *args, **kwargs)
         return self.convert_results_to_sqlite(fields=fields)
 
     # ==========================================================================
     # Extract results
     # ==========================================================================
-    @timer(message='Data extracted from Abaqus .odb file in')
+    @timer(message="Data extracted from Abaqus .odb file in")
     def convert_results_to_sqlite(self, database_path=None, database_name=None, fields=None, **kwargs):
         """Extract data from the Abaqus .odb file and store into a SQLite database.
 
@@ -190,22 +189,27 @@ class AbaqusProblem(Problem):
         None
 
         """
-        print('\nExtracting data from Abaqus .odb file...')
+        print("\nExtracting data from Abaqus .odb file...")
         database_path = database_path or self.path
         database_name = database_name or self.name
-        args = [os.path.join(kwargs.get('exe', None) or compas_fea2_abaqus.EXE, 'abaqus'), 'python', Path(results_to_sql.__file__), ','.join(fields) if fields else 'None',
-                database_path, database_name]
+        args = [
+            os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus"),
+            "python",
+            Path(results_to_sql.__file__),
+            ",".join(fields) if fields else "None",
+            database_path,
+            database_name,
+        ]
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)
 
-        return Path(database_path).joinpath('{}-results.db'.format(database_name))
-
+        return Path(database_path).joinpath("{}-results.db".format(database_name))
 
     # =============================================================================
     #                               Job data
     # =============================================================================
 
-    @timer(message='Problem generated in ')
+    @timer(message="Problem generated in ")
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -217,4 +221,4 @@ class AbaqusProblem(Problem):
         -------
         input file data line (str).
         """
-        return '\n'.join([step.jobdata() for step in self._steps_order])
+        return "\n".join([step.jobdata() for step in self._steps_order])

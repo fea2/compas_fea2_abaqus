@@ -1,9 +1,6 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from datetime import datetime
 import compas_fea2
+import compas_fea2_abaqus
 from compas_fea2.job import InputFile
 from compas_fea2.job.input_file import ParametersFile
 
@@ -13,7 +10,7 @@ class AbaqusInputFile(InputFile):
 
     def __init__(self, problem, **kwargs):
         super(AbaqusInputFile, self).__init__(problem=problem, **kwargs)
-        self._extension = 'inp'
+        self._extension = "inp"
 
     # ==============================================================================
     # Constructor methods
@@ -35,7 +32,9 @@ class AbaqusInputFile(InputFile):
         now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         return f"""*Heading
 ** Job name: {self.problem.name}
-** Generated using compas_fea2 version {compas_fea2.__version__}
+** Generated using:
+**      compas_fea2 version {compas_fea2.__version__}
+**      compas_fea2_abaqus version {compas_fea2_abaqus.__version__}
 ** Author: {self.model.author}
 ** Date: {now}
 ** Model Description : {self.model.description}
@@ -63,7 +62,7 @@ class AbaqusRestartInputFile(InputFile):
 
     def __init__(self, start, steps, name=None, **kwargs):
         super(AbaqusRestartInputFile, self).__init__(name=name, **kwargs)
-        self._extension = 'inp'
+        self._extension = "inp"
         self._start = start
         self._steps = steps
 
@@ -96,8 +95,8 @@ class AbaqusRestartInputFile(InputFile):
         """
         restart_file = cls(start=start, steps=steps)
         restart_file._registration = problem
-        restart_file._job_name = problem.name+'_restart'
-        restart_file._file_name = '{}.{}'.format(restart_file._job_name, restart_file._extension)
+        restart_file._job_name = problem.name + "_restart"
+        restart_file._file_name = "{}.{}".format(restart_file._job_name, restart_file._extension)
 
         return restart_file
 
@@ -130,13 +129,16 @@ class AbaqusRestartInputFile(InputFile):
 ** ADDITIONAL STEPS
 **------------------------------------------------------------------
 **------------------------------------------------------------------
-{}""".format(self._job_name, compas_fea2.__version__,
-             self.model.author,
-             now,
-             self.model.description,
-             self.problem.description,
-             self.start,
-             '\n'.join([step.jobdata() for step in self.steps]))
+{}""".format(
+            self._job_name,
+            compas_fea2.__version__,
+            self.model.author,
+            now,
+            self.model.description,
+            self.problem.description,
+            self.start,
+            "\n".join([step.jobdata() for step in self.steps]),
+        )
 
 
 class AbaqusParametersFile(ParametersFile):
@@ -144,7 +146,7 @@ class AbaqusParametersFile(ParametersFile):
 
     def __init__(self, name=None, **kwargs):
         super(AbaqusParametersFile, self).__init__(name, **kwargs)
-        self._extension = 'par'
+        self._extension = "par"
 
     @classmethod
     def from_problem(cls, problem, smooth):
@@ -166,7 +168,7 @@ class AbaqusParametersFile(ParametersFile):
         """
         input_file = cls()
         input_file._job_name = problem._name
-        input_file._file_name = '{}.{}'.format(problem._name, input_file._extension)
+        input_file._file_name = "{}.{}".format(problem._name, input_file._extension)
         input_file._job_data = input_file.jobdata(problem, smooth)
         input_file._registration = problem
         return input_file

@@ -73,6 +73,7 @@ class AbaqusStaticStep(StaticStep):
 **
 ** - Output Requests
 **   ---------------
+{self._generate_output_section()}
 **
 *End Step
 **
@@ -109,18 +110,36 @@ class AbaqusStaticStep(StaticStep):
         data = []
         for node, load in self.combination.node_load:
             data.append(load.jobdata(node))
-        return  "\n".join(data) or "**"
+        return "\n".join(data) or "**"
 
     def _generate_output_section(self):
-        # TODO check restart option
-        data_section = ["**", "*Restart, write, frequency={}".format(self.restart or 0), "**"]
+        from itertools import groupby
+
         if self._field_outputs:
-            for foutput in self._field_outputs:
-                data_section.append(foutput.jobdata())
+            data = ["**", "*Restart, write, frequency={}".format(self.restart or 0), "**"]
+            data.append("*Output, field")
+            grouped_outputs = {k: list(g) for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)}
+            if element_outputs := grouped_outputs.get("element", None):
+                data.append("*Element Output, direction=YES")
+                data.append(", ".join([output.jobdata() for output in element_outputs]))
+            if node_outputs := grouped_outputs.get("node", None):
+                data.append("*Node Output")
+                data.append(", ".join([output.jobdata() for output in node_outputs]))
+            if contact_outputs := grouped_outputs.get("contact", None):
+                data.append("*Contact Output")
+                data.append(", ".join([output.jobdata() for output in contact_outputs]))
+            return "\n".join(data)
+        else:
+            return "*Output, field, variable=ALL\n**"
+
+    def _generate_history_section(self):
         if self._history_outputs:
-            for houtput in self._history_outputs:
-                data_section.append(houtput.jobdata())
-        return "\n".join(data_section)
+            data = []
+            for output in self._history_outputs:
+                data.append(f"** HISTORY OUTPUT: {output.name}")
+                data.append("**")
+                data.append("*Output, history, variable=ALL")
+                data.append("**")
 
     def _generate_perturbations_section(self):
         if self._perturbations:
