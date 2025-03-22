@@ -47,7 +47,7 @@ class AbaqusModel(Model):
 
     @timer(message='Model generated in ')
     def jobdata(self):
-        self.assign_keys()
+        self.assign_keys(restart=True)
         return f"""**
 ** PARTS
 **
@@ -96,8 +96,7 @@ class AbaqusModel(Model):
             if isinstance(part, RigidPart):
                 part.add_group(ElementsGroup(elements=list(part.elements), name='all_elements'))
                 part.add_group(NodesGroup(nodes=[part.reference_point], name='ref_point'))
-            data = part.jobdata()
-            data_section.append(data)
+            data_section.append(part.jobdata())
         return '\n'.join(data_section)
 
     def _generate_assembly_section(self):
@@ -117,12 +116,8 @@ class AbaqusModel(Model):
             data_section.append(part._generate_instance_jobdata())
             if isinstance(part, RigidPart):
                 data_section.append(part._generate_rigid_body_jobdata())
-            # for group in part.nodesgroups:
-            #     data_section.append(group.jobdata(instance=True))
-            # for group in part.elementsgroups:
-            #     data_section.append(group.jobdata(instance=True))
-            # for group in part.facesgroups:
-            #     data_section.append(group.jobdata())
+            for group in part.groups:
+                data_section.append(group.jobdata(instance=True))
         data_section.append("**\n** CONNECTORS\n**")
         for connector in self.connectors:
             data_section.append("\n".join([connector.section.jobdata(connector.name), connector.jobdata()]))

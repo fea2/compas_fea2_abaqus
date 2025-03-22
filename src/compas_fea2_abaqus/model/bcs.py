@@ -61,7 +61,7 @@ def _jobdata(bc, nodes):
     for node in nodes:
         for comp, dof in enumerate(dofs, 1):
             if getattr(bc, dof):
-                data_section += ["{}.{}, {}, 0".format('{}-1'.format(node.part.name), node.input_key, comp)]
+                data_section += ["{}.{}, {}, 0".format('{}-1'.format(node.part.name), node.key, comp)]
     return "\n".join(data_section)
 
 

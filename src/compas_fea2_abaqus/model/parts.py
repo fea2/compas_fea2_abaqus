@@ -1,6 +1,7 @@
 from compas_fea2.model import Part, RigidPart
 from collections import defaultdict
 
+
 def jobdata(obj):
     """Generate the string information for the input file.
 
@@ -26,8 +27,7 @@ def jobdata(obj):
 **
 ** - Sets
 **   ----
-{_generate_nodesets_section(obj) or '**'}
-{_generate_elementsets_section(obj) or '**'}
+{_generate_sets_section(obj) or '**'}
 **
 ** - Releases
 **   --------
@@ -37,7 +37,7 @@ def jobdata(obj):
 
 
 def _generate_nodes_section(obj):
-    return '\n'.join(['*Node']+[node.jobdata() for node in obj.nodes])
+    return "\n".join(["*Node"] + [node.jobdata() for node in obj.nodes.sorted])
 
 
 def _generate_elements_section(obj):
@@ -49,40 +49,32 @@ def _generate_elements_section(obj):
         for section, orientations in sections.items():
             for orientation, elements in orientations.items():
                 # Write elements
-                elset_name = 'aux_{}_{}'.format(implementation, section.name) if not isinstance(obj, RigidPart) else 'all_elements'
+                elset_name = (
+                    "aux_{}_{}".format(implementation, section.name)
+                    if not isinstance(obj, RigidPart)
+                    else "all_elements"
+                )
                 if orientation:
-                    elset_name += '_{}'.format(orientation.replace(".", ""))
-                    orientation = orientation.split('_')
+                    elset_name += "_{}".format(orientation.replace(".", ""))
+                    orientation = orientation.split("_")
                 part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
-                for element in elements:
+                for element in sorted(elements, key=lambda x: x.key):
                     part_data.append(element.jobdata())
                 # if not isinstance(obj, RigidPart):
                 part_data.append(section.jobdata(elset_name, orientation=orientation))
-    return '\n'.join(part_data)
+    return "\n".join(part_data)
 
 
-def _generate_nodesets_section(obj):
-    return None
-    if obj.nodesgroups:
-        return '\n'.join([group.jobdata() for group in obj.nodesgroups])
-    else:
-        return '**'
-
-
-def _generate_elementsets_section(obj):
-    return None
-    if obj.elementsgroups:
-        return '\n'.join([group.jobdata() for group in obj.elementsgroups])
-    else:
-        return '**'
+def _generate_sets_section(obj):
+    return "\n".join([group.jobdata() for group in obj.groups])
 
 
 def _generate_releases_section(obj):
     if isinstance(obj, Part):
         if obj.releases:
-            return '\n'.join(['*Release']+[release.jobdata() for release in obj.releases])
+            return "\n".join(["*Release"] + [release.jobdata() for release in obj.releases])
     else:
-        return '**'
+        return "**"
 
 
 def _generate_instance_jobdata(obj):
@@ -107,8 +99,8 @@ def _generate_instance_jobdata(obj):
     -------
     input file data line (str).
     """
-    return '\n'.join(['*Instance, name={}-1, part={}'.format(obj.name, obj.name),
-                      '*End Instance\n**'])
+    return "\n".join(["*Instance, name={}-1, part={}".format(obj.name, obj.name), "*End Instance\n**"])
+
 
 def _group_elements(obj):
     """Group the elements. This is used internally to generate the input
@@ -131,7 +123,7 @@ def _group_elements(obj):
         implementation = el._implementation
         section = el.section
         try:
-            orientation = '_'.join(str(i) for i in el.frame.xaxis)
+            orientation = "_".join(str(i) for i in el.frame.xaxis)
         except:
             orientation = None
 
@@ -139,9 +131,10 @@ def _group_elements(obj):
 
     return grouped_elements
 
+
 class AbaqusPart(Part):
-    """Abaqus implementation of :class:`Part`.
-    """
+    """Abaqus implementation of :class:`Part`."""
+
     __doc__ += Part.__doc__
 
     def __init__(self, name=None, **kwargs):
@@ -162,7 +155,7 @@ class AbaqusPart(Part):
 
 class AbaqusRigidPart(RigidPart):
     def __init__(self, **kwargs):
-        super(AbaqusRigidPart, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     # def _generate_rigid_boundary(self):
     #     from compas_fea2.model import ShellElement

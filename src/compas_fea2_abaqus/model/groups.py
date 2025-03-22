@@ -24,7 +24,7 @@ def jobdata(self, instance):
         line = ', instance='.join([line, self.part.name+'-1'])
 
     data_section.append(line)
-    data = [str(member.input_key) for member in self._members]
+    data = [str(member.key) for member in self._members]
     chunks = [data[x:x+15] for x in range(0, len(data), 15)]  # split data for readibility
     for chunk in chunks:
         data_section.append(', '.join(chunk))

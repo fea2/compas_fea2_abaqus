@@ -42,5 +42,5 @@ class AbaqusGeneralDisplacement(GeneralDisplacement):
             for comp, dof in enumerate(dofs, 1):
                 if getattr(self, dof):
                     data_section += ['{0}-1.{1}, {2}, {2}, {3}'.format(
-                        node.part.name, node.input_key, comp, self.components[dof])]
+                        node.part.name, node.key, comp, self.components[dof])]
         return '\n'.join(data_section)

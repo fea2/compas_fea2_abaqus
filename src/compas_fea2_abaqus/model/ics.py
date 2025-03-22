@@ -25,7 +25,7 @@ class AbaqusInitialTemperatureField(InitialTemperatureField):
         """
         data_section = [f"** Name: {self.name} Type: Temperature Field\n*Initial Conditions, type={self._ictype}"]
         for f in self.field:
-            data_section += ["{}-1.{}, {}".format(f.part.name, f.input_key, self._field_value)]
+            data_section += ["{}-1.{}, {}".format(f.part.name, f.key, self._field_value)]
         return "\n".join(data_section)
 
 
@@ -53,6 +53,6 @@ class AbaqusInitialStressField(InitialStressField):
         data_section = [f"** Name: {self.name} Type: Stress Field\n*Initial Conditions, type={self._ictype}"]
         for f in self.field:
             data_section += [
-                "{}-1.{}, {}".format(f.part.name, f.input_key, ", ".join(str(v) for v in self._field_value))
+                "{}-1.{}, {}".format(f.part.name, f.key, ", ".join(str(v) for v in self._field_value))
             ]
         return "\n".join(data_section)

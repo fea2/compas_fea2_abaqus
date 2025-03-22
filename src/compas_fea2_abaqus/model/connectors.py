@@ -8,7 +8,7 @@ class AbaqusSpringConnector(SpringConnector):
         super(AbaqusSpringConnector, self).__init__(master, slave, tol=None, name=name, **kwargs)
 
     def jobdata(self, nodes):
-        return f"*Element, type=Spring2, elset=Springs/Dashpots-{self.name}\n{self.input_key}, {self.nodes[0].part.name}-1.{self.nodes[0].input_key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].input_key}"
+        return f"*Element, type=Spring2, elset=Springs/Dashpots-{self.name}\n{self.key}, {self.nodes[0].part.name}-1.{self.nodes[0].key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].key}"
 
 
 class AbaqusZeroLengthSpringConnector(ZeroLengthSpringConnector):
@@ -20,7 +20,7 @@ class AbaqusZeroLengthSpringConnector(ZeroLengthSpringConnector):
         super(AbaqusZeroLengthSpringConnector, self).__init__(nodes, section, directions, yielding, failure, **kwargs)
 
     def jobdata(self):
-        return f"*Element, type=CONN3D2, elset=Springs/Dashpots-{self.name}\n{self.input_key}, {self.nodes[0].part.name}-1.{self.nodes[0].input_key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].input_key}"
+        return f"*Element, type=CONN3D2, elset=Springs/Dashpots-{self.name}\n{self.key}, {self.nodes[0].part.name}-1.{self.nodes[0].key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].key}"
 
 
 class AbaqusZeroLengthBeamConnector(AbaqusZeroLengthSpringConnector):
@@ -34,7 +34,7 @@ class AbaqusZeroLengthBeamConnector(AbaqusZeroLengthSpringConnector):
     def jobdata(self):
         raise NotImplementedError()
         lines = []
-        lines.append(f"*Element, type=CONN3D2, elset=Springs/Dashpots-{self.name}\n{self.input_key}, {self.nodes[0].part.name}-1.{self.nodes[0].input_key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].input_key}")
+        lines.append(f"*Element, type=CONN3D2, elset=Springs/Dashpots-{self.name}\n{self.key}, {self.nodes[0].part.name}-1.{self.nodes[0].key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].key}")
         lines.append('*Connector Section, elset=Wire-2-Set-1\nBeam,\n"Datum csys-1",')
 
 
@@ -51,6 +51,6 @@ class AbaqusZeroLengthBeamConnector(AbaqusZeroLengthSpringConnector):
 #         # lines.append(f'*Spring, elset=Springs/Dashpots-{self.name}\n{3}\n{10000.}')
 #         lines.append(f"*Element, type=Spring1, elset=Springs/Dashpots-{self.name}")
 #         for c, n in enumerate(self.nodes, 1):
-#             lines.append(f'{self.input_key*10000+c}, {n.part.name}-1.{n.input_key}')
+#             lines.append(f'{self.key*10000+c}, {n.part.name}-1.{n.key}')
 #         return '\n'.join(lines)
 

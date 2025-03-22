@@ -26,7 +26,7 @@ def _jobdata(element):
     input file data line (str).
 
     """
-    return "{0}, {1}".format(element.input_key, ", ".join(str(node.input_key) for node in element.nodes))
+    return "{0}, {1}".format(element.key, ", ".join(str(node.key) for node in element.nodes))
 
 
 # ==============================================================================
@@ -490,7 +490,7 @@ class AbaqusTetrahedronElement(TetrahedronElement):
             nodes=nodes,
             section=section,
             implementation="".join(
-                [implementation or "C3D" if not rigid else "R3D",
+                [implementation or "C3D",
                     str(len(nodes)),
                     "R" if reduced else "",
                     "H" if hybrid else "",

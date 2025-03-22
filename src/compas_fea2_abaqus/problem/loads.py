@@ -78,7 +78,7 @@ class AbaqusConcentratedLoad(ConcentratedLoad):
         for node in nodes:
             for comp, dof in enumerate(dofs, 1):
                 if getattr(self, dof):
-                    data_section += ['{}-1.{}, {}, {}'.format(node.part.name, node.input_key, comp, self.components[dof])]
+                    data_section += ['{}-1.{}, {}, {}'.format(node.part.name, node.key, comp, self.components[dof])]
         return '\n'.join(data_section)
 
 
