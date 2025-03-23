@@ -24,9 +24,10 @@ class AbaqusStaticStep(StaticStep):
 
     def __init__(
         self,
-        max_increments=100,
+        max_increments=1000,
         initial_inc_size=1,
         min_inc_size=0.00001,
+        max_inc_size=1,
         time=1,
         nlgeom=False,
         modify=True,
@@ -34,10 +35,11 @@ class AbaqusStaticStep(StaticStep):
         name=None,
         **kwargs,
     ):
-        super(AbaqusStaticStep, self).__init__(
+        super().__init__(
             max_increments=max_increments,
             initial_inc_size=initial_inc_size,
             min_inc_size=min_inc_size,
+            max_inc_size=max_inc_size,
             time=time,
             nlgeom=nlgeom,
             modify=modify,
@@ -82,18 +84,13 @@ class AbaqusStaticStep(StaticStep):
 """
 
     def _generate_header_section(self):
-        data_section = []
-        line = ("** STEP: {0}\n" "**\n" "*Step, name={0}, nlgeom={1}, inc={2}\n" "*{3}\n" "{4}, {5}, {6}, {5}").format(
-            self._name,
-            "YES" if self._nlgeom else "NO",
-            self._max_increments,
-            self._stype,
-            self._initial_inc_size,
-            self._time,
-            self._min_inc_size,
-        )
-        data_section.append(line)
-        return "".join(data_section)
+        data = [
+            f"** STEP: {self._name}",
+            f"*Step, name={self._name}, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}",
+            f"*{self._stype}",
+            f"{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._time}",
+        ]
+        return "\n".join(data)
 
     def _generate_displacements_section(self):
 
