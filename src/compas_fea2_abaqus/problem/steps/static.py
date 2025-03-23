@@ -63,6 +63,7 @@ class AbaqusStaticStep(StaticStep):
 {self._generate_header_section()}
 ** - Displacements
 **   -------------
+{self._generate_displacements_section()}
 **
 ** - Loads
 **   -----
@@ -95,12 +96,13 @@ class AbaqusStaticStep(StaticStep):
         return "".join(data_section)
 
     def _generate_displacements_section(self):
+
         return (
             "\n".join(
                 [
                     displacement.jobdata(node)
-                    for pattern in self.displacements
-                    for node, displacement in pattern.node_displacement
+                    for field in self.displacements
+                    for node, displacement in field.node_displacement
                 ]
             )
             or "**"

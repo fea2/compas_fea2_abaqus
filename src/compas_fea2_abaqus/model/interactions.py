@@ -1,6 +1,7 @@
 from compas_fea2.model.interactions import HardContactFrictionPenalty
 from compas_fea2.model.interactions import LinearContactFrictionPenalty
 from compas_fea2.model.interactions import HardContactRough
+from compas_fea2.model.interactions import HardContactNoFriction
 
 
 class AbaqusHardContactFrictionPenalty(HardContactFrictionPenalty):
@@ -55,3 +56,13 @@ class AbaqusHardContactRough(HardContactRough):
 **""".format(
             self._name, self._normal
         )
+
+
+class AbaqusHardContactNoFriction(HardContactNoFriction):
+    """Abaqus implementation of the :class:`HardContactNoFriction`.\n"""
+
+    __doc__ += HardContactNoFriction.__doc__
+
+    def __init__(self, **kwargs) -> None:
+        super(AbaqusHardContactNoFriction, self).__init__(**kwargs)
+        raise NotImplementedError()

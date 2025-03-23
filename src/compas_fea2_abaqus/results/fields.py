@@ -2,6 +2,7 @@ from compas_fea2.results.fields import DisplacementFieldResults
 from compas_fea2.results.fields import ReactionFieldResults
 from compas_fea2.results.fields import SectionForcesFieldResults
 from compas_fea2.results.fields import StressFieldResults
+from compas_fea2.results.fields import ContactForcesFieldResults
 
 
 class AbaqusDisplacementFieldResults(DisplacementFieldResults):
@@ -42,3 +43,13 @@ class AbaqusStressFieldResults(StressFieldResults):
 
     def jobdata(self):
         return "S"
+
+
+class AbaqusContactFieldResults(ContactForcesFieldResults):
+    def __init__(self, step, *args, **kwargs):
+        super().__init__(step, *args, **kwargs)
+        self.input_name = "CFORCE"
+        self.output_type = "element"
+
+    def jobdata(self):
+        return "CFORCE"

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 __author__ = ["Francesco Ranaudo"]
 __copyright__ = "Francesco Ranaudo"
 __license__ = "MIT License"
-__email__ = "ranaudo@arch.ethz.ch"
+__email__ = "francesco.ranaudo@gmail.com"
 __version__ = "0.1.0"
 
 HERE = os.path.dirname(__file__)
@@ -26,7 +26,6 @@ __all__ = ["HOME", "DATA", "DOCS", "TEMP"]
 from pydoc import ErrorDuringImport
 import compas_fea2
 
-from compas.plugins import plugin
 
 # Models
 from compas_fea2.model import Model
@@ -138,8 +137,6 @@ from compas_fea2.model.ics import (
 
 # Interactions
 from compas_fea2.model.interactions import (
-    _Interaction,
-    Contact,
     HardContactFrictionPenalty,
     HardContactNoFriction,
     HardContactRough,
@@ -181,17 +178,13 @@ from compas_fea2.problem.displacements import (
     GeneralDisplacement,
 )
 
-# Displacements
-from compas_fea2.problem.combinations import (
-    LoadCombination,
-)
-
 # Results
 from compas_fea2.results import (
     DisplacementFieldResults,
     ReactionFieldResults,
     StressFieldResults,
     SectionForcesFieldResults,
+    ContactForcesFieldResults,
 )
 
 # Input File
@@ -214,6 +207,7 @@ try:
     # Abaqus Elements
     from .model.elements import (
         AbaqusMassElement,
+        AbaqusLinkElement,
         AbaqusBeamElement,
         AbaqusTrussElement,
         AbaqusMembraneElement,
@@ -278,6 +272,8 @@ try:
     from .model.connectors import (
         AbaqusSpringConnector,
         AbaqusZeroLengthSpringConnector,
+        AbaqusRigidLinkConnector,
+        AbaqusZeroLengthContactConnector,
         # AbaqusGroundSpringConnector,
     )
 
@@ -315,6 +311,7 @@ try:
         AbaqusHardContactFrictionPenalty,
         AbaqusHardContactRough,
         AbaqusLinearContactFrictionPenalty,
+        AbaqusHardContactNoFriction,
     )
 
     # Abaqus Interfaces
@@ -354,6 +351,9 @@ try:
     from .results import (
         AbaqusStressFieldResults,
         AbaqusDisplacementFieldResults,
+        AbaqusReactionFieldResults,
+        AbaqusContactFieldResults,
+        AbaqusSectionForcesFieldResults,
     )
 
     # Abaqus Input File
@@ -372,6 +372,7 @@ try:
         backend[Node] = AbaqusNode
 
         backend[MassElement] = AbaqusMassElement
+        backend[LinkElement] = AbaqusLinkElement
         backend[BeamElement] = AbaqusBeamElement
         backend[TrussElement] = AbaqusTrussElement
         backend[MembraneElement] = AbaqusMembraneElement
@@ -417,6 +418,8 @@ try:
 
         backend[SpringConnector] = AbaqusSpringConnector
         backend[ZeroLengthSpringConnector] = AbaqusZeroLengthSpringConnector
+        backend[RigidLinkConnector] = AbaqusRigidLinkConnector
+        backend[ZeroLengthContactConnector] = AbaqusZeroLengthContactConnector
         # backend[GroundSpringConnector] = AbaqusGroundSpringConnector
 
         backend[BeamEndPinRelease] = AbaqusBeamEndPinRelease
@@ -442,6 +445,7 @@ try:
         backend[HardContactFrictionPenalty] = AbaqusHardContactFrictionPenalty
         backend[HardContactRough] = AbaqusHardContactRough
         backend[LinearContactFrictionPenalty] = AbaqusLinearContactFrictionPenalty
+        backend[HardContactNoFriction] = AbaqusHardContactNoFriction
 
         backend[Interface] = AbaqusInterface
 
@@ -467,7 +471,9 @@ try:
 
         backend[StressFieldResults] = AbaqusStressFieldResults
         backend[DisplacementFieldResults] = AbaqusDisplacementFieldResults
-        backend[StressFieldResults] = AbaqusStressFieldResults
+        backend[ReactionFieldResults] = AbaqusReactionFieldResults
+        backend[ContactForcesFieldResults] = AbaqusContactFieldResults
+        backend[SectionForcesFieldResults] = AbaqusSectionForcesFieldResults
 
         backend[InputFile] = AbaqusInputFile
         backend[ParametersFile] = AbaqusParametersFile

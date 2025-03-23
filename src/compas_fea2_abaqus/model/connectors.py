@@ -1,5 +1,8 @@
 from compas_fea2.model import SpringConnector
 from compas_fea2.model import ZeroLengthSpringConnector
+from compas_fea2.model import RigidLinkConnector
+from compas_fea2.model import ZeroLengthContactConnector
+
 # from compas_fea2.model import GroundSpringConnector
 
 
@@ -34,8 +37,22 @@ class AbaqusZeroLengthBeamConnector(AbaqusZeroLengthSpringConnector):
     def jobdata(self):
         raise NotImplementedError()
         lines = []
-        lines.append(f"*Element, type=CONN3D2, elset=Springs/Dashpots-{self.name}\n{self.key}, {self.nodes[0].part.name}-1.{self.nodes[0].key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].key}")
+        lines.append(
+            f"*Element, type=CONN3D2, elset=Springs/Dashpots-{self.name}\n{self.key}, {self.nodes[0].part.name}-1.{self.nodes[0].key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].key}"
+        )
         lines.append('*Connector Section, elset=Wire-2-Set-1\nBeam,\n"Datum csys-1",')
+
+
+class AbaqusRigidLinkConnector(RigidLinkConnector):
+    def __init__(self, master, slave, name=None, **kwargs):
+        super(AbaqusRigidLinkConnector, self).__init__(master, slave, name=name, **kwargs)
+        raise NotImplementedError()
+
+
+class AbaqusZeroLengthContactConnector(ZeroLengthContactConnector):
+    def __init__(self, master, slave, name=None, **kwargs):
+        super(AbaqusZeroLengthContactConnector, self).__init__(master, slave, name=name, **kwargs)
+        raise NotImplementedError()
 
 
 # class AbaqusGroundSpringConnector(GroundSpringConnector):
@@ -53,4 +70,3 @@ class AbaqusZeroLengthBeamConnector(AbaqusZeroLengthSpringConnector):
 #         for c, n in enumerate(self.nodes, 1):
 #             lines.append(f'{self.key*10000+c}, {n.part.name}-1.{n.key}')
 #         return '\n'.join(lines)
-

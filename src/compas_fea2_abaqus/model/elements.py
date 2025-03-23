@@ -6,6 +6,7 @@ from compas_fea2.model import MembraneElement
 from compas_fea2.model import _Element3D
 from compas_fea2.model import TetrahedronElement
 from compas_fea2.model import HexahedronElement
+from compas_fea2.model import LinkElement
 
 
 def _jobdata(element):
@@ -57,6 +58,16 @@ class AbaqusMassElement(MassElement):
 *MASS, ELSET={self.elset}
 {self.node}
 """
+
+
+class AbaqusLinkElement(LinkElement):
+    """Abaqus implementation of :class:`LinkElement`\n"""
+
+    __doc__ += LinkElement.__doc__
+
+    def __init__(self, nodes, section, name=None, **kwargs):
+        super(AbaqusLinkElement, self).__init__(nodes=nodes, section=section, name=name, **kwargs)
+        raise NotImplementedError()
 
 
 # ==============================================================================
