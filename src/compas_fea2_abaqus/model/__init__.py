@@ -75,6 +75,7 @@ from .constraints import (
 
 # Abaqus Connectors
 from .connectors import (
+    AbaqusLinearConnector,
     AbaqusSpringConnector,
     AbaqusZeroLengthSpringConnector,
     # AbaqusGroundSpringConnector,
@@ -98,14 +99,12 @@ from .bcs import (
     AbaqusRollerBCZ,
 )
 
-from .ics import(
+from .ics import (
     AbaqusInitialStressField,
     AbaqusInitialTemperatureField,
 )
 
-from .releases import (
-    AbaqusBeamEndPinRelease
-)
+from .releases import AbaqusBeamEndPinRelease
 
 # Abaqus Interactions
 from .interactions import (
@@ -115,6 +114,4 @@ from .interactions import (
 )
 
 # Abaqus Interfaces
-from .interfaces import (
-    AbaqusInterface
-)
+from .interfaces import AbaqusInterface

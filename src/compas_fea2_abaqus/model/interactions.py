@@ -12,7 +12,7 @@ class AbaqusHardContactFrictionPenalty(HardContactFrictionPenalty):
     def __init__(self, *, mu, tol=0.005, **kwargs) -> None:
         super(AbaqusHardContactFrictionPenalty, self).__init__(mu=mu, tol=tol, **kwargs)
 
-    def _generate_jobdata(self):
+    def jobdata(self):
         return """*Surface Interaction, name={}
 *Friction, slip tol={}
 {},

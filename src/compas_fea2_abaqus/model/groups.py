@@ -1,6 +1,7 @@
 from compas_fea2.model import NodesGroup
 from compas_fea2.model import ElementsGroup
 from compas_fea2.model.groups import FacesGroup
+from itertools import groupby
 
 
 def jobdata(self, instance):
@@ -18,16 +19,21 @@ def jobdata(self, instance):
     input file data line (str).
     """
     data_section = []
-    name = self.name if not instance else "{}_i".format(self.name)
+    name = self.name if not instance else f"{self.name}_i"
     line = "*{0}, {0}={1}".format(self._set_type, name)
     if instance:
-        line = ", instance=".join([line, self.part.name + "-1"])
-
-    data_section.append(line)
-    data = [str(member.key) for member in self._members]
-    chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
-    for chunk in chunks:
-        data_section.append(", ".join(chunk))
+        for part, members in groupby(self._members, key=lambda x: x.part):
+            data_section.append(line + f", instance={part.name + "-1"}")
+            data = [str(member.key) for member in members]
+            chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
+            for chunk in chunks:
+                data_section.append(", ".join(chunk))
+    else:
+        data_section.append(line)
+        data = [str(member.key) for member in self._members]
+        chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
+        for chunk in chunks:
+            data_section.append(", ".join(chunk))
     return "\n".join(data_section)
 
 

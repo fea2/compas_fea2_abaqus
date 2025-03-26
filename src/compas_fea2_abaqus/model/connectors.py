@@ -2,13 +2,28 @@ from compas_fea2.model import SpringConnector
 from compas_fea2.model import ZeroLengthSpringConnector
 from compas_fea2.model import RigidLinkConnector
 from compas_fea2.model import ZeroLengthContactConnector
+from compas_fea2.model import LinearConnector
+
 
 # from compas_fea2.model import GroundSpringConnector
 
 
+class AbaqusLinearConnector(LinearConnector):
+    def __init__(self, master, slave, section, **kwargs):
+        super(AbaqusLinearConnector, self).__init__(master, slave, section, **kwargs)
+        self.implementation = "CONN3D2"
+
+    def jobdata(self):
+        data = [f"*Element, type={self.implementation}"]
+        data += [f"{self.key}, {self.master.part.name}-1.{self.master.key}, {self.slave.part.name}.{self.slave.key}"]
+        data += [f"*Connector Section, elset={self.nodes.name}, behavior={self.section.name}"]
+        data += ["Axial,"]
+        return "\n".join(data)
+
+
 class AbaqusSpringConnector(SpringConnector):
-    def __init__(self, master, slave, name=None, **kwargs):
-        super(AbaqusSpringConnector, self).__init__(master, slave, tol=None, name=name, **kwargs)
+    def __init__(self, master, slave, **kwargs):
+        super(AbaqusSpringConnector, self).__init__(master, slave, tol=None, **kwargs)
 
     def jobdata(self, nodes):
         return f"*Element, type=Spring2, elset=Springs/Dashpots-{self.name}\n{self.key}, {self.nodes[0].part.name}-1.{self.nodes[0].key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].key}"
@@ -23,7 +38,11 @@ class AbaqusZeroLengthSpringConnector(ZeroLengthSpringConnector):
         super(AbaqusZeroLengthSpringConnector, self).__init__(nodes, section, directions, yielding, failure, **kwargs)
 
     def jobdata(self):
-        return f"*Element, type=CONN3D2, elset=Springs/Dashpots-{self.name}\n{self.key}, {self.nodes[0].part.name}-1.{self.nodes[0].key}, {self.nodes[-1].part.name}-1.{self.nodes[-1].key}"
+        element_type = "CONN3D2"
+        elset_name = f"Springs/Dashpots-{self.name}"
+        node1 = f"{self.nodes[0].part.name}-1.{self.nodes[0].key}"
+        node2 = f"{self.nodes[-1].part.name}-1.{self.nodes[-1].key}"
+        return f"*Element, type={element_type}, elset={elset_name}\n{self.key}, {node1}, {node2}"
 
 
 class AbaqusZeroLengthBeamConnector(AbaqusZeroLengthSpringConnector):
