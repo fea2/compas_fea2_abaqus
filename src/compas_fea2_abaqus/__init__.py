@@ -113,6 +113,7 @@ from compas_fea2.model.releases import (
 
 # Boundary Conditions
 from compas_fea2.model.bcs import (
+    GeneralBC,
     FixedBC,
     FixedBCX,
     FixedBCY,
@@ -284,6 +285,7 @@ try:
 
     # Abaqus Boundary Conditions
     from .model.bcs import (
+        AbaqusGeneralBC,
         AbaqusFixedBC,
         AbaqusFixedBCX,
         AbaqusFixedBCY,
@@ -424,6 +426,7 @@ try:
 
         backend[BeamEndPinRelease] = AbaqusBeamEndPinRelease
 
+        backend[GeneralBC] = AbaqusGeneralBC
         backend[FixedBC] = AbaqusFixedBC
         backend[FixedBCX] = AbaqusFixedBCX
         backend[FixedBCY] = AbaqusFixedBCY
