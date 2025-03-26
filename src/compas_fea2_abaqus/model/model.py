@@ -50,16 +50,16 @@ class AbaqusModel(Model):
         return f"""**
 ** PARTS
 **
-{self._generate_part_section()}
+{self._generate_part_section() or '**'}
 **
 ** ASSEMBLY
 **
-{self._generate_assembly_section()}
+{self._generate_assembly_section() or '**'}
 **
 **
 ** MATERIALS
 **
-{self._generate_material_section()}
+{self._generate_material_section() or '**'}
 **
 ** INTERACTIONS
 **
@@ -109,6 +109,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
+        from itertools import groupby
         data_section = ["*Assembly, name={}".format(self.name)]
         for part in self._parts:
             data_section.append(part._generate_instance_jobdata())
@@ -118,12 +119,16 @@ class AbaqusModel(Model):
                 data_section.append(group.jobdata(instance=True))
         data_section.append("**\n** CONNECTORS\n**")
         for connector in self.connectors:
-            data_section.append("\n".join([connector.section.jobdata(connector.name), connector.jobdata()]))
+            data_section.append(connector.jobdata())
+        data_section.append("**\n** CONSTRAINTS\n**")
         for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
             data_section.append(interface._generate_jobdata())
+        data_section.append("**\n** INTERFACES\n**")
         for interface in self.interfaces:
             data_section.append(interface.master.jobdata())
             data_section.append(interface.slave.jobdata())
+        for group in self.groups:
+            data_section.append(group.jobdata(instance=True))
         data_section.append("*End Assembly")
 
         return "\n".join(data_section)
@@ -159,11 +164,12 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        return (
-            "\n".join(interaction._generate_jobdata() for interaction in self.interactions)
-            if self.interactions
-            else "**"
-        )
+        data = []
+        for interaction in self.interactions:
+            data.append(interaction.jobdata())
+        for connector in self.connectors:
+            data.append(connector.section.jobdata())
+        return "\n".join(data)
 
     def _generate_interfaces_section(self):
         """Generate the content relatitive to the interfaces section for the input

@@ -47,6 +47,8 @@ from compas_fea2.model.elements import (
 
 # Sections
 from compas_fea2.model.sections import (
+    SpringSection,
+    ConnectorSection,
     AngleSection,
     BeamSection,
     BoxSection,
@@ -56,7 +58,6 @@ from compas_fea2.model.sections import (
     MassSection,
     PipeSection,
     RectangularSection,
-    SpringSection,
     StrutSection,
     TieSection,
     TrapezoidalSection,
@@ -99,6 +100,7 @@ from compas_fea2.model.constraints import (
 
 # Connectors
 from compas_fea2.model.connectors import (
+    LinearConnector,
     RigidLinkConnector,
     SpringConnector,
     ZeroLengthSpringConnector,
@@ -219,6 +221,8 @@ try:
 
     # Abaqus Sections
     from .model.sections import (
+        AbaqusSpringSection,
+        AbaqusConnectorSection,
         AbaqusAngleSection,
         AbaqusBeamSection,
         AbaqusBoxSection,
@@ -228,7 +232,6 @@ try:
         AbaqusMassSection,
         AbaqusPipeSection,
         AbaqusRectangularSection,
-        AbaqusSpringSection,
         AbaqusStrutSection,
         AbaqusTieSection,
         AbaqusTrapezoidalSection,
@@ -271,6 +274,7 @@ try:
 
     # Abaqus Connectors
     from .model.connectors import (
+        AbaqusLinearConnector,
         AbaqusSpringConnector,
         AbaqusZeroLengthSpringConnector,
         AbaqusRigidLinkConnector,
@@ -382,6 +386,8 @@ try:
         backend[_Element3D] = _AbaqusElement3D
         backend[TetrahedronElement] = AbaqusTetrahedronElement
 
+        backend[SpringSection] = AbaqusSpringSection
+        backend[ConnectorSection] = AbaqusConnectorSection
         backend[AngleSection] = AbaqusAngleSection
         backend[BeamSection] = AbaqusBeamSection
         backend[BoxSection] = AbaqusBoxSection
@@ -394,7 +400,6 @@ try:
         backend[RectangularSection] = AbaqusRectangularSection
         backend[ShellSection] = AbaqusShellSection
         backend[SolidSection] = AbaqusSolidSection
-        backend[SpringSection] = AbaqusSpringSection
         backend[StrutSection] = AbaqusStrutSection
         backend[TieSection] = AbaqusTieSection
         backend[TrapezoidalSection] = AbaqusTrapezoidalSection
@@ -419,6 +424,7 @@ try:
         backend[BeamMPC] = AbaqusBeamMPC
 
         backend[SpringConnector] = AbaqusSpringConnector
+        backend[LinearConnector] = AbaqusLinearConnector
         backend[ZeroLengthSpringConnector] = AbaqusZeroLengthSpringConnector
         backend[RigidLinkConnector] = AbaqusRigidLinkConnector
         backend[ZeroLengthContactConnector] = AbaqusZeroLengthContactConnector
