@@ -15,8 +15,8 @@ class AbaqusLinearConnector(LinearConnector):
 
     def jobdata(self):
         data = [f"*Element, type={self.implementation}"]
-        data += [f"{self.key}, {self.master.part.name}-1.{self.master.key}, {self.slave.part.name}.{self.slave.key}"]
-        data += [f"*Connector Section, elset={self.nodes.name}, behavior={self.section.name}"]
+        data += [f"{self.key}, {self.master.part.name}-1.{self.master.key}, {self.slave.part.name}-1.{self.slave.key}"]
+        data += [f"*Connector Section, elset=set-{self.name}, behavior={self.section.name}"]
         data += ["Axial,"]
         return "\n".join(data)
 

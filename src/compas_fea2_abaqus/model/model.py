@@ -118,7 +118,9 @@ class AbaqusModel(Model):
             for group in part.groups:
                 data_section.append(group.jobdata(instance=True))
         data_section.append("**\n** CONNECTORS\n**")
+        connector_gorups = []
         for connector in self.connectors:
+            connector_gorups.append(ElementsGroup(elements=[connector], name=f'set-{connector.name}'))
             data_section.append(connector.jobdata())
         data_section.append("**\n** CONSTRAINTS\n**")
         for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
@@ -129,6 +131,8 @@ class AbaqusModel(Model):
             data_section.append(interface.slave.jobdata())
         for group in self.groups:
             data_section.append(group.jobdata(instance=True))
+        for group in connector_gorups:
+            data_section.append(group.jobdata())
         data_section.append("*End Assembly")
 
         return "\n".join(data_section)
@@ -167,8 +171,9 @@ class AbaqusModel(Model):
         data = []
         for interaction in self.interactions:
             data.append(interaction.jobdata())
-        for connector in self.connectors:
-            data.append(connector.section.jobdata())
+        connector_sections = set([connector.section for connector in self.connectors])
+        for connector_section in connector_sections:
+            data.append(connector_section.jobdata())
         return "\n".join(data)
 
     def _generate_interfaces_section(self):
