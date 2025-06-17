@@ -169,13 +169,13 @@ class AbaqusProblem(Problem):
             _description_
         """
         self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat, *args, **kwargs)
-        return self.convert_results_to_sqlite(fields=fields)
+        return self.extract_results(fields=fields)
 
     # ==========================================================================
     # Extract results
     # ==========================================================================
     @timer(message="Data extracted from Abaqus .odb file in")
-    def convert_results_to_sqlite(self, database_path=None, database_name=None, fields=None, **kwargs):
+    def extract_results(self, database_path=None, database_name=None, fields=None, **kwargs):
         """Extract data from the Abaqus .odb file and store into a SQLite database.
 
         Parameters
@@ -203,7 +203,7 @@ class AbaqusProblem(Problem):
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)
 
-        return Path(database_path).joinpath("{}-results.db".format(database_name))
+        return Path(database_path).joinpath(f"{database_name}-results.db")
 
     # =============================================================================
     #                               Job data
