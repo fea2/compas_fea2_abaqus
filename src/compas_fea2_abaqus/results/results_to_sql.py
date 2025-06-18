@@ -4,34 +4,37 @@ Note
 to debug run from terminal:
 abaqus python path_to_\compas_fea2_abaqus\results\odb_extract.py None path_to_odb odb_file_name
 """
+
 from sqlite3 import Error
 import sqlite3
 
 try:
     # from ..job import *
     import odbAccess
-except:
+except Exception as e:
+    print("Error importing odbAccess. Make sure you run this script from Abaqus.")
+    print(e)
     pass
 
-import pickle
-import json
 import os
 import sys
+
 # from collections.abc import Iterable
 
-#conversion between Field Value names and FieldValue attribute names
-invariants_dict = {'MISES': 'mises',
-                   'MAX_PRINCIPAL': 'maxPrincipal',
-                   'MID_PRINCIPAL': 'midPrincipal',
-                   'MIN_PRINCIPAL': 'minPrincipal',
-                   'MAX_INPLANE_PRINCIPAL': 'maxInPlanePrincipal',
-                   'MIN_INPLANE_PRINCIPAL': 'minInPlanePrincipal',
-                   'OUTOFPLANE_PRINCIPAL': 'outOfPlanePrincipal',
-                   'TRESCA': 'tresca',
-                   'PRESS': 'press',
-                   'INV3': 'inv3',
-                   'MAGNITUDE': 'magnitude'
-                   }
+# conversion between Field Value names and FieldValue attribute names
+invariants_dict = {
+    "MISES": "mises",
+    "MAX_PRINCIPAL": "maxPrincipal",
+    "MID_PRINCIPAL": "midPrincipal",
+    "MIN_PRINCIPAL": "minPrincipal",
+    "MAX_INPLANE_PRINCIPAL": "maxInPlanePrincipal",
+    "MIN_INPLANE_PRINCIPAL": "minInPlanePrincipal",
+    "OUTOFPLANE_PRINCIPAL": "outOfPlanePrincipal",
+    "TRESCA": "tresca",
+    "PRESS": "press",
+    "INV3": "inv3",
+    "MAGNITUDE": "magnitude",
+}
 
 # convert = {
 #     'CF1':   'cfx',  'CF2':  'cfy',  'CF3':  'cfz', 'CFM': 'cfm',
@@ -77,10 +80,11 @@ def create_connection(db_file=None):
     """
     conn = None
     try:
-        conn = sqlite3.connect(db_file or ':memory:')
+        conn = sqlite3.connect(db_file or ":memory:")
     except Error as e:
         print(e)
     return conn
+
 
 def _create_table(conn, sql):
     """Create a table from the create_table_sql statement.
@@ -99,6 +103,7 @@ def _create_table(conn, sql):
     except Error as e:
         print(e)
 
+
 def _insert_entry(conn, sql):
     try:
         c = conn.cursor()
@@ -109,24 +114,29 @@ def _insert_entry(conn, sql):
         exit()
     return c.lastrowid
 
+
 def create_info_table(conn):
     with conn:
         sql = """CREATE TABLE IF NOT EXISTS info (property text, description text, UNIQUE(property) );"""
         _create_table(conn, sql)
+
 
 def create_field_description_table(conn):
     with conn:
         sql = """CREATE TABLE IF NOT EXISTS fields (field text, description text, components text, invariants text, UNIQUE(field) );"""
         _create_table(conn, sql)
 
+
 def insert_field_description(conn, field, description, components_names, invariants_names):
-    sql = """ INSERT OR IGNORE INTO fields VALUES ('{}', '{}', '{}', '{}')""".format(field,
-                                                                               description,
-                                                                               components_names,
-                                                                               invariants_names,
-                                                                               )
+    sql = """ INSERT OR IGNORE INTO fields VALUES ('{}', '{}', '{}', '{}')""".format(
+        field,
+        description,
+        components_names,
+        invariants_names,
+    )
 
     return _insert_entry(conn, sql)
+
 
 def create_field_table(conn, field, components_names, invariants_names):
     """Create the results table for the given field.
@@ -145,8 +155,10 @@ def create_field_table(conn, field, components_names, invariants_names):
     # FOREIGN KEY (step) REFERENCES analysis_results (step_name),
     with conn:
         sql = """CREATE TABLE IF NOT EXISTS {} (step text, part text, type text, position text, key integer, {});""".format(
-            field, ', '.join(['{} float'.format(c) for c in components_names+invariants_names]))
+            field, ", ".join(["{} float".format(c) for c in components_names + invariants_names])
+        )
         _create_table(conn, sql)
+
 
 def insert_field_results(conn, field, components_data, invariants_data, step, part, key_type, position, key):
     """Insert the results of the analysis at a node.
@@ -178,16 +190,11 @@ def insert_field_results(conn, field, components_data, invariants_data, step, pa
         Index of the inserted item.
     """
 
-    sql = """ INSERT INTO {} VALUES ('{}', '{}', '{}', '{}', {}, {})""".format(field,
-                                                                               step,
-                                                                               part,
-                                                                               key_type,
-                                                                               position,
-                                                                               int(key),
-                                                                               ', '.join(
-                                                                                   [str(c) for c in components_data+invariants_data])
-                                                                               )
+    sql = """ INSERT INTO {} VALUES ('{}', '{}', '{}', '{}', {}, {})""".format(
+        field, step, part, key_type, position, int(key), ", ".join([str(c) for c in components_data + invariants_data])
+    )
     return _insert_entry(conn, sql)
+
 
 def extract_odb_data(database_path, database_name, requested_fields):
     """Extracts data from the .odb file for the requested steps and fields.
@@ -213,9 +220,9 @@ def extract_odb_data(database_path, database_name, requested_fields):
     script: http://130.149.89.49:2080/v2016/books/cmd/default.htm?startat=pt05ch09s05.html
 
     """
-    odb = odbAccess.openOdb(os.path.join(database_path, '{}.odb'.format(database_name)))
+    odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
     steps = odb.steps
-    database = os.path.join(database_path, '{}-results.db'.format(database_name))
+    database = os.path.join(database_path, "{}-results.db".format(database_name))
     if os.path.exists(database):
         os.remove(database)
 
@@ -225,7 +232,7 @@ def extract_odb_data(database_path, database_name, requested_fields):
             frame = step.frames[-1]  # TODO maybe loop through the frames
             default_fields = frame.fieldOutputs
             for field_name, field_data in default_fields.items():
-                table_name = field_name.split(' ')[0]
+                table_name = field_name.split(" ")[0]
                 components_names = list(field_data.componentLabels)
 
                 if any([requested_fields and not table_name in requested_fields, not components_names]):
@@ -233,16 +240,18 @@ def extract_odb_data(database_path, database_name, requested_fields):
 
                 invariants_symbolic_constants = field_data.validInvariants
                 invariants_names = [invariants_dict[inv.name] for inv in invariants_symbolic_constants]
-                insert_field_description(conn, table_name, field_data.description, ' '.join(components_names), ' '.join(invariants_names))
+                insert_field_description(
+                    conn, table_name, field_data.description, " ".join(components_names), " ".join(invariants_names)
+                )
                 create_field_table(conn, table_name, components_names, invariants_names)
                 field_data_values = field_data.values
                 for value in field_data_values:
-                    if getattr(value, 'nodeLabel'):
+                    if getattr(value, "nodeLabel"):
                         key = value.nodeLabel
-                        key_type = 'node'
-                    elif getattr(value, 'elementLabel'):
+                        key_type = "node"
+                    elif getattr(value, "elementLabel"):
                         key = value.elementLabel
-                        key_type = 'element'
+                        key_type = "element"
                     else:
                         raise AttributeError()
                     position = value.position.name
@@ -252,9 +261,18 @@ def extract_odb_data(database_path, database_name, requested_fields):
                         components_data = list(components_data)
                     # BUG for beams the stress values are organised differently. The following is just a patch
                     while len(components_data) < len(components_names):
-                        components_data.append(0.)
-                    insert_field_results(conn, table_name, components_data, invariants_data, step_name,
-                                         value.instance.name[:-2], key_type, position, key)
+                        components_data.append(0.0)
+                    insert_field_results(
+                        conn,
+                        table_name,
+                        components_data,
+                        invariants_data,
+                        step_name,
+                        value.instance.name[:-2],
+                        key_type,
+                        position,
+                        key,
+                    )
         conn.commit()
 
 
@@ -262,15 +280,12 @@ def extract_odb_data(database_path, database_name, requested_fields):
 # Main
 # ============================================================================
 # NOTE: this is used while calling the module through abaqus -> !!!DO NOT DELETE!!!
+# NOTE: must be compatible with python 2+.
 if __name__ == "__main__":
 
     # NOTE: the arguments are in the order they are passed
     database_path = sys.argv[-2]
     database_name = sys.argv[-1]
-    fields = None if sys.argv[-3] == 'None' else sys.argv[-3].split(',')
+    fields = None if sys.argv[-3] == "None" else sys.argv[-3].split(",")
 
-    extract_odb_data(
-        database_path=database_path,
-        database_name=database_name,
-        requested_fields=fields
-        )
+    extract_odb_data(database_path=database_path, database_name=database_name, requested_fields=fields)
