@@ -220,6 +220,8 @@ def extract_odb_data(database_path, database_name, requested_fields):
     script: http://130.149.89.49:2080/v2016/books/cmd/default.htm?startat=pt05ch09s05.html
 
     """
+    compas_field_name = {'NT11':'t', 'U': 'u', 'RF': 'rf'}
+    compas_components_names={'u':['x', 'y', 'z', 'rx', 'ry', 'rz'], 't':['temp'], 'rf':['x', 'y', 'z', 'rx', 'ry', 'rz']}
     odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
     steps = odb.steps
     database = os.path.join(database_path, "{}-results.db".format(database_name))
@@ -232,8 +234,10 @@ def extract_odb_data(database_path, database_name, requested_fields):
             frame = step.frames[-1]  # TODO maybe loop through the frames
             default_fields = frame.fieldOutputs
             for field_name, field_data in default_fields.items():
-                table_name = field_name.split(" ")[0]
-                components_names = list(field_data.componentLabels)
+                # table_name = field_name.split(" ")[0]
+                table_name = compas_field_name.get(field_name.split(' ')[0])
+                # components_names = list(field_data.componentLabels) or ['temp']
+                components_names = compas_components_names.get(table_name)
 
                 if any([requested_fields and not table_name in requested_fields, not components_names]):
                     continue
@@ -258,7 +262,7 @@ def extract_odb_data(database_path, database_name, requested_fields):
                     invariants_data = [getattr(value, inv) for inv in invariants_names]
                     components_data = value.data
                     if not isinstance(components_data, list):
-                        components_data = list(components_data)
+                        components_data = components_data.tolist() if not(isinstance(components_data,float)) else [components_data]
                     # BUG for beams the stress values are organised differently. The following is just a patch
                     while len(components_data) < len(components_names):
                         components_data.append(0.0)
