@@ -22,7 +22,30 @@ class AbaqusElasticOrthotropic(ElasticOrthotropic):
     def __init__(self, Ex, Ey, Ez, vxy, vyz, vzx, Gxy, Gyz, Gzx, density, name=None, **kwargs):
         super(ElasticOrthotropic, self).__init__(Ex=Ex, Ey=Ey, Ez=Ez, vxy=vxy, vyz=vyz, vzx=vzx,
                                                  Gxy=Gxy, Gyz=Gyz, Gzx=Gzx, density=density, name=name, **kwargs)
-        raise NotImplementedError
+        
+    def jobdata(self):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+
+        """
+        jobdata = [f"*Material, name={self.name}"]
+
+        if self.density:
+            jobdata.append(f"*Density\n{self.density},")
+
+        jobdata.append(f"*Elastic, type=ENGINEERING CONSTANTS\n{self.Ex}, {self.Ey}, {self.Ez}, {self.vxy}, {self.vzx}, {self.vyz}, {self.Gxy}, {self.Gzx}\n {self.Gyz},")
+
+        if self.expansion:
+            jobdata.append("*Expansion\n{},".format(self.expansion))
+        jobdata.append("**")
+        return '\n'.join(jobdata)
 
 
 class AbaqusElasticIsotropic(ElasticIsotropic):

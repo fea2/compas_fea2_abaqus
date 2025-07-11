@@ -55,7 +55,7 @@ def _generate_elements_section(obj):
                     else "all_elements"
                 )
                 if orientation:
-                    elset_name += "_{}".format(orientation.replace(".", ""))
+                    elset_name += "_{}".format(orientation.replace(".", "").replace("-",""))
                     orientation = orientation.split("_")
                 part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
                 for element in sorted(elements, key=lambda x: x.key):
@@ -123,7 +123,11 @@ def _group_elements(obj):
         implementation = el._implementation
         section = el.section
         try:
-            orientation = "_".join(str(i) for i in el.frame.xaxis)
+            if el.ndim==1:
+                orientation = "_".join(str(i) for i in el.frame.xaxis)
+            if el.ndim==2:
+                orientation = "_".join(str(i) for i in el.frame.xaxis)+"_"+"_".join(str(i) for i in el.frame.yaxis)
+
         except:
             orientation = None
 

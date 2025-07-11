@@ -137,7 +137,7 @@ class AbaqusProblem(Problem):
 
     @timer(message="Analysis and extraction completed in")
     def analyse_and_extract(
-        self, path, exe=None, cpus=1, output=True, overwrite=True, user_mat=None, fields=None, *args, **kwargs
+        self, path, exe=None, cpus=1, verbose=False, overwrite=True, user_mat=None, fields=None, *args, **kwargs
     ):
         """_summary_
 
@@ -168,7 +168,7 @@ class AbaqusProblem(Problem):
         _type_
             _description_
         """
-        self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat, *args, **kwargs)
+        self.analyse(path, exe=exe, cpus=cpus, verbose=True, overwrite=overwrite, user_mat=user_mat, *args, **kwargs)
         return self.extract_results(fields=fields)
 
     # ==========================================================================
@@ -203,7 +203,7 @@ class AbaqusProblem(Problem):
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)
 
-        return Path(database_path).joinpath(f"{database_name}-results.db")
+        return [Path(database_path).joinpath(f"{database_name}-results.db")]
 
     # =============================================================================
     #                               Job data

@@ -83,6 +83,9 @@ from compas_fea2.model.materials.concrete import (
 from compas_fea2.model.materials.steel import (
     Steel,
 )
+from compas_fea2.model.materials.timber import (
+    Timber,
+)
 
 # Groups
 from compas_fea2.model.groups import (
@@ -257,6 +260,9 @@ try:
     from .model.materials.steel import (
         AbaqusSteel,
     )
+    from .model.materials.timber import (
+        AbaqusTimber,
+    )
 
     # Abaqus Groups
     from .model.groups import (
@@ -414,6 +420,7 @@ try:
         backend[ConcreteDamagedPlasticity] = AbaqusConcreteDamagedPlasticity
         backend[ConcreteSmearedCrack] = AbaqusConcreteSmearedCrack
         backend[Steel] = AbaqusSteel
+        backend[Timber] = AbaqusTimber
 
         backend[NodesGroup] = AbaqusNodesGroup
         backend[ElementsGroup] = AbaqusElementsGroup

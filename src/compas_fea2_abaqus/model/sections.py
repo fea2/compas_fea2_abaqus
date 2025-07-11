@@ -375,7 +375,7 @@ class AbaqusShellSection(ShellSection):
         super(AbaqusShellSection, self).__init__(t, material, name=name, **kwargs)
         self.int_points = int_points
 
-    def jobdata(self, set_name, **kwargs):
+    def jobdata(self, set_name, orientation):
         """Generates the string information for the input file.
 
         Parameters
@@ -386,11 +386,24 @@ class AbaqusShellSection(ShellSection):
         -------
         input file data line (str).
         """
-        return """** Section: {}
-*Shell Section, elset={}, material={}
-{}, {}""".format(
-            self.name, set_name, self.material.name, self.t, self.int_points
-        )
+        jobdata=[]
+        if orientation :
+            jobdata.append(f"*Orientation, name=Ori_{self.material.name}")
+        #In Abaqus, the *Orientation option define a local (x, y, z) frame of the section
+        #Then, the orthonormal local frame (1,2,3) of the element is defined such as :
+        #the normal is parallel to z-axis and has the same direction
+        #Direction 1 is parallel to x and direction 2 parallel to y
+        #The frame defined in compas_fea2 corresponds directly to the local (1,2,3) frame
+        #This is why below the input for *Orientation is adapted.
+            jobdata.append( orientation[3]+", "+orientation[4]+", "+orientation[5]+", "+
+                           str(-float(orientation[0]))+", "+str(-float(orientation[1]))+
+                           ", "+str(-float(orientation[2])))
+        jobdata.append(f"** Section: {self.name}")
+        jobdata.append(f"*Shell Section, elset={set_name}, material={self.material.name}")
+        if orientation :
+            jobdata[-1] += f", orientation=Ori_{self.material.name}"
+        jobdata.append(f"{self.t}, {self.int_points}""")
+        return '\n'.join(jobdata)
 
 
 class AbaqusMembraneSection(MembraneSection):
