@@ -174,7 +174,11 @@ class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
 
     def _generate_output_section(self):
         # TODO check restart option
-        data_section = ["**", "*Restart, write, frequency={}".format(self.restart or 0), "**"]
+        data_section = [
+            "**",
+            "*Restart, write, frequency={}".format(self.restart or 0),
+            "**",
+        ]
         if self._field_outputs:
             for foutput in self._field_outputs:
                 data_section.append(foutput.jobdata())

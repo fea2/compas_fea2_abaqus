@@ -19,19 +19,19 @@ def jobdata(obj):
 **
 ** - Nodes
 **   -----
-{_generate_nodes_section(obj) or '**'}
+{_generate_nodes_section(obj) or "**"}
 **
 ** - Elements
 **   --------
-{_generate_elements_section(obj) or '**'}
+{_generate_elements_section(obj) or "**"}
 **
 ** - Sets
 **   ----
-{_generate_sets_section(obj) or '**'}
+{_generate_sets_section(obj) or "**"}
 **
 ** - Releases
 **   --------
-{_generate_releases_section(obj) or '**'}
+{_generate_releases_section(obj) or "**"}
 **
 *End Part"""
 
@@ -55,7 +55,7 @@ def _generate_elements_section(obj):
                     else "all_elements"
                 )
                 if orientation:
-                    elset_name += "_{}".format(orientation.replace(".", "").replace("-",""))
+                    elset_name += "_{}".format(orientation.replace(".", "").replace("-", ""))
                     orientation = orientation.split("_")
                 part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
                 for element in sorted(elements, key=lambda x: x.key):
@@ -100,7 +100,12 @@ def _generate_instance_jobdata(obj):
     -------
     input file data line (str).
     """
-    return "\n".join(["*Instance, name={}-1, part={}".format(obj.name, obj.name), "*End Instance\n**"])
+    return "\n".join(
+        [
+            "*Instance, name={}-1, part={}".format(obj.name, obj.name),
+            "*End Instance\n**",
+        ]
+    )
 
 
 def _group_elements(obj):
@@ -124,12 +129,12 @@ def _group_elements(obj):
         implementation = el._implementation
         section = el.section
         try:
-            if el.ndim==1:
+            if el.ndim == 1:
                 orientation = "_".join(str(i) for i in el.frame.xaxis)
-            if el.ndim==2:
-                orientation = "_".join(str(i) for i in el.frame.xaxis)+"_"+"_".join(str(i) for i in el.frame.yaxis)
+            if el.ndim == 2:
+                orientation = "_".join(str(i) for i in el.frame.xaxis) + "_" + "_".join(str(i) for i in el.frame.yaxis)
 
-        except:
+        except:  # noqa: E722
             orientation = None
 
         grouped_elements[implementation][section][orientation].add(el)

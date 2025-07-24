@@ -10,8 +10,10 @@ from compas_fea2.model import UserMaterial
 # linear elastic
 # ==============================================================================
 
+
 class AbaqusElasticOrthotropic(ElasticOrthotropic):
     """Abaqus implementation of :class:`ElasticOrthotropic`\n"""
+
     __doc__ += ElasticOrthotropic.__doc__
     __doc__ += """
     Warning
@@ -21,9 +23,21 @@ class AbaqusElasticOrthotropic(ElasticOrthotropic):
     """
 
     def __init__(self, Ex, Ey, Ez, vxy, vyz, vzx, Gxy, Gyz, Gzx, density, name=None, **kwargs):
-        super(ElasticOrthotropic, self).__init__(Ex=Ex, Ey=Ey, Ez=Ez, vxy=vxy, vyz=vyz, vzx=vzx,
-                                                 Gxy=Gxy, Gyz=Gyz, Gzx=Gzx, density=density, name=name, **kwargs)
-        
+        super(ElasticOrthotropic, self).__init__(
+            Ex=Ex,
+            Ey=Ey,
+            Ez=Ez,
+            vxy=vxy,
+            vyz=vyz,
+            vzx=vzx,
+            Gxy=Gxy,
+            Gyz=Gyz,
+            Gzx=Gzx,
+            density=density,
+            name=name,
+            **kwargs,
+        )
+
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -41,16 +55,19 @@ class AbaqusElasticOrthotropic(ElasticOrthotropic):
         if self.density:
             jobdata.append(f"*Density\n{self.density},")
 
-        jobdata.append(f"*Elastic, type=ENGINEERING CONSTANTS\n{self.Ex}, {self.Ey}, {self.Ez}, {self.vxy}, {self.vzx}, {self.vyz}, {self.Gxy}, {self.Gzx}\n {self.Gyz},")
+        jobdata.append(
+            f"*Elastic, type=ENGINEERING CONSTANTS\n{self.Ex}, {self.Ey}, {self.Ez}, {self.vxy}, {self.vzx}, {self.vyz}, {self.Gxy}, {self.Gzx}\n {self.Gyz},"
+        )
 
         if self.expansion:
             jobdata.append("*Expansion\n{},".format(self.expansion))
         jobdata.append("**")
-        return '\n'.join(jobdata)
+        return "\n".join(jobdata)
 
 
 class AbaqusElasticIsotropic(ElasticIsotropic):
     """Abaqus implementation of :class:`ElasticIsotropic`\n"""
+
     __doc__ += ElasticIsotropic.__doc__
 
     def __init__(self, E, v, density, unilateral=None, name=None, **kwargs):
@@ -74,25 +91,29 @@ class AbaqusElasticIsotropic(ElasticIsotropic):
         if self.density:
             jobdata.append("*Density\n{},".format(self.density))
 
-        n = ''
+        n = ""
         if self.unilateral:
-            if self.unilateral == 'nc':
-                n = '\n*NO COMPRESSION'
-            elif self.unilateral == 'nt':
-                n = '\n*NO TENSION'
+            if self.unilateral == "nc":
+                n = "\n*NO COMPRESSION"
+            elif self.unilateral == "nt":
+                n = "\n*NO TENSION"
             else:
                 raise Exception(
-                    'keyword {} for unilateral parameter not recognised. Please review the documentation'.format(self.unilateral))
+                    "keyword {} for unilateral parameter not recognised. Please review the documentation".format(
+                        self.unilateral
+                    )
+                )
         jobdata.append("*Elastic\n{}, {}{}".format(self.E, self.v, n))
 
         if self.expansion:
             jobdata.append("*Expansion\n{},".format(self.expansion))
         jobdata.append("**")
-        return '\n'.join(jobdata)
+        return "\n".join(jobdata)
 
 
 class AbaqusStiff(Stiff):
     """Abaqus implementation of :class:`Stiff`\n"""
+
     __doc__ += Stiff.__doc__
 
     def jobdata(self):
@@ -106,20 +127,19 @@ class AbaqusStiff(Stiff):
         -------
         input file data line (str).
         """
-        return ("*Material, name={}\n"
-                "*Density\n"
-                "{},\n"
-                "*Elastic\n"
-                "{}, {}\n"
-                "**").format(self.name, self.density, self.E, self.v)
+        return ("*Material, name={}\n*Density\n{},\n*Elastic\n{}, {}\n**").format(
+            self.name, self.density, self.E, self.v
+        )
 
 
 # ==============================================================================
 # non-linear general
 # ==============================================================================
 
+
 class AbaqusElasticPlastic(ElasticPlastic):
     """Abaqus implementation of :class:`ElasticPlastic`\n"""
+
     __doc__ += ElasticPlastic.__doc__
     __doc__ += """
     Warning
@@ -129,8 +149,9 @@ class AbaqusElasticPlastic(ElasticPlastic):
     """
 
     def __init__(self, E, v, density, strain_stress, name=None, **kwargs):
-        super(AbaqusElasticPlastic, self).__init__(E=E, v=v, density=density,
-                                                   strain_stress=strain_stress, name=name, **kwargs)
+        super(AbaqusElasticPlastic, self).__init__(
+            E=E, v=v, density=density, strain_stress=strain_stress, name=name, **kwargs
+        )
         raise NotImplementedError
         self._e
         self._f
@@ -147,18 +168,15 @@ class AbaqusElasticPlastic(ElasticPlastic):
         input file data line (str).
         """
         data_section = []
-        line = ("*Material, name={}\n"
-                "*Density\n"
-                "{},\n"
-                "*Elastic\n"
-                "{}, {}\n"
-                "*Plastic").format(self.name, self.density, self.E['E'], self.v['v'])
+        line = ("*Material, name={}\n*Density\n{},\n*Elastic\n{}, {}\n*Plastic").format(
+            self.name, self.density, self.E["E"], self.v["v"]
+        )
         data_section.append(line)
 
-        for i, j in zip(self.compression['f'], self.compression['e']):
+        for i, j in zip(self.compression["f"], self.compression["e"]):
             line = """{}, {}""".format(abs(i), abs(j))
             data_section.append(line)
-        return '\n'.join(data_section)
+        return "\n".join(data_section)
 
 
 # ==============================================================================
@@ -168,6 +186,7 @@ class AbaqusElasticPlastic(ElasticPlastic):
 
 class AbaqusUserMaterial(UserMaterial):
     """Abaqus implementation of :class:`UserMaterial`\n"""
+
     __doc__ += UserMaterial.__doc__
     __doc__ += """ User Defined Material (UMAT).
 
@@ -186,7 +205,7 @@ class AbaqusUserMaterial(UserMaterial):
     def __init__(self, sub_path, density=None, name=None, **kwargs):
         super(AbaqusUserMaterial, self).__init__(self, name=name, **kwargs)
 
-        self.__name__ = 'UserMaterial'
+        self.__name__ = "UserMaterial"
         self.__dict__.update(kwargs)
         self._name = name
         # os.path.abspath(os.path.join(os.path.dirname(__file__), "umat/Umat_hooke_iso.f")) #TODO find a way to deal with space in windows command line
@@ -199,7 +218,7 @@ class AbaqusUserMaterial(UserMaterial):
         constants = []
         for k in self.__dict__:
             # TODO: I think we should we add constants in the list below?
-            if k not in ['__name__', 'name', 'attr_list', 'sub_path', 'p']:
+            if k not in ["__name__", "name", "attr_list", "sub_path", "p"]:
                 constants.append(self.__dict__[k])
         return constants
 
@@ -215,19 +234,19 @@ class AbaqusUserMaterial(UserMaterial):
         input file data line (str).
         """
         k = [str(i) for i in self.constants]
-        return ("*Material, name={}\n"
-                "*Density\n"
-                "{},\n"
-                "*User Material, constants={}\n"
-                "{}").format(self.name, self.density, len(k), ', '.join(reversed(k)))
+        return ("*Material, name={}\n*Density\n{},\n*User Material, constants={}\n{}").format(
+            self.name, self.density, len(k), ", ".join(reversed(k))
+        )
 
 
 # ==============================================================================
 # Heat Material
 # ==============================================================================
 
+
 class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
     """Abaqus implementation of :class:`ElasticIsotropic`\n"""
+
     __doc__ += ElasticIsotropic.__doc__
 
     def __init__(self, E, v, density, c, k, unilateral=None, name=None, **kwargs):
@@ -261,7 +280,7 @@ class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
         if self.expansion:
             jobdata.append("*Expansion")
             jobdata.append(f"{self.expansion}")
-        
+
         jobdata.append("*Conductivity")
         if isinstance(self.k, list):
             for k, temp in self.k:
@@ -276,4 +295,4 @@ class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
         else:
             jobdata.append(f"{self.c}")
         jobdata.append("**")
-        return '\n'.join(jobdata)
+        return "\n".join(jobdata)

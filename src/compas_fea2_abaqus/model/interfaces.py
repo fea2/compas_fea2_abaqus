@@ -14,7 +14,16 @@ class AbaqusInterface(Interface):
 
     __doc__ += Interface.__doc__
 
-    def __init__(self, master, slave, behavior, small_sliding=False, adjust=0, no_tickness=False, **kwargs):
+    def __init__(
+        self,
+        master,
+        slave,
+        behavior,
+        small_sliding=False,
+        adjust=0,
+        no_tickness=False,
+        **kwargs,
+    ):
         super(AbaqusInterface, self).__init__(master=master, slave=slave, behavior=behavior, **kwargs)
 
         self._small_sliding = ", small sliding" if small_sliding else ""
@@ -29,7 +38,7 @@ class AbaqusInterface(Interface):
 **"""
 
         elif isinstance(self.behavior, _Constraint):
-            return f"{self.behavior.jobdata()}{self._slave.name}_i, { self._master.name}_i\n**"
+            return f"{self.behavior.jobdata()}{self._slave.name}_i, {self._master.name}_i\n**"
 
     def _generate_controls_jobdata(self):
         return f"""**

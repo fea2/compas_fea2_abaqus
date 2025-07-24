@@ -155,7 +155,8 @@ def create_field_table(conn, field, components_names, invariants_names):
     # FOREIGN KEY (step) REFERENCES analysis_results (step_name),
     with conn:
         sql = """CREATE TABLE IF NOT EXISTS {} (step text, part text, type text, position text, key integer, {});""".format(
-            field, ", ".join(["{} float".format(c) for c in components_names + invariants_names])
+            field,
+            ", ".join(["{} float".format(c) for c in components_names + invariants_names]),
         )
         _create_table(conn, sql)
 
@@ -191,7 +192,13 @@ def insert_field_results(conn, field, components_data, invariants_data, step, pa
     """
 
     sql = """ INSERT INTO {} VALUES ('{}', '{}', '{}', '{}', {}, {})""".format(
-        field, step, part, key_type, position, int(key), ", ".join([str(c) for c in components_data + invariants_data])
+        field,
+        step,
+        part,
+        key_type,
+        position,
+        int(key),
+        ", ".join([str(c) for c in components_data + invariants_data]),
     )
     return _insert_entry(conn, sql)
 
@@ -220,8 +227,12 @@ def extract_odb_data(database_path, database_name, requested_fields):
     script: http://130.149.89.49:2080/v2016/books/cmd/default.htm?startat=pt05ch09s05.html
 
     """
-    compas_field_name = {'NT11':'t', 'U': 'u', 'RF': 'rf'}
-    compas_components_names={'u':['x', 'y', 'z', 'rx', 'ry', 'rz'], 't':['temp'], 'rf':['x', 'y', 'z', 'rx', 'ry', 'rz']}
+    compas_field_name = {"NT11": "t", "U": "u", "RF": "rf"}
+    compas_components_names = {
+        "u": ["x", "y", "z", "rx", "ry", "rz"],
+        "t": ["temp"],
+        "rf": ["x", "y", "z", "rx", "ry", "rz"],
+    }
     odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
     steps = odb.steps
     database = os.path.join(database_path, "{}-results.db".format(database_name))
@@ -235,17 +246,26 @@ def extract_odb_data(database_path, database_name, requested_fields):
             default_fields = frame.fieldOutputs
             for field_name, field_data in default_fields.items():
                 # table_name = field_name.split(" ")[0]
-                table_name = compas_field_name.get(field_name.split(' ')[0])
+                table_name = compas_field_name.get(field_name.split(" ")[0])
                 # components_names = list(field_data.componentLabels) or ['temp']
                 components_names = compas_components_names.get(table_name)
 
-                if any([requested_fields and not table_name in requested_fields, not components_names]):
+                if any(
+                    [
+                        requested_fields and table_name not in requested_fields,
+                        not components_names,
+                    ]
+                ):
                     continue
 
                 invariants_symbolic_constants = field_data.validInvariants
                 invariants_names = [invariants_dict[inv.name] for inv in invariants_symbolic_constants]
                 insert_field_description(
-                    conn, table_name, field_data.description, " ".join(components_names), " ".join(invariants_names)
+                    conn,
+                    table_name,
+                    field_data.description,
+                    " ".join(components_names),
+                    " ".join(invariants_names),
                 )
                 create_field_table(conn, table_name, components_names, invariants_names)
                 field_data_values = field_data.values
@@ -262,7 +282,9 @@ def extract_odb_data(database_path, database_name, requested_fields):
                     invariants_data = [getattr(value, inv) for inv in invariants_names]
                     components_data = value.data
                     if not isinstance(components_data, list):
-                        components_data = components_data.tolist() if not(isinstance(components_data,float)) else [components_data]
+                        components_data = (
+                            components_data.tolist() if not (isinstance(components_data, float)) else [components_data]
+                        )
                     # BUG for beams the stress values are organised differently. The following is just a patch
                     while len(components_data) < len(components_names):
                         components_data.append(0.0)
@@ -286,10 +308,13 @@ def extract_odb_data(database_path, database_name, requested_fields):
 # NOTE: this is used while calling the module through abaqus -> !!!DO NOT DELETE!!!
 # NOTE: must be compatible with python 2+.
 if __name__ == "__main__":
-
     # NOTE: the arguments are in the order they are passed
     database_path = sys.argv[-2]
     database_name = sys.argv[-1]
     fields = None if sys.argv[-3] == "None" else sys.argv[-3].split(",")
 
-    extract_odb_data(database_path=database_path, database_name=database_name, requested_fields=fields)
+    extract_odb_data(
+        database_path=database_path,
+        database_name=database_name,
+        requested_fields=fields,
+    )

@@ -59,7 +59,17 @@ class AbaqusProblem(Problem):
         restart_file.write_to_file(self.path)
         return restart_file
 
-    def analyse(self, path, exe=None, cpus=1, verbose=False, overwrite=True, user_mat=None, *args, **kwargs):
+    def analyse(
+        self,
+        path,
+        exe=None,
+        cpus=1,
+        verbose=False,
+        overwrite=True,
+        user_mat=None,
+        *args,
+        **kwargs,
+    ):
         """Runs the analysis through abaqus.
 
         Parameters
@@ -91,7 +101,12 @@ class AbaqusProblem(Problem):
         self._check_analysis_path(path, kwargs.get("erase_data", False))
         self.write_input_file()
         cmd = self._build_command(
-            overwrite=overwrite, user_mat=user_mat, exe=exe, path=self.path, name=self.name, cpus=cpus
+            overwrite=overwrite,
+            user_mat=user_mat,
+            exe=exe,
+            path=self.path,
+            name=self.name,
+            cpus=cpus,
         )
         for line in launch_process(cmd_args=cmd, cwd=self.path, verbose=verbose):
             print(line)
@@ -137,7 +152,16 @@ class AbaqusProblem(Problem):
 
     @timer(message="Analysis and extraction completed in")
     def analyse_and_extract(
-        self, path, exe=None, cpus=1, verbose=False, overwrite=True, user_mat=None, fields=None, *args, **kwargs
+        self,
+        path,
+        exe=None,
+        cpus=1,
+        verbose=False,
+        overwrite=True,
+        user_mat=None,
+        fields=None,
+        *args,
+        **kwargs,
     ):
         """_summary_
 
@@ -168,7 +192,16 @@ class AbaqusProblem(Problem):
         _type_
             _description_
         """
-        self.analyse(path, exe=exe, cpus=cpus, verbose=True, overwrite=overwrite, user_mat=user_mat, *args, **kwargs)
+        self.analyse(
+            path,
+            exe=exe,
+            cpus=cpus,
+            verbose=True,
+            overwrite=overwrite,
+            user_mat=user_mat,
+            *args,
+            **kwargs,
+        )
         return self.extract_results(fields=fields)
 
     # ==========================================================================

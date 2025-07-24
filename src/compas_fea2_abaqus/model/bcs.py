@@ -58,11 +58,14 @@ def _jobdata(bc, nodes):
     input file data line (str).
 
     """
-    data_section = ["** Name: {} Type: BC/Rotation".format(bc.name), "*Boundary, op=NEW"]
+    data_section = [
+        "** Name: {} Type: BC/Rotation".format(bc.name),
+        "*Boundary, op=NEW",
+    ]
     for node in nodes:
         for comp, dof in enumerate(dofs, 1):
             if getattr(bc, dof):
-                data_section += ["{}.{}, {}, 0".format('{}-1'.format(node.part.name), node.key, comp)]
+                data_section += ["{}.{}, {}, 0".format("{}-1".format(node.part.name), node.key, comp)]
     return "\n".join(data_section)
 
 
@@ -244,15 +247,18 @@ class AbaqusRollerBCXZ(RollerBCXZ):
 
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
-    
-class AbaqusImposedTemperature(ImposedTemperature):
 
+
+class AbaqusImposedTemperature(ImposedTemperature):
     def __init__(self, **kwargs):
         super(AbaqusImposedTemperature, self).__init__(**kwargs)
 
     def jobdata(self, nodes):
-        data_section = ["** Name: {} Type: Temperature".format(self.name), "*Boundary, op=New"]
+        data_section = [
+            "** Name: {} Type: Temperature".format(self.name),
+            "*Boundary, op=New",
+        ]
         for node in nodes:
             # if getattr(self, '_temp'):
-            data_section += ["{}.{}, 11, 11, {}".format('{}-1'.format(node.part.name), node.key, self.temp)]
+            data_section += ["{}.{}, 11, 11, {}".format("{}-1".format(node.part.name), node.key, self.temp)]
         return "\n".join(data_section)

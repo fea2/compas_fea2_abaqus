@@ -16,3 +16,17 @@ from .concrete import AbaqusConcreteSmearedCrack  # noqa : F401
 
 # timber
 from .timber import AbaqusTimber
+
+__all__ = [
+    "AbaqusElasticIsotropic",
+    "AbaqusElasticOrthotropic",
+    "AbaqusElasticPlastic",
+    "AbaqusStiff",
+    "AbaqusUserMaterial",
+    "AbaqusThermalElasticIsotropic",
+    "AbaqusSteel",
+    "AbaqusConcrete",
+    "AbaqusConcreteDamagedPlasticity",
+    "AbaqusConcreteSmearedCrack",
+    "AbaqusTimber",
+]

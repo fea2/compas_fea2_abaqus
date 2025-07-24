@@ -109,15 +109,14 @@ class AbaqusHeatTransferStep(HeatTransferStep):
         str
             text section for the input file.
         """
-        return "\n".join([bct.jobdata(nodes) for bct, nodes in self.model.bcst.items() ]) or "**"
-
+        return "\n".join([bct.jobdata(nodes) for bct, nodes in self.model.bcst.items()]) or "**"
 
     def _generate_loads_section(self):
         data = []
         for load_field in self.load_fields:
             data.append(load_field.jobdata())
         return "\n".join(data) or "**"
-    
+
     def _generate_thermalinteractions_section(self):
         """ """
         data = ["**"]
@@ -132,7 +131,7 @@ class AbaqusHeatTransferStep(HeatTransferStep):
         from itertools import groupby
 
         if self._field_outputs:
-            data = ["**", "*Restart, write, frequency={}".format( 0), "**"]
+            data = ["**", "*Restart, write, frequency={}".format(0), "**"]
             data.append("*Output, field")
             grouped_outputs = {k: list(g) for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)}
             if element_outputs := grouped_outputs.get("element", None):
@@ -156,6 +155,3 @@ class AbaqusHeatTransferStep(HeatTransferStep):
                 data.append("**")
                 data.append("*Output, history, variable=ALL")
                 data.append("**")
-
-
-

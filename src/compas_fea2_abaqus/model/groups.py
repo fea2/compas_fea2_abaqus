@@ -24,7 +24,7 @@ def jobdata(self, instance):
     line = "*{0}, {0}={1}".format(self._set_type, name)
     if instance:
         for part, members in groupby(self._members, key=lambda x: x.part):
-            data_section.append(line + f", instance={part.name + "-1"}")
+            data_section.append(line + f", instance={part.name + '-1'}")
             data = [str(member.key) for member in members]
             chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
             for chunk in chunks:
@@ -75,6 +75,7 @@ class AbaqusElementsGroup(ElementsGroup):
     def jobdata(self, instance=None):
         return jobdata(self, instance)
 
+
 class AbaqusEdgesGroup(EdgesGroup):
     """Abaqus implementation of :class:`FacesGroup`
 
@@ -106,6 +107,7 @@ class AbaqusEdgesGroup(EdgesGroup):
             lines.append("{}-1.{}, {}".format(edge.part.name, edge.element.key, edge.tag))
         lines.append("**")
         return "\n".join(lines)
+
 
 class AbaqusFacesGroup(FacesGroup):
     """Abaqus implementation of :class:`FacesGroup`

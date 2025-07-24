@@ -55,6 +55,7 @@ class AbaqusContactFieldResults(ContactForcesFieldResults):
     def jobdata(self):
         return "CFORCE"
 
+
 class AbaqusTemperatureFieldResults(TemperatureFieldResults):
     def __init__(self, step, *args, **kwargs):
         super().__init__(step, *args, **kwargs)

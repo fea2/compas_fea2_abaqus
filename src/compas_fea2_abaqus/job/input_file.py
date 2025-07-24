@@ -208,13 +208,13 @@ END_
 {opti_problem._design_variables.jobdata()}!
 ! ----------------------------------------------------------------
 ! Design responses
-{''.join([value.jobdata() for value in opti_problem._design_responses.values()])}!
+{"".join([value.jobdata() for value in opti_problem._design_responses.values()])}!
 ! ----------------------------------------------------------------
 ! Objective Function
 {opti_problem._objective_function.jobdata()}!
 ! ----------------------------------------------------------------
 ! Constraints
-{''.join([value.jobdata() for value in opti_problem._constraints.values()])}!
+{"".join([value.jobdata() for value in opti_problem._constraints.values()])}!
 ! ----------------------------------------------------------------
 ! Task
 {opti_problem.jobdata()}!
@@ -224,5 +224,5 @@ END_
 !
 ! ----------------------------------------------------------------
 !
-{smooth.jobdata() if smooth else '!'}
+{smooth.jobdata() if smooth else "!"}
 EXIT"""

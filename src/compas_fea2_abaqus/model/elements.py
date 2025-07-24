@@ -241,7 +241,6 @@ class AbaqusShellElement(ShellElement):
         name=None,
         **kwargs,
     ):
-
         implementation = "".join(
             [
                 "D" if heat else "",
@@ -253,7 +252,12 @@ class AbaqusShellElement(ShellElement):
             ]
         )
         super(AbaqusShellElement, self).__init__(
-            nodes=nodes, section=section, implementation=implementation, rigid=rigid, name=name, **kwargs
+            nodes=nodes,
+            section=section,
+            implementation=implementation,
+            rigid=rigid,
+            name=name,
+            **kwargs,
         )
         self._elset = None
         self._reduced = reduced
@@ -268,7 +272,7 @@ class AbaqusShellElement(ShellElement):
 
     def _dc2d4(self):
         return _jobdata(self)
-    
+
     def _dc2d3(self):
         return _jobdata(self)
 
@@ -313,7 +317,17 @@ class AbaqusMembraneElement(MembraneElement):
         `implementation` overwrites the others.
     """
 
-    def __init__(self, nodes, section, frame=None, type="M3D", reduced=False, implementation=None, name=None, **kwargs):
+    def __init__(
+        self,
+        nodes,
+        section,
+        frame=None,
+        type="M3D",
+        reduced=False,
+        implementation=None,
+        name=None,
+        **kwargs,
+    ):
         super(AbaqusMembraneElement, self).__init__(
             nodes=nodes,
             section=section,
@@ -395,7 +409,8 @@ class _AbaqusElement3D(_Element3D):
             section=section,
             implementation=implementation
             or "".join(
-                [   'D' if heat else "",
+                [
+                    "D" if heat else "",
                     type,
                     str(len(nodes)),
                     "R" if reduced else "",
@@ -416,7 +431,7 @@ class _AbaqusElement3D(_Element3D):
     def jobdata(self):
         try:
             return getattr(self, "_" + self.implementation[:4])()
-        except:
+        except:  # noqa: E722
             raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
     # def _c3d8(self):
@@ -499,7 +514,7 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         nodes,
         section=None,
         type="C3D",  # FIXME remove this,
-        heat = False,
+        heat=False,
         reduced=False,
         hybrid=False,
         optional=None,
@@ -510,16 +525,20 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         super(AbaqusTetrahedronElement, self).__init__(
             nodes=nodes,
             section=section,
-            implementation=("".join(
-                [   
-                    'D' if heat else "",
-                    implementation or "C3D",
-                    str(len(nodes)),
-                    "R" if reduced else "",
-                    "H" if hybrid else "",
-                    optional or "",
-                ]
-            ) if not(implementation) else implementation),
+            implementation=(
+                "".join(
+                    [
+                        "D" if heat else "",
+                        implementation or "C3D",
+                        str(len(nodes)),
+                        "R" if reduced else "",
+                        "H" if hybrid else "",
+                        optional or "",
+                    ]
+                )
+                if not (implementation)
+                else implementation
+            ),
             rigid=rigid,
             **kwargs,
         )
@@ -533,8 +552,11 @@ class AbaqusTetrahedronElement(TetrahedronElement):
 
     def jobdata(self):
         try:
-            return getattr(self, "_" + self.implementation[:4].lower() if not(self._heat) else "_" + self.implementation[:5].lower())()  # BUG cannot reach c3d10
-        except:
+            return getattr(
+                self,
+                "_" + self.implementation[:4].lower() if not (self._heat) else "_" + self.implementation[:5].lower(),
+            )()  # BUG cannot reach c3d10
+        except:  # noqa: E722
             raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
     def _r3d4(self):
@@ -542,7 +564,7 @@ class AbaqusTetrahedronElement(TetrahedronElement):
 
     def _c3d4(self):
         return _jobdata(self)
-    
+
     def _dc3d4(self):
         return _jobdata(self)
 
@@ -618,7 +640,7 @@ class AbaqusHexahedronElement(HexahedronElement):
     def jobdata(self):
         try:
             return getattr(self, "_" + self.implementation[:4].lower())()
-        except:
+        except:  # noqa: E722
             raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
     def _c3d4(self):

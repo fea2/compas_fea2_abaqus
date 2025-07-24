@@ -23,18 +23,18 @@ TEMP = os.path.abspath(os.path.join(HOME, "temp"))
 
 __all__ = ["HOME", "DATA", "DOCS", "TEMP"]
 
-from pydoc import ErrorDuringImport
-import compas_fea2
+from pydoc import ErrorDuringImport  # noqa: E402
+import compas_fea2  # noqa: E402
 
 
 # Models
-from compas_fea2.model import Model
-from compas_fea2.model import Part
-from compas_fea2.model import RigidPart
-from compas_fea2.model import Node
+from compas_fea2.model import Model  # noqa: E402
+from compas_fea2.model import Part  # noqa: E402
+from compas_fea2.model import RigidPart  # noqa: E402
+from compas_fea2.model import Node  # noqa: E402
 
 # Elements
-from compas_fea2.model.elements import (
+from compas_fea2.model.elements import (  # noqa: E402
     MassElement,
     LinkElement,
     BeamElement,
@@ -46,7 +46,7 @@ from compas_fea2.model.elements import (
 )
 
 # Sections
-from compas_fea2.model.sections import (
+from compas_fea2.model.sections import (  # noqa: E402
     SpringSection,
     AngleSection,
     BeamSection,
@@ -67,43 +67,43 @@ from compas_fea2.model.sections import (
 )
 
 # Materials
-from compas_fea2.model.materials.material import (
+from compas_fea2.model.materials.material import (  # noqa: E402
     ElasticIsotropic,
     ElasticOrthotropic,
     ElasticPlastic,
     Stiff,
     UserMaterial,
-    ThermalElasticIsotropic
+    ThermalElasticIsotropic,
 )
-from compas_fea2.model.materials.concrete import (
+from compas_fea2.model.materials.concrete import (  # noqa: E402
     Concrete,
     ConcreteDamagedPlasticity,
     ConcreteSmearedCrack,
 )
-from compas_fea2.model.materials.steel import (
+from compas_fea2.model.materials.steel import (  # noqa: E402
     Steel,
 )
-from compas_fea2.model.materials.timber import (
+from compas_fea2.model.materials.timber import (  # noqa: E402
     Timber,
 )
 
 # Groups
-from compas_fea2.model.groups import (
-    NodesGroup,
+from compas_fea2.model.groups import (  # noqa: E402
+    # NodesGroup,
     ElementsGroup,
     FacesGroup,
-    EdgesGroup
+    EdgesGroup,
 )
 
 # Constraints
-from compas_fea2.model.constraints import (
+from compas_fea2.model.constraints import (  # noqa: E402
     TieConstraint,
     TieMPC,
     BeamMPC,
 )
 
 # Connectors
-from compas_fea2.model.connectors import (
+from compas_fea2.model.connectors import (  # noqa: E402
     RigidLinkConnector,
     SpringConnector,
     ZeroLengthSpringConnector,
@@ -112,12 +112,12 @@ from compas_fea2.model.connectors import (
 )
 
 # Releases
-from compas_fea2.model.releases import (
+from compas_fea2.model.releases import (  # noqa: E402
     BeamEndPinRelease,
 )
 
 # Boundary Conditions
-from compas_fea2.model.bcs import (
+from compas_fea2.model.bcs import (  # noqa: E402
     GeneralBC,
     FixedBC,
     FixedBCX,
@@ -133,33 +133,33 @@ from compas_fea2.model.bcs import (
     RollerBCY,
     RollerBCYZ,
     RollerBCZ,
-    ImposedTemperature
+    ImposedTemperature,
 )
 
 # Initial Conditions
-from compas_fea2.model.ics import (
+from compas_fea2.model.ics import (  # noqa: E402
     InitialTemperatureField,
     InitialStressField,
 )
 
 # Interactions
-from compas_fea2.model.interactions import (
+from compas_fea2.model.interactions import (  # noqa: E402
     HardContactFrictionPenalty,
-    HardContactNoFriction,
+    # HardContactNoFriction,
     HardContactRough,
     LinearContactFrictionPenalty,
     SurfaceConvection,
-    SurfaceRadiation
+    SurfaceRadiation,
 )
 
 # Interfaces
-from compas_fea2.model.interfaces import Interface
+# from compas_fea2.model.interfaces import Interface
 
 # Problem
-from compas_fea2.problem import Problem
+from compas_fea2.problem import Problem  # noqa: E402
 
 # Steps
-from compas_fea2.problem.steps import (
+from compas_fea2.problem.steps import (  # noqa: E402
     ModalAnalysis,
     ComplexEigenValue,
     StaticStep,
@@ -168,11 +168,11 @@ from compas_fea2.problem.steps import (
     DynamicStep,
     QuasiStaticStep,
     DirectCyclicStep,
-    HeatTransferStep
+    HeatTransferStep,
 )
 
 # Loads
-from compas_fea2.problem.loads import (
+from compas_fea2.problem.loads import (  # noqa: E402
     ConcentratedLoad,
     # EdgeLoad,
     # FaceLoad,
@@ -181,36 +181,36 @@ from compas_fea2.problem.loads import (
     GravityLoad,
     HarmonicPointLoad,
     HarmonicPressureLoad,
-    HeatFluxLoad
+    HeatFluxLoad,
 )
 
 # Fields
-from compas_fea2.problem.fields import (
+from compas_fea2.problem.fields import (  # noqa: E402
     HeatFluxField,
     ConvectionField,
     RadiationField,
-    TemperatureField,
-    PrescribedTemperatureField
+    # TemperatureField,
+    PrescribedTemperatureField,
 )
 
 
 # Displacements
-from compas_fea2.problem.displacements import (
+from compas_fea2.problem.displacements import (  # noqa: E402
     GeneralDisplacement,
 )
 
 # Results
-from compas_fea2.results import (
+from compas_fea2.results import (  # noqa: E402
     DisplacementFieldResults,
     ReactionFieldResults,
     StressFieldResults,
     SectionForcesFieldResults,
     ContactForcesFieldResults,
-    TemperatureFieldResults
+    TemperatureFieldResults,
 )
 
 # Input File
-from compas_fea2.job import (
+from compas_fea2.job import (  # noqa: E402
     InputFile,
     ParametersFile,
 )
@@ -267,7 +267,7 @@ try:
         AbaqusElasticPlastic,
         AbaqusStiff,
         AbaqusUserMaterial,
-        AbaqusThermalElasticIsotropic
+        AbaqusThermalElasticIsotropic,
     )
     from .model.materials.concrete import (
         AbaqusConcrete,
@@ -283,10 +283,10 @@ try:
 
     # Abaqus Groups
     from .model.groups import (
-        AbaqusNodesGroup,
+        # AbaqusNodesGroup,
         AbaqusElementsGroup,
         AbaqusFacesGroup,
-        AbaqusEdgesGroup
+        AbaqusEdgesGroup,
     )
 
     # Abaqus Constraints
@@ -328,7 +328,7 @@ try:
         AbaqusRollerBCY,
         AbaqusRollerBCYZ,
         AbaqusRollerBCZ,
-        AbaqusImposedTemperature
+        AbaqusImposedTemperature,
     )
 
     # Initial Conditions
@@ -344,7 +344,7 @@ try:
         AbaqusLinearContactFrictionPenalty,
         # AbaqusHardContactNoFriction,
         AbaqusSurfaceConvection,
-        AbaqusSurfaceRadiation
+        AbaqusSurfaceRadiation,
     )
 
     # Abaqus Problem
@@ -360,7 +360,7 @@ try:
         AbaqusDynamicStep,
         AbaqusQuasiStaticStep,
         AbaqusDirectCyclicStep,
-        AbaqusHeatTransferStep
+        AbaqusHeatTransferStep,
     )
 
     # Abaqus Loads
@@ -371,7 +371,7 @@ try:
         AbaqusGravityLoad,
         AbaqusHarmonicPointLoad,
         AbaqusHarmonicPressureLoad,
-        AbaqusHeatFluxLoad
+        AbaqusHeatFluxLoad,
     )
 
     # Abaqus Displacements
@@ -384,7 +384,7 @@ try:
         AbaqusConvectionField,
         AbaqusHeatFluxField,
         AbaqusRadiationField,
-        AbaqusPrescribedTemperatureField
+        AbaqusPrescribedTemperatureField,
     )
 
     # Abaqus Results
@@ -394,7 +394,7 @@ try:
         AbaqusReactionFieldResults,
         AbaqusContactFieldResults,
         AbaqusSectionForcesFieldResults,
-        AbaqusTemperatureFieldResults
+        AbaqusTemperatureFieldResults,
     )
 
     # Abaqus Input File
@@ -535,7 +535,7 @@ try:
 
         print("Abaqus implementations registered...")
 
-except:
+except:  # noqa: E722
     raise ErrorDuringImport()
 
 
@@ -568,7 +568,6 @@ def init_fea2_abaqus(exe):
 
 
 if not load_dotenv():
-
     from sys import platform
 
     if platform == "linux" or platform == "linux2":

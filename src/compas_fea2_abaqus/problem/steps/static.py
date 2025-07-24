@@ -1,4 +1,3 @@
-from compas_fea2.model import InitialTemperatureField
 from compas_fea2.problem.steps import StaticStep
 from compas_fea2.problem.steps import StaticRiksStep
 
@@ -95,7 +94,6 @@ class AbaqusStaticStep(StaticStep):
         return "\n".join(data)
 
     def _generate_displacements_section(self):
-
         return (
             "\n".join(
                 [
@@ -117,7 +115,11 @@ class AbaqusStaticStep(StaticStep):
         from itertools import groupby
 
         if self._field_outputs:
-            data = ["**", "*Restart, write, frequency={}".format(self.restart or 0), "**"]
+            data = [
+                "**",
+                "*Restart, write, frequency={}".format(self.restart or 0),
+                "**",
+            ]
             data.append("*Output, field")
             grouped_outputs = {k: list(g) for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)}
             if element_outputs := grouped_outputs.get("element", None):
@@ -147,7 +149,7 @@ class AbaqusStaticStep(StaticStep):
             return "\n".join([perturbation.jobdata() for perturbation in self.perturbations])
         else:
             return "**"
-        
+
     def _generate_prescribed_field_section(self):
         """
 
@@ -177,5 +179,14 @@ class AbaqusStaticRiksStep(StaticRiksStep):
         name=None,
         **kwargs,
     ):
-        super().__init__(max_increments, initial_inc_size, min_inc_size, time, nlgeom, modify, name, **kwargs)
+        super().__init__(
+            max_increments,
+            initial_inc_size,
+            min_inc_size,
+            time,
+            nlgeom,
+            modify,
+            name,
+            **kwargs,
+        )
         raise NotImplementedError

@@ -9,11 +9,12 @@ from compas_fea2.problem import HeatFluxLoad
 
 from typing import Iterable
 
-dofs = ['x',  'y',  'z',  'xx', 'yy', 'zz']
+dofs = ["x", "y", "z", "xx", "yy", "zz"]
 
 
 class AbaqusConcentratedLoad(ConcentratedLoad):
     """Abaqus implementation of :class:`PointLoad`.\n"""
+
     __doc__ += ConcentratedLoad.__doc__
     """
     Additional Parameters
@@ -45,11 +46,24 @@ class AbaqusConcentratedLoad(ConcentratedLoad):
 
     """
 
-    def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes='global', modify=False, follow=False, name=None, **kwargs):
+    def __init__(
+        self,
+        x=None,
+        y=None,
+        z=None,
+        xx=None,
+        yy=None,
+        zz=None,
+        axes="global",
+        modify=False,
+        follow=False,
+        name=None,
+        **kwargs,
+    ):
         super().__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, name=name, **kwargs)
 
-        self._modify = ', OP={}'.format(modify) if modify else ', OP=MOD'  # In abaqus the default is MOD
-        self._follow = ', follower' if follow else ''
+        self._modify = ", OP={}".format(modify) if modify else ", OP=MOD"  # In abaqus the default is MOD
+        self._follow = ", follower" if follow else ""
 
     @property
     def modify(self):
@@ -72,22 +86,25 @@ class AbaqusConcentratedLoad(ConcentratedLoad):
 
         """
 
-        data_section = ['** Name: {} Type: Concentrated Force'.format(self.name),
-                        '*Cload{}{}'.format(self._modify, self._follow)]
+        data_section = [
+            "** Name: {} Type: Concentrated Force".format(self.name),
+            "*Cload{}{}".format(self._modify, self._follow),
+        ]
         if not isinstance(nodes, Iterable):
             nodes = [nodes]
         for node in nodes:
             for comp, dof in enumerate(dofs, 1):
                 if getattr(self, dof):
-                    data_section += ['{}-1.{}, {}, {}'.format(node.part.name, node.key, comp, self.components[dof])]
-        return '\n'.join(data_section)
+                    data_section += ["{}-1.{}, {}, {}".format(node.part.name, node.key, comp, self.components[dof])]
+        return "\n".join(data_section)
 
 
 class AbaqusGravityLoad(GravityLoad):
     """Abaqus implementation of :class:`GravityLoad`.\n"""
+
     __doc__ += GravityLoad.__doc__
 
-    def __init__(self, g=9.81, x=0., y=0., z=-1., name=None, **kwargs):
+    def __init__(self, g=9.81, x=0.0, y=0.0, z=-1.0, name=None, **kwargs):
         super(AbaqusGravityLoad, self).__init__(g, x, y, z, name=name, **kwargs)
 
     def jobdata(self, distribution):
@@ -102,59 +119,65 @@ class AbaqusGravityLoad(GravityLoad):
         input file data line (str).
         """
         if not distribution:
-            elements_set_name = ''
-        return ("** Name: {} Type: Gravity\n"
-                "*Dload\n"
-                "{}, GRAV, {}, {}, {}, {}").format(self.name, elements_set_name, self.g, self.x, self.y, self.z)
+            elements_set_name = ""
+        return ("** Name: {} Type: Gravity\n*Dload\n{}, GRAV, {}, {}, {}, {}").format(
+            self.name, elements_set_name, self.g, self.x, self.y, self.z
+        )
 
 
 class AbaqusPrestressLoad(PrestressLoad):
     """Abaqus implementation of :class:`PrestressLoad`.\n"""
+
     __doc__ += PrestressLoad.__doc__
 
-    def __init__(self, components, axes='global', name=None, **kwargs):
+    def __init__(self, components, axes="global", name=None, **kwargs):
         super(AbaqusPrestressLoad, self).__init__(components, axes, name, **kwargs)
         raise NotImplementedError
 
 
 class AbaqusTributaryLoad(TributaryLoad):
     """Abaqus implementation of :class:`TributaryLoad`.\n"""
+
     __doc__ += TributaryLoad.__doc__
 
-    def __init__(self, components, axes='global', name=None, **kwargs):
+    def __init__(self, components, axes="global", name=None, **kwargs):
         super(AbaqusTributaryLoad, self).__init__(components, axes, name, **kwargs)
         raise NotImplementedError
 
 
 class AbaqusHarmonicPointLoad(HarmonicPointLoad):
     """Abaqus implementation of :class:`HarmonicPointLoad`.\n"""
+
     __doc__ += HarmonicPointLoad.__doc__
 
-    def __init__(self, components, axes='global', name=None, **kwargs):
+    def __init__(self, components, axes="global", name=None, **kwargs):
         super(AbaqusHarmonicPointLoad, self).__init__(components, axes, name, **kwargs)
         raise NotImplementedError
 
 
 class AbaqusHarmonicPressureLoad(HarmonicPressureLoad):
     """Abaqus implementation of :class:`HarmonicPressureLoad`.\n"""
+
     __doc__ += HarmonicPressureLoad.__doc__
 
-    def __init__(self, components, axes='global', name=None, **kwargs):
+    def __init__(self, components, axes="global", name=None, **kwargs):
         super(AbaqusHarmonicPressureLoad, self).__init__(components, axes, name, **kwargs)
         raise NotImplementedError
 
 
 class AbaqusThermalLoad(ThermalLoad):
     """Abaqus implementation of :class:`ThermalLoad`.\n"""
+
     __doc__ += ThermalLoad.__doc__
 
-    def __init__(self, components, axes='global', name=None, **kwargs):
+    def __init__(self, components, axes="global", name=None, **kwargs):
         super(AbaqusThermalLoad, self).__init__(components, axes, name, **kwargs)
         raise NotImplementedError
 
-class AbaqusHeatFluxLoad(HeatFluxLoad):
 
+class AbaqusHeatFluxLoad(HeatFluxLoad):
     """Abaqus implementation of :class:`HeatFluxLoad`.\n"""
+
     __doc__ += HeatFluxLoad.__doc__
 
     def __init__(self, q, **kwargs):
@@ -172,14 +195,14 @@ class AbaqusHeatFluxLoad(HeatFluxLoad):
         input file data line (str).
 
         """
-        data_section=[]
+        data_section = []
         data_section.append(f"** Name: {self.name} Type: Surface heat flux")
         data_section.append("*Dsflux")
-        if self.heatflux.amplitude :
+        if self.heatflux.amplitude:
             data_section[-1] += f", amplitude={self.heatflux.amplitude}"
         data_section.append(f"{surface.part.name}-1.{surface.element.key}, {surface.tag}, S, {self.q}")
-        return '\n'.join(data_section)
-    
+        return "\n".join(data_section)
+
         # data_section = []
         # data_section.app= ['** Name: {} Type: Surface heat flux'.format(self.name),
         #                 '*Dsflux',

@@ -11,7 +11,7 @@ from .input_file import AbaqusInputFile
 from .input_file import AbaqusParametersFile
 
 __all__ = [
-    'AbaqusInputFile',
-    'AbaqusParametersFile',
-    'launch_optimisation',
+    "AbaqusInputFile",
+    "AbaqusParametersFile",
+    "launch_optimisation",
 ]

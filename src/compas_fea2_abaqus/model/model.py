@@ -1,8 +1,6 @@
 from compas_fea2.model import Model, RigidPart
 from compas_fea2.model import ElementsGroup, NodesGroup
 from compas_fea2.model import _Constraint, _Interaction
-from compas_fea2.model import InitialStressField, InitialTemperatureField
-from compas_fea2.problem import SurfaceLoadField
 from compas_fea2.utilities._utils import timer
 
 
@@ -51,33 +49,33 @@ class AbaqusModel(Model):
         return f"""**
 ** PARTS
 **
-{self._generate_part_section() or '**'}
+{self._generate_part_section() or "**"}
 **
 ** ASSEMBLY
 **
-{self._generate_assembly_section() or '**'}
+{self._generate_assembly_section() or "**"}
 **
 **AMPLITUDES
 **
-{self._generate_amplitude_section() or '**'}
+{self._generate_amplitude_section() or "**"}
 **
 ** MATERIALS
 **
-{self._generate_material_section() or '**'}
+{self._generate_material_section() or "**"}
 **
 ** INTERACTIONS
 **
-{self._generate_interactions_section() or '**'}
+{self._generate_interactions_section() or "**"}
 **
 ** INTERFACES
 **
-{self._generate_interfaces_section() or '**'}
+{self._generate_interfaces_section() or "**"}
 **
 ** INITIAL and BOUNDARY CONDITIONS
 **
-{self._generate_bcs_section() or '**'}
+{self._generate_bcs_section() or "**"}
 **
-{self._generate_ics_section() or '**'}
+{self._generate_ics_section() or "**"}
 """
 
     def _generate_part_section(self):
@@ -113,7 +111,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        from itertools import groupby
+
         data_section = ["*Assembly, name={}".format(self.name)]
         for part in self._parts:
             data_section.append(part._generate_instance_jobdata())
@@ -124,7 +122,7 @@ class AbaqusModel(Model):
         data_section.append("**\n** CONNECTORS\n**")
         connector_gorups = []
         for connector in self.connectors:
-            connector_gorups.append(ElementsGroup(elements=[connector], name=f'set-{connector.name}'))
+            connector_gorups.append(ElementsGroup(elements=[connector], name=f"set-{connector.name}"))
             data_section.append(connector.jobdata())
         data_section.append("**\n** CONSTRAINTS\n**")
         for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
@@ -137,9 +135,9 @@ class AbaqusModel(Model):
             data_section.append(group.jobdata(instance=True))
         for group in connector_gorups:
             data_section.append(group.jobdata())
-        
+
         data_section.append("**\n** THERMAL SURFACES\n**")
-        #Surface generation for thermal surface load fields
+        # Surface generation for thermal surface load fields
         for group in self.groups:
             data_section.append(group.jobdata())
 
@@ -149,21 +147,18 @@ class AbaqusModel(Model):
         #             if isinstance(loadfield, SurfaceLoadField):
         #                 data_section.append(loadfield.surface.jobdata())
 
-
-
         data_section.append("*End Assembly")
 
         return "\n".join(data_section)
-    
-    def _generate_amplitude_section(self): 
-        data_section=[]
+
+    def _generate_amplitude_section(self):
+        data_section = []
         for amplitude in self.amplitudes:
             data_section.append(f"*Amplitude, name={amplitude.name}")
             for multiplier, time in amplitude.multipliers_times:
                 data_section.append(f"{time}, {multiplier},")
         data_section.append("**")
         return "\n".join(data_section)
-
 
     def _generate_material_section(self):
         """Generate the content relatitive to the material section for the input
@@ -233,7 +228,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        return "\n".join([bc.jobdata(nodes) for bc, nodes in self.bcs.items() ]) or "**"
+        return "\n".join([bc.jobdata(nodes) for bc, nodes in self.bcs.items()]) or "**"
 
     def _generate_ics_section(self):
         """Generate the content relatitive to the initial conditions section
