@@ -1,5 +1,6 @@
 from compas_fea2.model import NodesGroup
 from compas_fea2.model import ElementsGroup
+from compas_fea2.model.groups import EdgesGroup
 from compas_fea2.model.groups import FacesGroup
 from itertools import groupby
 
@@ -74,6 +75,37 @@ class AbaqusElementsGroup(ElementsGroup):
     def jobdata(self, instance=None):
         return jobdata(self, instance)
 
+class AbaqusEdgesGroup(EdgesGroup):
+    """Abaqus implementation of :class:`FacesGroup`
+
+    Notes
+    -----
+    This is equivalent to a `Surface` in Abaqus
+
+    """
+
+    __doc__ += EdgesGroup.__doc__
+
+    def __init__(self, edges, **kwargs):
+        super().__init__(edges=edges, **kwargs)
+
+    def jobdata(self):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str
+            input file data line.
+        """
+        lines = ["*Surface, type=ELEMENT, name={}_i".format(self._name)]
+        for edge in self.edges:
+            lines.append("{}-1.{}, {}".format(edge.part.name, edge.element.key, edge.tag))
+        lines.append("**")
+        return "\n".join(lines)
 
 class AbaqusFacesGroup(FacesGroup):
     """Abaqus implementation of :class:`FacesGroup`
@@ -84,7 +116,7 @@ class AbaqusFacesGroup(FacesGroup):
 
     """
 
-    __doc__ += NodesGroup.__doc__
+    __doc__ += FacesGroup.__doc__
 
     def __init__(self, faces, **kwargs):
         super(AbaqusFacesGroup, self).__init__(faces=faces, **kwargs)

@@ -232,6 +232,7 @@ class AbaqusShellElement(ShellElement):
         self,
         nodes,
         section,
+        heat=None,
         implementation="S",
         reduced=False,
         optional=None,
@@ -240,8 +241,10 @@ class AbaqusShellElement(ShellElement):
         name=None,
         **kwargs,
     ):
+
         implementation = "".join(
             [
+                "D" if heat else "",
                 implementation or "S" if not rigid else "R3D",
                 str(len(nodes)),
                 "R" if reduced else "",
@@ -261,6 +264,12 @@ class AbaqusShellElement(ShellElement):
         return getattr(self, "_" + self._implementation.lower())()
 
     def _s3(self):
+        return _jobdata(self)
+
+    def _dc2d4(self):
+        return _jobdata(self)
+    
+    def _dc2d3(self):
         return _jobdata(self)
 
     def _s4(self):
@@ -372,6 +381,7 @@ class _AbaqusElement3D(_Element3D):
         self,
         nodes,
         section=None,
+        heat=None,
         type="C3D",
         reduced=False,
         hybrid=False,
@@ -385,7 +395,7 @@ class _AbaqusElement3D(_Element3D):
             section=section,
             implementation=implementation
             or "".join(
-                [
+                [   'D' if heat else "",
                     type,
                     str(len(nodes)),
                     "R" if reduced else "",
@@ -488,7 +498,8 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         self,
         nodes,
         section=None,
-        type="C3D",  # FIXME remove this
+        type="C3D",  # FIXME remove this,
+        heat = False,
         reduced=False,
         hybrid=False,
         optional=None,
@@ -499,19 +510,21 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         super(AbaqusTetrahedronElement, self).__init__(
             nodes=nodes,
             section=section,
-            implementation="".join(
-                [
+            implementation=("".join(
+                [   
+                    'D' if heat else "",
                     implementation or "C3D",
                     str(len(nodes)),
                     "R" if reduced else "",
                     "H" if hybrid else "",
                     optional or "",
                 ]
-            ),
+            ) if not(implementation) else implementation),
             rigid=rigid,
             **kwargs,
         )
         self._type = type.upper()
+        self._heat = heat
         self._reduced = reduced
         self._hybrid = hybrid
         self._optional = optional
@@ -520,7 +533,7 @@ class AbaqusTetrahedronElement(TetrahedronElement):
 
     def jobdata(self):
         try:
-            return getattr(self, "_" + self.implementation[:4].lower())()  # BUG cannot reach c3d10
+            return getattr(self, "_" + self.implementation[:4].lower() if not(self._heat) else "_" + self.implementation[:5].lower())()  # BUG cannot reach c3d10
         except:
             raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
@@ -528,6 +541,9 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         return _jobdata(self)
 
     def _c3d4(self):
+        return _jobdata(self)
+    
+    def _dc3d4(self):
         return _jobdata(self)
 
     def _c3d10(self):

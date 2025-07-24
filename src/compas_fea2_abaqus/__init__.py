@@ -48,7 +48,6 @@ from compas_fea2.model.elements import (
 # Sections
 from compas_fea2.model.sections import (
     SpringSection,
-    ConnectorSection,
     AngleSection,
     BeamSection,
     BoxSection,
@@ -74,6 +73,7 @@ from compas_fea2.model.materials.material import (
     ElasticPlastic,
     Stiff,
     UserMaterial,
+    ThermalElasticIsotropic
 )
 from compas_fea2.model.materials.concrete import (
     Concrete,
@@ -92,6 +92,7 @@ from compas_fea2.model.groups import (
     NodesGroup,
     ElementsGroup,
     FacesGroup,
+    EdgesGroup
 )
 
 # Constraints
@@ -103,7 +104,6 @@ from compas_fea2.model.constraints import (
 
 # Connectors
 from compas_fea2.model.connectors import (
-    LinearConnector,
     RigidLinkConnector,
     SpringConnector,
     ZeroLengthSpringConnector,
@@ -133,6 +133,7 @@ from compas_fea2.model.bcs import (
     RollerBCY,
     RollerBCYZ,
     RollerBCZ,
+    ImposedTemperature
 )
 
 # Initial Conditions
@@ -147,6 +148,8 @@ from compas_fea2.model.interactions import (
     HardContactNoFriction,
     HardContactRough,
     LinearContactFrictionPenalty,
+    SurfaceConvection,
+    SurfaceRadiation
 )
 
 # Interfaces
@@ -165,6 +168,7 @@ from compas_fea2.problem.steps import (
     DynamicStep,
     QuasiStaticStep,
     DirectCyclicStep,
+    HeatTransferStep
 )
 
 # Loads
@@ -177,7 +181,18 @@ from compas_fea2.problem.loads import (
     GravityLoad,
     HarmonicPointLoad,
     HarmonicPressureLoad,
+    HeatFluxLoad
 )
+
+# Fields
+from compas_fea2.problem.fields import (
+    HeatFluxField,
+    ConvectionField,
+    RadiationField,
+    TemperatureField,
+    PrescribedTemperatureField
+)
+
 
 # Displacements
 from compas_fea2.problem.displacements import (
@@ -191,6 +206,7 @@ from compas_fea2.results import (
     StressFieldResults,
     SectionForcesFieldResults,
     ContactForcesFieldResults,
+    TemperatureFieldResults
 )
 
 # Input File
@@ -225,7 +241,7 @@ try:
     # Abaqus Sections
     from .model.sections import (
         AbaqusSpringSection,
-        AbaqusConnectorSection,
+        # AbaqusConnectorSection,
         AbaqusAngleSection,
         AbaqusBeamSection,
         AbaqusBoxSection,
@@ -251,6 +267,7 @@ try:
         AbaqusElasticPlastic,
         AbaqusStiff,
         AbaqusUserMaterial,
+        AbaqusThermalElasticIsotropic
     )
     from .model.materials.concrete import (
         AbaqusConcrete,
@@ -269,6 +286,7 @@ try:
         AbaqusNodesGroup,
         AbaqusElementsGroup,
         AbaqusFacesGroup,
+        AbaqusEdgesGroup
     )
 
     # Abaqus Constraints
@@ -280,7 +298,7 @@ try:
 
     # Abaqus Connectors
     from .model.connectors import (
-        AbaqusLinearConnector,
+        # AbaqusLinearConnector,
         AbaqusSpringConnector,
         AbaqusZeroLengthSpringConnector,
         AbaqusRigidLinkConnector,
@@ -310,6 +328,7 @@ try:
         AbaqusRollerBCY,
         AbaqusRollerBCYZ,
         AbaqusRollerBCZ,
+        AbaqusImposedTemperature
     )
 
     # Initial Conditions
@@ -323,11 +342,10 @@ try:
         AbaqusHardContactFrictionPenalty,
         AbaqusHardContactRough,
         AbaqusLinearContactFrictionPenalty,
-        AbaqusHardContactNoFriction,
+        # AbaqusHardContactNoFriction,
+        AbaqusSurfaceConvection,
+        AbaqusSurfaceRadiation
     )
-
-    # Abaqus Interfaces
-    from .model.interfaces import AbaqusInterface
 
     # Abaqus Problem
     from .problem import AbaqusProblem
@@ -342,6 +360,7 @@ try:
         AbaqusDynamicStep,
         AbaqusQuasiStaticStep,
         AbaqusDirectCyclicStep,
+        AbaqusHeatTransferStep
     )
 
     # Abaqus Loads
@@ -352,11 +371,20 @@ try:
         AbaqusGravityLoad,
         AbaqusHarmonicPointLoad,
         AbaqusHarmonicPressureLoad,
+        AbaqusHeatFluxLoad
     )
 
     # Abaqus Displacements
     from .problem.displacements import (
         AbaqusGeneralDisplacement,
+    )
+
+    # Abaqus LoadFields
+    from .problem.fields import (
+        AbaqusConvectionField,
+        AbaqusHeatFluxField,
+        AbaqusRadiationField,
+        AbaqusPrescribedTemperatureField
     )
 
     # Abaqus Results
@@ -366,6 +394,7 @@ try:
         AbaqusReactionFieldResults,
         AbaqusContactFieldResults,
         AbaqusSectionForcesFieldResults,
+        AbaqusTemperatureFieldResults
     )
 
     # Abaqus Input File
@@ -393,7 +422,6 @@ try:
         backend[TetrahedronElement] = AbaqusTetrahedronElement
 
         backend[SpringSection] = AbaqusSpringSection
-        backend[ConnectorSection] = AbaqusConnectorSection
         backend[AngleSection] = AbaqusAngleSection
         backend[BeamSection] = AbaqusBeamSection
         backend[BoxSection] = AbaqusBoxSection
@@ -420,10 +448,12 @@ try:
         backend[ConcreteDamagedPlasticity] = AbaqusConcreteDamagedPlasticity
         backend[ConcreteSmearedCrack] = AbaqusConcreteSmearedCrack
         backend[Steel] = AbaqusSteel
+        backend[ThermalElasticIsotropic] = AbaqusThermalElasticIsotropic
         backend[Timber] = AbaqusTimber
 
-        backend[NodesGroup] = AbaqusNodesGroup
+        # backend[NodesGroup] = AbaqusNodesGroup
         backend[ElementsGroup] = AbaqusElementsGroup
+        backend[EdgesGroup] = AbaqusEdgesGroup
         backend[FacesGroup] = AbaqusFacesGroup
 
         backend[TieConstraint] = AbaqusTieConstraint
@@ -431,7 +461,6 @@ try:
         backend[BeamMPC] = AbaqusBeamMPC
 
         backend[SpringConnector] = AbaqusSpringConnector
-        backend[LinearConnector] = AbaqusLinearConnector
         backend[ZeroLengthSpringConnector] = AbaqusZeroLengthSpringConnector
         backend[RigidLinkConnector] = AbaqusRigidLinkConnector
         backend[ZeroLengthContactConnector] = AbaqusZeroLengthContactConnector
@@ -454,6 +483,7 @@ try:
         backend[RollerBCY] = AbaqusRollerBCY
         backend[RollerBCYZ] = AbaqusRollerBCYZ
         backend[RollerBCZ] = AbaqusRollerBCZ
+        backend[ImposedTemperature] = AbaqusImposedTemperature
 
         backend[InitialStressField] = AbaqusInitialStressField
         backend[InitialTemperatureField] = AbaqusInitialTemperatureField
@@ -461,9 +491,10 @@ try:
         backend[HardContactFrictionPenalty] = AbaqusHardContactFrictionPenalty
         backend[HardContactRough] = AbaqusHardContactRough
         backend[LinearContactFrictionPenalty] = AbaqusLinearContactFrictionPenalty
-        backend[HardContactNoFriction] = AbaqusHardContactNoFriction
+        # backend[HardContactNoFriction] = AbaqusHardContactNoFriction
 
-        backend[Interface] = AbaqusInterface
+        backend[SurfaceConvection] = AbaqusSurfaceConvection
+        backend[SurfaceRadiation] = AbaqusSurfaceRadiation
 
         backend[Problem] = AbaqusProblem
 
@@ -475,6 +506,7 @@ try:
         backend[DynamicStep] = AbaqusDynamicStep
         backend[QuasiStaticStep] = AbaqusQuasiStaticStep
         backend[DirectCyclicStep] = AbaqusDirectCyclicStep
+        backend[HeatTransferStep] = AbaqusHeatTransferStep
 
         backend[GravityLoad] = AbaqusGravityLoad
         backend[ConcentratedLoad] = AbaqusConcentratedLoad
@@ -482,14 +514,21 @@ try:
         backend[PrestressLoad] = AbaqusPrestressLoad
         backend[HarmonicPointLoad] = AbaqusHarmonicPointLoad
         backend[HarmonicPressureLoad] = AbaqusHarmonicPressureLoad
+        backend[HeatFluxLoad] = AbaqusHeatFluxLoad
 
         backend[GeneralDisplacement] = AbaqusGeneralDisplacement
+
+        backend[HeatFluxField] = AbaqusHeatFluxField
+        backend[ConvectionField] = AbaqusConvectionField
+        backend[RadiationField] = AbaqusRadiationField
+        backend[PrescribedTemperatureField] = AbaqusPrescribedTemperatureField
 
         backend[StressFieldResults] = AbaqusStressFieldResults
         backend[DisplacementFieldResults] = AbaqusDisplacementFieldResults
         backend[ReactionFieldResults] = AbaqusReactionFieldResults
         backend[ContactForcesFieldResults] = AbaqusContactFieldResults
         backend[SectionForcesFieldResults] = AbaqusSectionForcesFieldResults
+        backend[TemperatureFieldResults] = AbaqusTemperatureFieldResults
 
         backend[InputFile] = AbaqusInputFile
         backend[ParametersFile] = AbaqusParametersFile

@@ -20,3 +20,7 @@ from .static import (
     AbaqusStaticStep,
     AbaqusStaticRiksStep,
 )
+
+from .heat import (
+    AbaqusHeatTransferStep
+)

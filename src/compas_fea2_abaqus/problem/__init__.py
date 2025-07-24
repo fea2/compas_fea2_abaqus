@@ -29,6 +29,7 @@ from .loads import (
     AbaqusHarmonicPressureLoad,
     AbaqusTributaryLoad,
     AbaqusThermalLoad,
+    AbaqusHeatFluxLoad
 )
 
 # Abaqus Problem

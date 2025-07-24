@@ -456,8 +456,7 @@ class AbaqusSolidSection(SolidSection):
         -------
         input file data line (str).
         """
-        return """** Section: {}
-*Solid Section, elset={}, material={}
-,""".format(
-            self.name, set_name, self.material.name
-        )
+
+        return f"""** Section: {self.name}
+*Solid Section, elset={set_name}, material={self.material.name}
+{self._t if self._t else "**"},"""

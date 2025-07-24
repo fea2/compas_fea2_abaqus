@@ -1,12 +1,10 @@
-from compas_fea2.model import InitialTemperatureField
-from compas_fea2.problem.steps import StaticStep
-from compas_fea2.problem.steps import StaticRiksStep
+from compas_fea2.problem.steps import HeatTransferStep
 
 
-class AbaqusStaticStep(StaticStep):
+class AbaqusHeatTransferStep(HeatTransferStep):
     """"""
 
-    __doc__ += StaticStep.__doc__
+    __doc__ += HeatTransferStep.__doc__
     """
     Warning
     -------
@@ -21,7 +19,6 @@ class AbaqusStaticStep(StaticStep):
     the data for the input file for this object is generated at runtime.
 
     """
-    __doc__ += StaticStep.__doc__
 
     def __init__(
         self,
@@ -47,7 +44,7 @@ class AbaqusStaticStep(StaticStep):
             name=name,
             **kwargs,
         )
-        self._stype = "Static"
+        self._stype = "Heat Transfer"
         self._restart = restart
 
     def jobdata(self):
@@ -64,18 +61,21 @@ class AbaqusStaticStep(StaticStep):
 
         return f"""**
 {self._generate_header_section()}
-** - Displacements
+** - Boundary Conditions
 **   -------------
-{self._generate_displacements_section()}
+{self._generate_bcst_section()}
 **
 ** - Loads
 **   -----
 {self._generate_loads_section()}
+** - Surface Interactions
+**   -----
+{self._generate_thermalinteractions_section()}
 **
 ** - Predefined Fields
 **   -----------------
 **
-{self._generate_prescribed_field_section()}
+{self._generate_predifined_fields()}
 ** - Output Requests
 **   ---------------
 {self._generate_output_section()}
@@ -89,35 +89,50 @@ class AbaqusStaticStep(StaticStep):
         data = [
             f"** STEP: {self._name}",
             f"*Step, name={self._name}, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}",
-            f"*{self._stype}",
-            f"{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self.max_inc_size}",
+            f"*{self._stype}, end=PERIOD, deltmx={self.max_temp_delta}, mxdem={self.max_emiss_change}",
+            f"{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._max_inc_size}",
         ]
         return "\n".join(data)
 
-    def _generate_displacements_section(self):
+    def _generate_bcst_section(self):
+        """Generate the content relatitive to the thermal boundary conditions section
+        for the input file.
+        In Abaqus, the thermal boundary conditions must be implemented in the heat analysis
+        step and not in the Initial Condition step.
 
-        return (
-            "\n".join(
-                [
-                    displacement.jobdata(node)
-                    for field in self.displacements
-                    for node, displacement in field.node_displacement
-                ]
-            )
-            or "**"
-        )
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str
+            text section for the input file.
+        """
+        return "\n".join([bct.jobdata(nodes) for bct, nodes in self.model.bcst.items() ]) or "**"
+
 
     def _generate_loads_section(self):
         data = []
-        for node, load in self.combination.node_load:
-            data.append(load.jobdata(node))
+        for load_field in self.load_fields:
+            data.append(load_field.jobdata())
         return "\n".join(data) or "**"
+    
+    def _generate_thermalinteractions_section(self):
+        """ """
+        data = ["**"]
+        for interaction in self.model.thermalinteraction:
+            data.append(interaction.jobdata())
+        return "\n".join(data)
+
+    def _generate_predifined_fields(self):
+        return "**"
 
     def _generate_output_section(self):
         from itertools import groupby
 
         if self._field_outputs:
-            data = ["**", "*Restart, write, frequency={}".format(self.restart or 0), "**"]
+            data = ["**", "*Restart, write, frequency={}".format( 0), "**"]
             data.append("*Output, field")
             grouped_outputs = {k: list(g) for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)}
             if element_outputs := grouped_outputs.get("element", None):
@@ -142,40 +157,5 @@ class AbaqusStaticStep(StaticStep):
                 data.append("*Output, history, variable=ALL")
                 data.append("**")
 
-    def _generate_perturbations_section(self):
-        if self._perturbations:
-            return "\n".join([perturbation.jobdata() for perturbation in self.perturbations])
-        else:
-            return "**"
-        
-    def _generate_prescribed_field_section(self):
-        """
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        str
-            text section for the input file.
-        """
-        # return "**"
-        return "\n".join([ic.jobdata(nodes) for ic, nodes in self.prescribed_fields.items()]) or "**"
-        # return "\n".join([ic.jobdata() if isinstance(ic, InitialTemperatureField) else "" for ic, nodes in self.model.ics.items()]) or "**"
 
 
-class AbaqusStaticRiksStep(StaticRiksStep):
-    def __init__(
-        self,
-        max_increments=100,
-        initial_inc_size=1,
-        min_inc_size=0.00001,
-        time=1,
-        nlgeom=False,
-        modify=True,
-        name=None,
-        **kwargs,
-    ):
-        super().__init__(max_increments, initial_inc_size, min_inc_size, time, nlgeom, modify, name, **kwargs)
-        raise NotImplementedError

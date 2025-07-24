@@ -66,6 +66,7 @@ def _generate_elements_section(obj):
 
 
 def _generate_sets_section(obj):
+    return "**"
     return "\n".join([group.jobdata() for group in obj.groups])
 
 

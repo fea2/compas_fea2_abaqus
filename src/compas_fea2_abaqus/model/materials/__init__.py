@@ -4,6 +4,7 @@ from .material import AbaqusElasticOrthotropic  # noqa : F401
 from .material import AbaqusElasticPlastic  # noqa : F401
 from .material import AbaqusStiff  # noqa : F401
 from .material import AbaqusUserMaterial  # noqa : F401
+from .material import AbaqusThermalElasticIsotropic  # noqa : F401
 
 # steel
 from .steel import AbaqusSteel  # noqa : F401

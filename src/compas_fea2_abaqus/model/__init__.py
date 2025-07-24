@@ -45,6 +45,7 @@ from .sections import (
 # Abaqus Materials
 from .materials.material import (
     AbaqusElasticIsotropic,
+    AbaqusThermalElasticIsotropic,
     AbaqusElasticOrthotropic,
     AbaqusElasticPlastic,
     AbaqusStiff,
@@ -75,7 +76,7 @@ from .constraints import (
 
 # Abaqus Connectors
 from .connectors import (
-    AbaqusLinearConnector,
+    # AbaqusLinearConnector,
     AbaqusSpringConnector,
     AbaqusZeroLengthSpringConnector,
     # AbaqusGroundSpringConnector,
@@ -97,6 +98,7 @@ from .bcs import (
     AbaqusRollerBCY,
     AbaqusRollerBCYZ,
     AbaqusRollerBCZ,
+    AbaqusImposedTemperature
 )
 
 from .ics import (
@@ -111,6 +113,8 @@ from .interactions import (
     AbaqusHardContactFrictionPenalty,
     AbaqusHardContactRough,
     AbaqusLinearContactFrictionPenalty,
+    AbaqusSurfaceConvection,
+    AbaqusSurfaceRadiation
 )
 
 # Abaqus Interfaces

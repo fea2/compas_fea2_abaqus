@@ -13,6 +13,7 @@ from compas_fea2.model import RollerBCZ
 from compas_fea2.model import RollerBCXY
 from compas_fea2.model import RollerBCYZ
 from compas_fea2.model import RollerBCXZ
+from compas_fea2.model.bcs import ImposedTemperature
 
 
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
@@ -243,3 +244,15 @@ class AbaqusRollerBCXZ(RollerBCXZ):
 
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
+    
+class AbaqusImposedTemperature(ImposedTemperature):
+
+    def __init__(self, **kwargs):
+        super(AbaqusImposedTemperature, self).__init__(**kwargs)
+
+    def jobdata(self, nodes):
+        data_section = ["** Name: {} Type: Temperature".format(self.name), "*Boundary, op=New"]
+        for node in nodes:
+            # if getattr(self, '_temp'):
+            data_section += ["{}.{}, 11, 11, {}".format('{}-1'.format(node.part.name), node.key, self.temp)]
+        return "\n".join(data_section)

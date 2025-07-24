@@ -5,6 +5,7 @@ from compas_fea2.problem import PrestressLoad
 from compas_fea2.problem import HarmonicPointLoad
 from compas_fea2.problem import HarmonicPressureLoad
 from compas_fea2.problem import ThermalLoad
+from compas_fea2.problem import HeatFluxLoad
 
 from typing import Iterable
 
@@ -150,3 +151,37 @@ class AbaqusThermalLoad(ThermalLoad):
     def __init__(self, components, axes='global', name=None, **kwargs):
         super(AbaqusThermalLoad, self).__init__(components, axes, name, **kwargs)
         raise NotImplementedError
+
+class AbaqusHeatFluxLoad(HeatFluxLoad):
+
+    """Abaqus implementation of :class:`HeatFluxLoad`.\n"""
+    __doc__ += HeatFluxLoad.__doc__
+
+    def __init__(self, q, **kwargs):
+        super().__init__(q, **kwargs)
+
+    def jobdata(self, surface):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+
+        """
+        data_section=[]
+        data_section.append(f"** Name: {self.name} Type: Surface heat flux")
+        data_section.append("*Dsflux")
+        if self.heatflux.amplitude :
+            data_section[-1] += f", amplitude={self.heatflux.amplitude}"
+        data_section.append(f"{surface.part.name}-1.{surface.element.key}, {surface.tag}, S, {self.q}")
+        return '\n'.join(data_section)
+    
+        # data_section = []
+        # data_section.app= ['** Name: {} Type: Surface heat flux'.format(self.name),
+        #                 '*Dsflux',
+        #                 '{}, HF, {}'.format(.name, self.q)]
+        # return '\n'.join(data_section)
