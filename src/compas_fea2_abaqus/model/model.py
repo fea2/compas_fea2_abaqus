@@ -1,6 +1,6 @@
 from compas_fea2.model import Model, RigidPart
 from compas_fea2.model import ElementsGroup, NodesGroup
-from compas_fea2.model import _Constraint, _Interaction
+from compas_fea2.model import _Constraint, _Interaction, ThermalInteraction
 from compas_fea2.utilities._utils import timer
 
 
@@ -128,35 +128,35 @@ class AbaqusModel(Model):
         for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
             data_section.append(interface._generate_jobdata())
         data_section.append("**\n** INTERFACES\n**")
+        surface_set=set()
         for interface in self.interfaces:
-            data_section.append(interface.master.jobdata())
-            data_section.append(interface.slave.jobdata())
+            surface_set.add(interface.master)
+            if interface.slave:
+                surface_set.add(interface.slave)
+        for surface in surface_set:
+            data_section.append(surface.jobdata())
         for group in self.partgroups:
             data_section.append(group.jobdata(instance=True))
         for group in connector_gorups:
             data_section.append(group.jobdata())
-
-        data_section.append("**\n** THERMAL SURFACES\n**")
-        # Surface generation for thermal surface load fields
-        for group in self.groups:
-            data_section.append(group.jobdata())
-
-        # for problem in self.problems:
-        #     for step in problem.steps:
-        #         for loadfield in step.load_fields:
-        #             if isinstance(loadfield, SurfaceLoadField):
-        #                 data_section.append(loadfield.surface.jobdata())
-
         data_section.append("*End Assembly")
 
         return "\n".join(data_section)
 
     def _generate_amplitude_section(self):
         data_section = []
+        # model amplitudes
         for amplitude in self.amplitudes:
             data_section.append(f"*Amplitude, name={amplitude.name}")
             for multiplier, time in amplitude.multipliers_times:
                 data_section.append(f"{time}, {multiplier},")
+        # steps amplitudes
+        for problem in self.problems:
+            for step in problem.steps:
+                for amplitude in step.amplitudes:
+                    data_section.append(f"*Amplitude, name={amplitude.name}")
+                    for multiplier, time in amplitude.multipliers_times:
+                        data_section.append(f"{time}, {multiplier},")
         data_section.append("**")
         return "\n".join(data_section)
 
@@ -193,7 +193,7 @@ class AbaqusModel(Model):
         """
         data = []
         for interaction in self.interactions:
-            data.append(interaction.jobdata())
+            data.append(interaction.jobdata() if not(isinstance(interaction, ThermalInteraction)) else "**")
         connector_sections = set([connector.section for connector in self.connectors])
         for connector_section in connector_sections:
             data.append(connector_section.jobdata())
@@ -212,7 +212,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        interfaces = list(filter(lambda i: isinstance(i.behavior, _Interaction), self.interfaces))
+        interfaces = list(filter(lambda i: isinstance(i.behavior, _Interaction) and not(isinstance(i.behavior, ThermalInteraction)), self.interfaces))
         return "\n".join(interface._generate_jobdata() for interface in interfaces) if interfaces else "**"
 
     def _generate_bcs_section(self):

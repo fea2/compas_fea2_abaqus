@@ -1,4 +1,5 @@
 from compas_fea2.model import Interface
+from compas_fea2.model import BoundaryInterface
 from compas_fea2.model import Contact
 from compas_fea2.model import _Constraint
 
@@ -44,3 +45,14 @@ class AbaqusInterface(Interface):
         return f"""**
 *CONTACT CONTROLS,  STABILIZE, MASTER={self._master.name}_i, SLAVE ={self._slave.name}_i
 **"""
+
+class AbaqusBoundaryInterface(BoundaryInterface):
+    def __init__(
+        master,
+        behavior,
+        **kwargs,
+    ):
+        super().__init__(master=master, behavior=behavior, **kwargs)
+    
+    def _generate_jobdata(self):
+        return self.behavior.jobdata(self.master)

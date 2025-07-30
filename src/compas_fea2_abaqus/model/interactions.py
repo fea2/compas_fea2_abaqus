@@ -1,8 +1,8 @@
 from compas_fea2.model.interactions import HardContactFrictionPenalty
 from compas_fea2.model.interactions import LinearContactFrictionPenalty
 from compas_fea2.model.interactions import HardContactRough
-from compas_fea2.model.interactions import SurfaceConvection
-from compas_fea2.model.interactions import SurfaceRadiation
+from compas_fea2.model.interactions import Convection
+from compas_fea2.model.interactions import Radiation
 
 
 class AbaqusHardContactFrictionPenalty(HardContactFrictionPenalty):
@@ -59,45 +59,36 @@ class AbaqusHardContactRough(HardContactRough):
         )
 
 
-class AbaqusSurfaceConvection(SurfaceConvection):
+class AbaqusConvection(Convection):
     """Abaqus implementation of the :class:`HardContactNoFriction`.\n"""
 
-    __doc__ += SurfaceConvection.__doc__
+    __doc__ += Convection.__doc__
 
-    def __init__(self, surface, h, temperature, **kwargs) -> None:
-        super(AbaqusSurfaceConvection, self).__init__(surface=surface, h=h, temperature=temperature, **kwargs)
+    def __init__(self, h, temperature, **kwargs) -> None:
+        super().__init__(h=h, temperature=temperature, **kwargs)
 
-    def jobdata(self):
+    def jobdata(self, master):
         data_interface = []
         data_interface.append(f"** Name: {self.name} Type: Convection interaction")
         data_interface.append("*Sfilm")
         if self.temperature.amplitude:
             data_interface[-1] += f", amplitude={self.temperature.amplitude.name}"
-        data_interface.append(f"{self.surface._name}_i, F, {self.temperature.temperature}, {self.h}")
+        data_interface.append(f"{master._name}_i, F, {self.temperature.temperature}, {self.h}")
         return "\n".join(data_interface)
-        return f"""**Convection Interaction, name={self.name}
-*Sfilm
-{self.surface.name}_i, F, {self.temperature}, {self.h}
-**"""
 
-
-class AbaqusSurfaceRadiation(SurfaceRadiation):
+class AbaqusRadiation(Radiation):
     """Abaqus implementation of the :class:`HardContactNoFriction`.\n"""
 
-    __doc__ += SurfaceConvection.__doc__
+    __doc__ += Convection.__doc__
 
-    def __init__(self, surface, eps, temperature, **kwargs) -> None:
-        super().__init__(surface=surface, eps=eps, temperature=temperature, **kwargs)
+    def __init__(self, eps, temperature, **kwargs) -> None:
+        super().__init__(eps=eps, temperature=temperature, **kwargs)
 
-    def jobdata(self):
+    def jobdata(self, master):
         data_interface = []
         data_interface.append(f"** Name: {self.name} Type: Radiation interaction")
         data_interface.append("*Sradiate")
         if self.temperature.amplitude:
             data_interface[-1] += f", amplitude={self.temperature.amplitude.name}"
-        data_interface.append(f"{self.surface._name}_i, R, {self.temperature.temperature}, {self.eps}")
+        data_interface.append(f"{master._name}_i, R, {self.temperature.temperature}, {self.eps}")
         return "\n".join(data_interface)
-        return f"""**Radiation Interaction, name={self.name}
-*Sradiate
-{self.surface.name}_i, R, {self.temperature.temperature}, {self.eps}
-**"""

@@ -148,8 +148,8 @@ from compas_fea2.model.interactions import (  # noqa: E402
     # HardContactNoFriction,
     HardContactRough,
     LinearContactFrictionPenalty,
-    SurfaceConvection,
-    SurfaceRadiation,
+    Convection,
+    Radiation,
 )
 
 # Interfaces
@@ -187,10 +187,8 @@ from compas_fea2.problem.loads import (  # noqa: E402
 # Fields
 from compas_fea2.problem.fields import (  # noqa: E402
     HeatFluxField,
-    ConvectionField,
-    RadiationField,
     # TemperatureField,
-    PrescribedTemperatureField,
+    PrescribedTemperatureField
 )
 
 
@@ -343,8 +341,8 @@ try:
         AbaqusHardContactRough,
         AbaqusLinearContactFrictionPenalty,
         # AbaqusHardContactNoFriction,
-        AbaqusSurfaceConvection,
-        AbaqusSurfaceRadiation,
+        AbaqusConvection,
+        AbaqusRadiation,
     )
 
     # Abaqus Problem
@@ -381,9 +379,7 @@ try:
 
     # Abaqus LoadFields
     from .problem.fields import (
-        AbaqusConvectionField,
         AbaqusHeatFluxField,
-        AbaqusRadiationField,
         AbaqusPrescribedTemperatureField,
     )
 
@@ -493,8 +489,8 @@ try:
         backend[LinearContactFrictionPenalty] = AbaqusLinearContactFrictionPenalty
         # backend[HardContactNoFriction] = AbaqusHardContactNoFriction
 
-        backend[SurfaceConvection] = AbaqusSurfaceConvection
-        backend[SurfaceRadiation] = AbaqusSurfaceRadiation
+        backend[Convection] = AbaqusConvection
+        backend[Radiation] = AbaqusRadiation
 
         backend[Problem] = AbaqusProblem
 
@@ -519,8 +515,6 @@ try:
         backend[GeneralDisplacement] = AbaqusGeneralDisplacement
 
         backend[HeatFluxField] = AbaqusHeatFluxField
-        backend[ConvectionField] = AbaqusConvectionField
-        backend[RadiationField] = AbaqusRadiationField
         backend[PrescribedTemperatureField] = AbaqusPrescribedTemperatureField
 
         backend[StressFieldResults] = AbaqusStressFieldResults

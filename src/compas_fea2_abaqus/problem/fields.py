@@ -1,45 +1,33 @@
+# from compas_fea2.problem import GravityLoadField
 from compas_fea2.problem import PrescribedTemperatureField
 from compas_fea2.problem import HeatFluxField
-from compas_fea2.problem import ConvectionField
-from compas_fea2.problem import RadiationField
 from compas_fea2.problem import TemperatureLoad
 
+# class AbaqusGravityLoadField(GravityLoadField):
+#     """Abaqus implementation of :class:`GravityLoadField`.\n"""
+#     __doc__=GravityLoadField.__doc__
+#     __doc__+= """
+# Nota
+# ----
+# In Abaqus, gevity can only be applied to the entire model.
+# """
+#     def __init__(self, parts, g=9.81, load_case='DL', **kwargs):
+#         super().__init__(g=g, parts=parts, load_case=load_case, **kwargs)
 
-class AbaqusConvectionField(ConvectionField):
-    def __init__(self, temperature, h, surface, **kwargs):
-        super().__init__(temperature=temperature, h=h, surface=surface, **kwargs)
+#     def jobdata(self):
+#         """Generates the string information for the input file.
 
-    def jobdata(self):
-        #         if isinstance(self.temperature[-1], TransientTemperatureLoad):
-        #             return f"""**Convection Interaction, name={self.name}
-        # *Sfilm, amplitude={self.temperature[-1].name}
-        # {self.surface._name}_i, F, 1., {self.h}
-        # **"""
-        return "**"
+#         Parameters
+#         ----------
+#         None
 
-
-#         if isinstance(self.temperature[-1], TemperatureLoad):
-#             return f"""**Convection Interaction, name={self.name}
-# *Sfilm
-# {self.surface._name}_i, F, {self.temperature[-1].temperature}, {self.h}
-# **"""
-
-
-class AbaqusRadiationField(RadiationField):
-    def __init__(self, temperature, eps, surface, **kwargs):
-        super().__init__(temperature=temperature, eps=eps, surface=surface, **kwargs)
-
-    def jobdata(self):
-        #         if isinstance(self.temperature[-1], TransientTemperatureLoad):
-        #             return f"""**Radiation Interaction, name={self.name}
-        # *Sradiate, amplitude={self.temperature[-1].name}
-        # {self.surface.name}_i, R, 1., {self.eps}"""
-
-        if isinstance(self.temperature[-1], TemperatureLoad):
-            return f"""**Radiation Interaction, name={self.name}
-*Sradiate
-{self.surface.name}_i, R, {self.temperature[-1].temperature}, {self.eps}"""
-
+#         Returns
+#         -------
+#         input file data line (str).
+#         """
+#         return ("** Name: {} Type: Gravity\n*Dload\n, GRAV, {}, {}, {}, {}").format(
+#             self.name, self.g, 0, 0, -1
+#         )
 
 class AbaqusHeatFluxField(HeatFluxField):
     """Abaqus implementation of :class:`HeatFluxLoad`.\n"""
@@ -82,6 +70,10 @@ class AbaqusPrescribedTemperatureField(PrescribedTemperatureField):
             self._step = step
         if inc:
             self._inc = inc
+
+    @classmethod
+    def from_file(cls, path):
+        return "**"
 
     def jobdata(self, nodes):
         """Generates the string information for the input file.

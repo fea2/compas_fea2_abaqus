@@ -113,8 +113,8 @@ from .interactions import (
     AbaqusHardContactFrictionPenalty,
     AbaqusHardContactRough,
     AbaqusLinearContactFrictionPenalty,
-    AbaqusSurfaceConvection,
-    AbaqusSurfaceRadiation,
+    AbaqusConvection,
+    AbaqusRadiation,
 )
 
 # Abaqus Interfaces

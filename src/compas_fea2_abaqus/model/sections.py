@@ -431,7 +431,11 @@ class AbaqusShellSection(ShellSection):
                 + str(-float(orientation[2]))
             )
         jobdata.append(f"** Section: {self.name}")
-        jobdata.append(f"*Shell Section, elset={set_name}, material={self.material.name}")
+        if 'C2D' in set_name.split("_")[1]:
+            jobdata.append(f"*Solid Section, elset={set_name}, material={self.material.name}")
+            return "\n".join(jobdata) 
+        else :
+            jobdata.append(f"*Shell Section, elset={set_name}, material={self.material.name}")
         if orientation:
             jobdata[-1] += f", orientation=Ori_{self.material.name}"
         jobdata.append(f"{self.t}, {self.int_points}")

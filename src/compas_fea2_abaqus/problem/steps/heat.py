@@ -1,3 +1,4 @@
+from compas_fea2.model.interactions import ThermalInteraction
 from compas_fea2.problem.steps import HeatTransferStep
 
 
@@ -70,7 +71,7 @@ class AbaqusHeatTransferStep(HeatTransferStep):
 {self._generate_loads_section()}
 ** - Surface Interactions
 **   -----
-{self._generate_thermalinteractions_section()}
+{self._generate_thermalinterfaces_section()}
 **
 ** - Predefined Fields
 **   -----------------
@@ -109,7 +110,7 @@ class AbaqusHeatTransferStep(HeatTransferStep):
         str
             text section for the input file.
         """
-        return "\n".join([bct.jobdata(nodes) for bct, nodes in self.model.bcst.items()]) or "**"
+        return "\n".join([tbc.jobdata(nodes) for tbc, nodes in self.model.tbcs.items()]) or "**"
 
     def _generate_loads_section(self):
         data = []
@@ -117,11 +118,12 @@ class AbaqusHeatTransferStep(HeatTransferStep):
             data.append(load_field.jobdata())
         return "\n".join(data) or "**"
 
-    def _generate_thermalinteractions_section(self):
+    def _generate_thermalinterfaces_section(self):
         """ """
         data = ["**"]
-        for interaction in self.model.thermalinteraction:
-            data.append(interaction.jobdata())
+        for interface in self.model.interfaces:
+            if isinstance(interface.behavior, ThermalInteraction):
+                data.append(interface.behavior.jobdata(interface.master))
         return "\n".join(data)
 
     def _generate_predifined_fields(self):
