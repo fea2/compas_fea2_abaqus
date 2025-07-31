@@ -22,14 +22,8 @@ from .displacements import (
 
 # Abaqus Loads
 from .loads import (
-    AbaqusConcentratedLoad,
-    AbaqusGravityLoad,
-    AbaqusPrestressLoad,
-    AbaqusHarmonicPointLoad,
-    AbaqusHarmonicPressureLoad,
-    AbaqusTributaryLoad,
-    AbaqusThermalLoad,
-    AbaqusHeatFluxLoad,
+    AbaqusVectorLoad,
+    AbaqusScalarLoad
 )
 
 # Abaqus Problem
@@ -46,13 +40,7 @@ __all__ = [
     "AbaqusDirectCyclicStep",
     "AbaqusPrescribedTemperatureField",
     "AbaqusGeneralDisplacement",
-    "AbaqusConcentratedLoad",
-    "AbaqusGravityLoad",
-    "AbaqusPrestressLoad",
-    "AbaqusHarmonicPointLoad",
-    "AbaqusHarmonicPressureLoad",
-    "AbaqusTributaryLoad",
-    "AbaqusThermalLoad",
-    "AbaqusHeatFluxLoad",
+    "AbaqusScalarLoad",
+    "AbaqusVectorLoad",
     "AbaqusProblem",
 ]

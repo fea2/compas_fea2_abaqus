@@ -1,13 +1,13 @@
 from compas_fea2.model.sections import SpringSection
 from compas_fea2.model.sections import ConnectorSection
-from compas_fea2.model.sections import BeamSection
+from compas_fea2.model.sections import GenericBeamSection
 from compas_fea2.model.sections import AngleSection
 from compas_fea2.model.sections import BoxSection
 from compas_fea2.model.sections import HexSection
 from compas_fea2.model.sections import ISection
 from compas_fea2.model.sections import CircularSection
 from compas_fea2.model.sections import RectangularSection
-from compas_fea2.model.sections import MassSection
+# from compas_fea2.model.sections import MassSection
 from compas_fea2.model.sections import ShellSection
 from compas_fea2.model.sections import MembraneSection
 from compas_fea2.model.sections import SolidSection
@@ -58,30 +58,30 @@ def _generate_beams_jobdata(obj, set_name, orientation, stype):
 # ==============================================================================
 # 0D
 # ==============================================================================
-class AbaqusMassSection(MassSection):
-    """Abaqus implementation of the :class:`MassSection`.\n"""
+# class AbaqusMassSection(MassSection):
+#     """Abaqus implementation of the :class:`MassSection`.\n"""
 
-    __doc__ += MassSection.__doc__
+#     __doc__ += MassSection.__doc__
 
-    def __init__(self, mass, name=None, **kwargs):
-        super(AbaqusMassSection, self).__init__(mass, name=name, **kwargs)
+#     def __init__(self, mass, name=None, **kwargs):
+#         super(AbaqusMassSection, self).__init__(mass, name=name, **kwargs)
 
-    def jobdata(self, set_name):
-        """Generates the string information for the input file.
+#     def jobdata(self, set_name):
+#         """Generates the string information for the input file.
 
-        Parameters
-        ----------
-        None
+#         Parameters
+#         ----------
+#         None
 
-        Returns
-        -------
-        input file data line (str).
-        """
-        return """** Section: \"{}\"
-*Mass, elset={}
-{}\n""".format(
-            self.name, set_name, self.mass
-        )
+#         Returns
+#         -------
+#         input file data line (str).
+#         """
+#         return """** Section: \"{}\"
+# *Mass, elset={}
+# {}\n""".format(
+#             self.name, set_name, self.mass
+#         )
 
 
 class AbaqusSpringSection(SpringSection):
@@ -135,10 +135,10 @@ class AbaqusConnectorSection(ConnectorSection):
 # ==============================================================================
 
 
-class AbaqusBeamSection(BeamSection):
+class AbaqusGenericBeamSection(GenericBeamSection):
     """Abaqus implementation of the :class:`BeamSection`.\n"""
 
-    __doc__ += BeamSection.__doc__
+    __doc__ += GenericBeamSection.__doc__
     __doc__ += """
     Warning
     -------
@@ -494,5 +494,4 @@ class AbaqusSolidSection(SolidSection):
         """
 
         return f"""** Section: {self.name}
-*Solid Section, elset={set_name}, material={self.material.name}
-{self._t if self._t else "**"},"""
+*Solid Section, elset={set_name}, material={self.material.name}"""

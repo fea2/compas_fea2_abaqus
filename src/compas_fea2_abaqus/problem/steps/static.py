@@ -108,7 +108,7 @@ class AbaqusStaticStep(StaticStep):
     def _generate_loads_section(self):
         data = []
         for node, load in self.combination.node_load:
-            data.append(load.jobdata(node))
+            data.append(load.jobdata(node, "CLoad"))
         return "\n".join(data) or "**"
 
     def _generate_output_section(self):

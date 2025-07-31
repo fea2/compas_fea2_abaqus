@@ -49,12 +49,12 @@ from compas_fea2.model.elements import (  # noqa: E402
 from compas_fea2.model.sections import (  # noqa: E402
     SpringSection,
     AngleSection,
-    BeamSection,
+    GenericBeamSection,
     BoxSection,
     CircularSection,
     HexSection,
     ISection,
-    MassSection,
+    # MassSection,
     PipeSection,
     RectangularSection,
     StrutSection,
@@ -134,6 +134,7 @@ from compas_fea2.model.bcs import (  # noqa: E402
     RollerBCYZ,
     RollerBCZ,
     ImposedTemperature,
+    ImposedHeatFlux
 )
 
 # Initial Conditions
@@ -173,20 +174,12 @@ from compas_fea2.problem.steps import (  # noqa: E402
 
 # Loads
 from compas_fea2.problem.loads import (  # noqa: E402
-    ConcentratedLoad,
-    # EdgeLoad,
-    # FaceLoad,
-    TributaryLoad,
-    PrestressLoad,
-    GravityLoad,
-    HarmonicPointLoad,
-    HarmonicPressureLoad,
-    HeatFluxLoad,
+    ScalarLoad,
+    VectorLoad
 )
 
 # Fields
 from compas_fea2.problem.fields import (  # noqa: E402
-    HeatFluxField,
     # TemperatureField,
     PrescribedTemperatureField
 )
@@ -241,12 +234,12 @@ try:
         AbaqusSpringSection,
         # AbaqusConnectorSection,
         AbaqusAngleSection,
-        AbaqusBeamSection,
+        AbaqusGenericBeamSection,
         AbaqusBoxSection,
         AbaqusCircularSection,
         AbaqusHexSection,
         AbaqusISection,
-        AbaqusMassSection,
+        # AbaqusMassSection,
         AbaqusPipeSection,
         AbaqusRectangularSection,
         AbaqusStrutSection,
@@ -327,6 +320,7 @@ try:
         AbaqusRollerBCYZ,
         AbaqusRollerBCZ,
         AbaqusImposedTemperature,
+        AbaqusImposedHeatFlux
     )
 
     # Initial Conditions
@@ -363,13 +357,8 @@ try:
 
     # Abaqus Loads
     from .problem.loads import (
-        AbaqusConcentratedLoad,
-        AbaqusTributaryLoad,
-        AbaqusPrestressLoad,
-        AbaqusGravityLoad,
-        AbaqusHarmonicPointLoad,
-        AbaqusHarmonicPressureLoad,
-        AbaqusHeatFluxLoad,
+        AbaqusScalarLoad,
+        AbaqusVectorLoad
     )
 
     # Abaqus Displacements
@@ -379,7 +368,6 @@ try:
 
     # Abaqus LoadFields
     from .problem.fields import (
-        AbaqusHeatFluxField,
         AbaqusPrescribedTemperatureField,
     )
 
@@ -419,12 +407,12 @@ try:
 
         backend[SpringSection] = AbaqusSpringSection
         backend[AngleSection] = AbaqusAngleSection
-        backend[BeamSection] = AbaqusBeamSection
+        backend[GenericBeamSection] = AbaqusGenericBeamSection
         backend[BoxSection] = AbaqusBoxSection
         backend[CircularSection] = AbaqusCircularSection
         backend[HexSection] = AbaqusHexSection
         backend[ISection] = AbaqusISection
-        backend[MassSection] = AbaqusMassSection
+        # backend[MassSection] = AbaqusMassSection
         backend[MembraneSection] = AbaqusMembraneSection
         backend[PipeSection] = AbaqusPipeSection
         backend[RectangularSection] = AbaqusRectangularSection
@@ -480,6 +468,7 @@ try:
         backend[RollerBCYZ] = AbaqusRollerBCYZ
         backend[RollerBCZ] = AbaqusRollerBCZ
         backend[ImposedTemperature] = AbaqusImposedTemperature
+        backend[ImposedHeatFlux] = AbaqusImposedHeatFlux
 
         backend[InitialStressField] = AbaqusInitialStressField
         backend[InitialTemperatureField] = AbaqusInitialTemperatureField
@@ -504,17 +493,11 @@ try:
         backend[DirectCyclicStep] = AbaqusDirectCyclicStep
         backend[HeatTransferStep] = AbaqusHeatTransferStep
 
-        backend[GravityLoad] = AbaqusGravityLoad
-        backend[ConcentratedLoad] = AbaqusConcentratedLoad
-        backend[TributaryLoad] = AbaqusTributaryLoad
-        backend[PrestressLoad] = AbaqusPrestressLoad
-        backend[HarmonicPointLoad] = AbaqusHarmonicPointLoad
-        backend[HarmonicPressureLoad] = AbaqusHarmonicPressureLoad
-        backend[HeatFluxLoad] = AbaqusHeatFluxLoad
+        backend[ScalarLoad] = AbaqusScalarLoad
+        backend[VectorLoad] = AbaqusVectorLoad
 
         backend[GeneralDisplacement] = AbaqusGeneralDisplacement
 
-        backend[HeatFluxField] = AbaqusHeatFluxField
         backend[PrescribedTemperatureField] = AbaqusPrescribedTemperatureField
 
         backend[StressFieldResults] = AbaqusStressFieldResults

@@ -64,8 +64,8 @@ class AbaqusConvection(Convection):
 
     __doc__ += Convection.__doc__
 
-    def __init__(self, h, temperature, **kwargs) -> None:
-        super().__init__(h=h, temperature=temperature, **kwargs)
+    def __init__(self, h, temperature_value, temperature_amplitude, **kwargs) -> None:
+        super().__init__(h=h, temperature_value=temperature_value, temperature_amplitude=temperature_amplitude, **kwargs)
 
     def jobdata(self, master):
         data_interface = []
@@ -73,7 +73,7 @@ class AbaqusConvection(Convection):
         data_interface.append("*Sfilm")
         if self.temperature.amplitude:
             data_interface[-1] += f", amplitude={self.temperature.amplitude.name}"
-        data_interface.append(f"{master._name}_i, F, {self.temperature.temperature}, {self.h}")
+        data_interface.append(f"{master._name}_i, F, {self.temperature.scalar_load}, {self.h}")
         return "\n".join(data_interface)
 
 class AbaqusRadiation(Radiation):
@@ -81,8 +81,8 @@ class AbaqusRadiation(Radiation):
 
     __doc__ += Convection.__doc__
 
-    def __init__(self, eps, temperature, **kwargs) -> None:
-        super().__init__(eps=eps, temperature=temperature, **kwargs)
+    def __init__(self, eps, temperature_value, temperature_amplitude, **kwargs) -> None:
+        super().__init__(eps=eps, temperature_value=temperature_value, temperature_amplitude=temperature_amplitude, **kwargs)
 
     def jobdata(self, master):
         data_interface = []
@@ -90,5 +90,5 @@ class AbaqusRadiation(Radiation):
         data_interface.append("*Sradiate")
         if self.temperature.amplitude:
             data_interface[-1] += f", amplitude={self.temperature.amplitude.name}"
-        data_interface.append(f"{master._name}_i, R, {self.temperature.temperature}, {self.eps}")
+        data_interface.append(f"{master._name}_i, R, {self.temperature.scalar_load}, {self.eps}")
         return "\n".join(data_interface)

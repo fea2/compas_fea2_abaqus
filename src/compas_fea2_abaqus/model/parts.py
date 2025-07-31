@@ -131,7 +131,7 @@ def _group_elements(obj):
         try:
             if el.ndim == 1:
                 orientation = "_".join(str(i) for i in el.frame.xaxis)
-            if el.ndim == 2:
+            if el.ndim ==  2 or el.ndim == 3:
                 orientation = "_".join(str(i) for i in el.frame.xaxis) + "_" + "_".join(str(i) for i in el.frame.yaxis)
 
         except:  # noqa: E722

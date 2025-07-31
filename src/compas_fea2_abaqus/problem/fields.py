@@ -1,7 +1,5 @@
 # from compas_fea2.problem import GravityLoadField
 from compas_fea2.problem import PrescribedTemperatureField
-from compas_fea2.problem import HeatFluxField
-from compas_fea2.problem import TemperatureLoad
 
 # class AbaqusGravityLoadField(GravityLoadField):
 #     """Abaqus implementation of :class:`GravityLoadField`.\n"""
@@ -28,34 +26,6 @@ from compas_fea2.problem import TemperatureLoad
 #         return ("** Name: {} Type: Gravity\n*Dload\n, GRAV, {}, {}, {}, {}").format(
 #             self.name, self.g, 0, 0, -1
 #         )
-
-class AbaqusHeatFluxField(HeatFluxField):
-    """Abaqus implementation of :class:`HeatFluxLoad`.\n"""
-
-    __doc__ += HeatFluxField.__doc__
-
-    def __init__(self, heatflux, surface, **kwargs):
-        super().__init__(heatflux=heatflux, surface=surface, **kwargs)
-
-    def jobdata(self):
-        """Generates the string information for the input file.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        input file data line (str).
-
-        """
-        data_field = []
-        data_field.append(f"** Name: {self.name} Type: Surface heat flux")
-        data_field.append("*Dsflux")
-        if self.heatflux[0].amplitude:
-            data_field[-1] += f", amplitude={self.heatflux[0].amplitude.name}"
-        data_field.append(f"{self.surface._name}_i, S, {self.heatflux[0].q}")
-        return "\n".join(data_field)
 
 
 class AbaqusPrescribedTemperatureField(PrescribedTemperatureField):

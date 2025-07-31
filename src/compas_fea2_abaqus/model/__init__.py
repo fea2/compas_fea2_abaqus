@@ -22,13 +22,13 @@ from .elements import (
 
 # Abaqus Sections
 from .sections import (
-    AbaqusBeamSection,
+    AbaqusGenericBeamSection,
     AbaqusAngleSection,
     AbaqusBoxSection,
     AbaqusCircularSection,
     AbaqusHexSection,
     AbaqusISection,
-    AbaqusMassSection,
+    # AbaqusMassSection,
     AbaqusPipeSection,
     AbaqusRectangularSection,
     AbaqusSpringSection,
@@ -131,7 +131,7 @@ __all__ = [
     "AbaqusMembraneElement",
     "AbaqusShellElement",
     "_AbaqusElement3D",
-    "AbaqusBeamSection",
+    "AbaqusGenericBeamSection",
     "AbaqusAngleSection",
     "AbaqusBoxSection",
     "AbaqusCircularSection",
