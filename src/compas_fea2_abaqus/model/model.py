@@ -228,7 +228,8 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        return "\n".join([bc.jobdata(nodes) for bc, nodes in self.bcs.items()]) or "**"
+        from compas_fea2.model.bcs import ThermalBoundaryCondition
+        return "\n".join([bc.jobdata(nodes) if not isinstance(bc, ThermalBoundaryCondition) else "**" for bc, nodes in self.bcs_nodes.items()]) or "**"
 
     def _generate_ics_section(self):
         """Generate the content relatitive to the initial conditions section

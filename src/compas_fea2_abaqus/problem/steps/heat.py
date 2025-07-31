@@ -64,7 +64,7 @@ class AbaqusHeatTransferStep(HeatTransferStep):
 {self._generate_header_section()}
 ** - Boundary Conditions
 **   -------------
-{self._generate_bcst_section()}
+{self._generate_imposedTemperature_section()}
 **
 ** - Loads
 **   -----
@@ -94,12 +94,10 @@ class AbaqusHeatTransferStep(HeatTransferStep):
             f"{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._max_inc_size}",
         ]
         return "\n".join(data)
-
-    def _generate_bcst_section(self):
-        """Generate the content relatitive to the thermal boundary conditions section
+    
+    def _generate_imposedTemperature_section(self):
+        """Generate the content relatitive to the boundary conditions section
         for the input file.
-        In Abaqus, the thermal boundary conditions must be implemented in the heat analysis
-        step and not in the Initial Condition step.
 
         Parameters
         ----------
@@ -110,7 +108,8 @@ class AbaqusHeatTransferStep(HeatTransferStep):
         str
             text section for the input file.
         """
-        return "\n".join([tbc.jobdata(nodes) for tbc, nodes in self.model.tbcs.items()]) or "**"
+        from compas_fea2.model.bcs import ThermalBoundaryCondition
+        return "\n".join([bc.jobdata(nodes) if isinstance(bc, ThermalBoundaryCondition) else "**" for bc, nodes in self.model.bcs_nodes.items()]) or "**"
 
     def _generate_loads_section(self):
         data = []
