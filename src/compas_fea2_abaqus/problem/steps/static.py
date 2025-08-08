@@ -1,5 +1,6 @@
 from compas_fea2.problem.steps import StaticStep
 from compas_fea2.problem.steps import StaticRiksStep
+from compas_fea2.problem.fields import GravityLoadField
 
 
 class AbaqusStaticStep(StaticStep):
@@ -109,6 +110,10 @@ class AbaqusStaticStep(StaticStep):
         data = []
         for node, load in self.combination.node_load:
             data.append(load.jobdata(node, "CLoad"))
+        for load_field in self.load_fields :
+            if isinstance(load_field, GravityLoadField):
+                data.append(load_field.jobdata())
+
         return "\n".join(data) or "**"
 
     def _generate_output_section(self):

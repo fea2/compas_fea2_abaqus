@@ -1,14 +1,14 @@
-from compas_fea2.model import InitialTemperatureField
-from compas_fea2.model import InitialStressField
+from compas_fea2.model import InitialTemperature
+from compas_fea2.model import InitialStress
 
 
-class AbaqusInitialTemperatureField(InitialTemperatureField):
+class AbaqusInitialTemperature(InitialTemperature):
     """Abaqus implementation of :class:`InitialTemperatureField`\n"""
 
-    __doc__ += InitialTemperatureField.__doc__
+    __doc__ += InitialTemperature.__doc__
 
     def __init__(self, temperature=None, step=None, inc=None, **kwargs):
-        super(AbaqusInitialTemperatureField, self).__init__(temperature, **kwargs)
+        super(AbaqusInitialTemperature, self).__init__(temperature, **kwargs)
         self._ictype = "TEMPERATURE"
         if step:
             self._step = step
@@ -48,13 +48,13 @@ class AbaqusInitialTemperatureField(InitialTemperatureField):
         # return "\n".join(data_section)
 
 
-class AbaqusInitialStressField(InitialStressField):
+class AbaqusInitialStress(InitialStress):
     """Abaqus implementation of :class:`InitialStressField`\n"""
 
-    __doc__ += InitialStressField.__doc__
+    __doc__ += InitialStress.__doc__
 
     def __init__(self, elements, stress, **kwargs):
-        super(AbaqusInitialStressField, self).__init__(elements, stress, **kwargs)
+        super(AbaqusInitialStress, self).__init__(elements, stress, **kwargs)
         self._ictype = "STRESS"
 
     def jobdata(self):

@@ -1,6 +1,6 @@
 from compas_fea2.model import Model, RigidPart
 from compas_fea2.model import ElementsGroup, NodesGroup
-from compas_fea2.model import _Constraint, _Interaction, ThermalInteraction
+from compas_fea2.model import _Constraint, _Interaction
 from compas_fea2.utilities._utils import timer
 
 
@@ -135,8 +135,8 @@ class AbaqusModel(Model):
                 surface_set.add(interface.slave)
         for surface in surface_set:
             data_section.append(surface.jobdata())
-        for group in self.partgroups:
-            data_section.append(group.jobdata(instance=True))
+        # for group in self.partgroups:
+        #     data_section.append(group.jobdata(instance=True))
         for group in connector_gorups:
             data_section.append(group.jobdata())
         data_section.append("*End Assembly")
@@ -228,8 +228,11 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        from compas_fea2.model.bcs import ThermalBoundaryCondition
-        return "\n".join([bc.jobdata(nodes) if not isinstance(bc, ThermalBoundaryCondition) else "**" for bc, nodes in self.bcs_nodes.items()]) or "**"
+        data_section =[]
+        for field in self.bcs_fields:
+            for node, bc in field.node_bc:
+                data_section.append(bc.jobdata([node]))
+        return "\n".join(data_section) or "**"
 
     def _generate_ics_section(self):
         """Generate the content relatitive to the initial conditions section
@@ -244,5 +247,8 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        return "\n".join([ic.jobdata(nodes) for ic, nodes in self.ics.items()]) or "**"
-        # return "\n".join([ic.jobdata() if isinstance(ic, InitialStressField) else "" for ic, nodes in self.ics.items()]) or "**"
+        data_section =[]
+        for field in self.ics_fields:
+            for node, ic in field.node_ic:
+                data_section.append(ic.jobdata([node]))
+        return "\n".join(data_section) or "**"

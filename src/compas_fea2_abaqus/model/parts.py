@@ -71,10 +71,10 @@ def _generate_sets_section(obj):
 
 
 def _generate_releases_section(obj):
-    if isinstance(obj, Part):
-        if obj.releases:
-            return "\n".join(["*Release"] + [release.jobdata() for release in obj.releases])
-    else:
+    # if isinstance(obj, Part):
+    #     # if obj.releases:
+    #     #     return "\n".join(["*Release"] + [release.jobdata() for release in obj.releases])
+    # else:
         return "**"
 
 

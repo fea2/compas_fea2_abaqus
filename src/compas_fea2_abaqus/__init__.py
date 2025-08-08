@@ -134,13 +134,12 @@ from compas_fea2.model.bcs import (  # noqa: E402
     RollerBCYZ,
     RollerBCZ,
     ImposedTemperature,
-    ImposedHeatFlux
 )
 
 # Initial Conditions
 from compas_fea2.model.ics import (  # noqa: E402
-    InitialTemperatureField,
-    InitialStressField,
+    InitialTemperature,
+    InitialStress,
 )
 
 # Interactions
@@ -181,7 +180,8 @@ from compas_fea2.problem.loads import (  # noqa: E402
 # Fields
 from compas_fea2.problem.fields import (  # noqa: E402
     # TemperatureField,
-    PrescribedTemperatureField
+    PrescribedTemperatureField,
+    GravityLoadField
 )
 
 
@@ -319,14 +319,13 @@ try:
         AbaqusRollerBCY,
         AbaqusRollerBCYZ,
         AbaqusRollerBCZ,
-        AbaqusImposedTemperature,
-        AbaqusImposedHeatFlux
+        AbaqusImposedTemperature
     )
 
     # Initial Conditions
     from .model.ics import (
-        AbaqusInitialTemperatureField,
-        AbaqusInitialStressField,
+        AbaqusInitialTemperature,
+        AbaqusInitialStress,
     )
 
     # Interactions
@@ -369,6 +368,7 @@ try:
     # Abaqus LoadFields
     from .problem.fields import (
         AbaqusPrescribedTemperatureField,
+        AbaqusGravityLoadField
     )
 
     # Abaqus Results
@@ -468,10 +468,9 @@ try:
         backend[RollerBCYZ] = AbaqusRollerBCYZ
         backend[RollerBCZ] = AbaqusRollerBCZ
         backend[ImposedTemperature] = AbaqusImposedTemperature
-        backend[ImposedHeatFlux] = AbaqusImposedHeatFlux
 
-        backend[InitialStressField] = AbaqusInitialStressField
-        backend[InitialTemperatureField] = AbaqusInitialTemperatureField
+        backend[InitialStress] = AbaqusInitialStress
+        backend[InitialTemperature] = AbaqusInitialTemperature
 
         backend[HardContactFrictionPenalty] = AbaqusHardContactFrictionPenalty
         backend[HardContactRough] = AbaqusHardContactRough
@@ -499,6 +498,7 @@ try:
         backend[GeneralDisplacement] = AbaqusGeneralDisplacement
 
         backend[PrescribedTemperatureField] = AbaqusPrescribedTemperatureField
+        backend[GravityLoadField] = AbaqusGravityLoadField
 
         backend[StressFieldResults] = AbaqusStressFieldResults
         backend[DisplacementFieldResults] = AbaqusDisplacementFieldResults

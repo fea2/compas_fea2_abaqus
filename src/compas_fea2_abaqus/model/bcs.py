@@ -14,7 +14,6 @@ from compas_fea2.model import RollerBCXY
 from compas_fea2.model import RollerBCYZ
 from compas_fea2.model import RollerBCXZ
 from compas_fea2.model.bcs import ImposedTemperature
-from compas_fea2.model.bcs import ImposedHeatFlux
 
 
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
@@ -264,15 +263,3 @@ class AbaqusImposedTemperature(ImposedTemperature):
             data_section += [f"{node.part.name}-1.{node.key}, 11, 11, {self.temperature}"]
         return "\n".join(data_section)
     
-class AbaqusImposedHeatFlux(ImposedHeatFlux):
-    def __init__(self, q, surface, **kwargs):
-        super().__init__(q=q, surface=surface, **kwargs)
-
-
-    def jobdata(self, nodes):
-        data_section = [
-            f"** Name: {self.name} Type: HeatFlux",
-            "*DsFlux",
-            f"{self._surface.name}_i, S, {self.q}"
-        ]
-        return "\n".join(data_section)

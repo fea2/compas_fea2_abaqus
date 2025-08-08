@@ -102,8 +102,8 @@ from .bcs import (
 )
 
 from .ics import (
-    AbaqusInitialStressField,
-    AbaqusInitialTemperatureField,
+    AbaqusInitialStress,
+    AbaqusInitialTemperature,
 )
 
 from .releases import AbaqusBeamEndPinRelease

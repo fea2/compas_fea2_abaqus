@@ -1,10 +1,10 @@
-from compas_fea2.model import Interface
-from compas_fea2.model import BoundaryInterface
+from compas_fea2.model import _Interface
+from compas_fea2.model.interfaces import BoundaryInterface
 from compas_fea2.model import Contact
 from compas_fea2.model import _Constraint
 
 
-class AbaqusInterface(Interface):
+class AbaqusInterface(_Interface):
     """Abaqus implementation of :class:`Interface`.
 
     Note
@@ -13,7 +13,7 @@ class AbaqusInterface(Interface):
 
     """
 
-    __doc__ += Interface.__doc__
+    __doc__ += _Interface.__doc__
 
     def __init__(
         self,

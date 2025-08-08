@@ -1,31 +1,32 @@
-# from compas_fea2.problem import GravityLoadField
-from compas_fea2.problem import PrescribedTemperatureField
+from compas_fea2.problem.fields import GravityLoadField
+from compas_fea2.problem.fields import PrescribedTemperatureField
 
-# class AbaqusGravityLoadField(GravityLoadField):
-#     """Abaqus implementation of :class:`GravityLoadField`.\n"""
-#     __doc__=GravityLoadField.__doc__
-#     __doc__+= """
-# Nota
-# ----
-# In Abaqus, gevity can only be applied to the entire model.
-# """
-#     def __init__(self, parts, g=9.81, load_case='DL', **kwargs):
-#         super().__init__(g=g, parts=parts, load_case=load_case, **kwargs)
+class AbaqusGravityLoadField(GravityLoadField):
+    """Abaqus implementation of :class:`GravityLoadField`.\n"""
+    __doc__=GravityLoadField.__doc__
+    __doc__+= """
+Nota
+----
+In Abaqus, gevity can only be applied to the entire model.
+"""
+    def __init__(self, parts, g=9.81, load_case='DL', **kwargs):
+        super().__init__(g=g, parts=parts, load_case=load_case, **kwargs)
+        self.g = g
 
-#     def jobdata(self):
-#         """Generates the string information for the input file.
+    def jobdata(self):
+        """Generates the string information for the input file.
 
-#         Parameters
-#         ----------
-#         None
+        Parameters
+        ----------
+        None
 
-#         Returns
-#         -------
-#         input file data line (str).
-#         """
-#         return ("** Name: {} Type: Gravity\n*Dload\n, GRAV, {}, {}, {}, {}").format(
-#             self.name, self.g, 0, 0, -1
-#         )
+        Returns
+        -------
+        input file data line (str).
+        """
+        return ("** Name: {} Type: Gravity\n*Dload\n, GRAV, {}, {}, {}, {}").format(
+            self.name, self.g, 0, 0, -1
+        )
 
 
 class AbaqusPrescribedTemperatureField(PrescribedTemperatureField):

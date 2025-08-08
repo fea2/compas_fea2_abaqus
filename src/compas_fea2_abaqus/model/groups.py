@@ -49,8 +49,8 @@ class AbaqusNodesGroup(NodesGroup):
 
     __doc__ += NodesGroup.__doc__
 
-    def __init__(self, nodes, **kwargs):
-        super(AbaqusNodesGroup, self).__init__(nodes=nodes, **kwargs)
+    def __init__(self, members, **kwargs):
+        super(AbaqusNodesGroup, self).__init__(members=members, **kwargs)
         self._set_type = "nset"
 
     def jobdata(self, instance=None):
@@ -68,8 +68,8 @@ class AbaqusElementsGroup(ElementsGroup):
 
     __doc__ += ElementsGroup.__doc__
 
-    def __init__(self, elements, **kwargs):
-        super(AbaqusElementsGroup, self).__init__(elements=elements, **kwargs)
+    def __init__(self, members, **kwargs):
+        super(AbaqusElementsGroup, self).__init__(members=members, **kwargs)
         self._set_type = "elset"
 
     def jobdata(self, instance=None):
@@ -87,8 +87,8 @@ class AbaqusEdgesGroup(EdgesGroup):
 
     __doc__ += EdgesGroup.__doc__
 
-    def __init__(self, edges, **kwargs):
-        super().__init__(edges=edges, **kwargs)
+    def __init__(self, members, **kwargs):
+        super().__init__(members=members, **kwargs)
 
     def jobdata(self):
         """Generates the string information for the input file.
@@ -120,8 +120,8 @@ class AbaqusFacesGroup(FacesGroup):
 
     __doc__ += FacesGroup.__doc__
 
-    def __init__(self, faces, **kwargs):
-        super(AbaqusFacesGroup, self).__init__(faces=faces, **kwargs)
+    def __init__(self, members, **kwargs):
+        super(AbaqusFacesGroup, self).__init__(members=members, **kwargs)
 
     def jobdata(self):
         """Generates the string information for the input file.
