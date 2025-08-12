@@ -139,7 +139,6 @@ from compas_fea2.model.bcs import (  # noqa: E402
 # Initial Conditions
 from compas_fea2.model.ics import (  # noqa: E402
     InitialTemperature,
-    InitialStress,
 )
 
 # Interactions
@@ -325,7 +324,6 @@ try:
     # Initial Conditions
     from .model.ics import (
         AbaqusInitialTemperature,
-        AbaqusInitialStress,
     )
 
     # Interactions
@@ -469,7 +467,6 @@ try:
         backend[RollerBCZ] = AbaqusRollerBCZ
         backend[ImposedTemperature] = AbaqusImposedTemperature
 
-        backend[InitialStress] = AbaqusInitialStress
         backend[InitialTemperature] = AbaqusInitialTemperature
 
         backend[HardContactFrictionPenalty] = AbaqusHardContactFrictionPenalty

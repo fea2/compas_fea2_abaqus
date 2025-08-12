@@ -108,8 +108,8 @@ class AbaqusHeatTransferStep(HeatTransferStep):
         str
             text section for the input file.
         """
-        from compas_fea2.model.bcs import ThermalBoundaryCondition
-        return "\n".join([bc.jobdata(nodes) if isinstance(bc, ThermalBoundaryCondition) else "**" for bc, nodes in self.model.bcs_nodes.items()]) or "**"
+        from compas_fea2.model.bcs import ImposedTemperature
+        return "\n".join([bc.jobdata(nodes) if isinstance(bc, ImposedTemperature) else "**" for bc, nodes in self.model.bcs_nodes.items()]) or "**"
 
     def _generate_loads_section(self):
         data = []

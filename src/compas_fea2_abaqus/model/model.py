@@ -1,6 +1,9 @@
 from compas_fea2.model import Model, RigidPart
 from compas_fea2.model import ElementsGroup, NodesGroup
 from compas_fea2.model import _Constraint, _Interaction
+from compas_fea2.model.interactions import ThermalInteraction
+from compas_fea2.model.interfaces import PartPartInterface, BoundaryInterface
+from compas_fea2.model.bcs import MechanicalBC
 from compas_fea2.utilities._utils import timer
 
 
@@ -120,24 +123,24 @@ class AbaqusModel(Model):
             for group in part.groups:
                 data_section.append(group.jobdata())
         data_section.append("**\n** CONNECTORS\n**")
-        connector_gorups = []
+        connector_groups = []
         for connector in self.connectors:
-            connector_gorups.append(ElementsGroup(elements=[connector], name=f"set-{connector.name}"))
+            connector_groups.append(ElementsGroup(elements=[connector], name=f"set-{connector.name}"))
             data_section.append(connector.jobdata())
         data_section.append("**\n** CONSTRAINTS\n**")
         for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
             data_section.append(interface._generate_jobdata())
         data_section.append("**\n** INTERFACES\n**")
-        surface_set=set()
+        interface_groups = set()
         for interface in self.interfaces:
-            surface_set.add(interface.master)
-            if interface.slave:
-                surface_set.add(interface.slave)
-        for surface in surface_set:
-            data_section.append(surface.jobdata())
+            interface_groups.add(interface.master)
+            if isinstance(interface, PartPartInterface):
+                interface_groups.add(interface.slave)
+        for interface_group in interface_groups:
+            data_section.append(interface_group.jobdata())
         # for group in self.partgroups:
         #     data_section.append(group.jobdata(instance=True))
-        for group in connector_gorups:
+        for group in connector_groups:
             data_section.append(group.jobdata())
         data_section.append("*End Assembly")
 
@@ -193,6 +196,7 @@ class AbaqusModel(Model):
         """
         data = []
         for interaction in self.interactions:
+            #Thermal Interactions must be implemented in the step part
             data.append(interaction.jobdata() if not(isinstance(interaction, ThermalInteraction)) else "**")
         connector_sections = set([connector.section for connector in self.connectors])
         for connector_section in connector_sections:
@@ -212,7 +216,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        interfaces = list(filter(lambda i: isinstance(i.behavior, _Interaction) and not(isinstance(i.behavior, ThermalInteraction)), self.interfaces))
+        interfaces = list(filter(lambda i: isinstance(i, PartPartInterface), self.interfaces))
         return "\n".join(interface._generate_jobdata() for interface in interfaces) if interfaces else "**"
 
     def _generate_bcs_section(self):
@@ -229,9 +233,9 @@ class AbaqusModel(Model):
             text section for the input file.
         """
         data_section =[]
-        for field in self.bcs_fields:
-            for node, bc in field.node_bc:
-                data_section.append(bc.jobdata([node]))
+        for bcs, nodes in self.bcs_nodes.items():
+            if isinstance(bcs, MechanicalBC):
+                data_section.append(bcs.jobdata(nodes))
         return "\n".join(data_section) or "**"
 
     def _generate_ics_section(self):
@@ -248,7 +252,7 @@ class AbaqusModel(Model):
             text section for the input file.
         """
         data_section =[]
-        for field in self.ics_fields:
+        for field in self.ics:
             for node, ic in field.node_ic:
                 data_section.append(ic.jobdata([node]))
         return "\n".join(data_section) or "**"

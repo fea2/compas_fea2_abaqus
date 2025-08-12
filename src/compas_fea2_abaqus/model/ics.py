@@ -1,5 +1,4 @@
 from compas_fea2.model import InitialTemperature
-from compas_fea2.model import InitialStress
 
 
 class AbaqusInitialTemperature(InitialTemperature):
@@ -47,29 +46,3 @@ class AbaqusInitialTemperature(InitialTemperature):
         #     data_section += ["{}-1.{}, {}".format(f.part.name, f.key, self._field_value)]
         # return "\n".join(data_section)
 
-
-class AbaqusInitialStress(InitialStress):
-    """Abaqus implementation of :class:`InitialStressField`\n"""
-
-    __doc__ += InitialStress.__doc__
-
-    def __init__(self, elements, stress, **kwargs):
-        super(AbaqusInitialStress, self).__init__(elements, stress, **kwargs)
-        self._ictype = "STRESS"
-
-    def jobdata(self):
-        """Generates the string information for the input file.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        input file data line (str).
-
-        """
-        data_section = [f"** Name: {self.name} Type: Stress Field\n*Initial Conditions, type={self._ictype}"]
-        for f in self.field:
-            data_section += ["{}-1.{}, {}".format(f.part.name, f.key, ", ".join(str(v) for v in self._field_value))]
-        return "\n".join(data_section)

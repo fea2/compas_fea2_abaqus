@@ -259,7 +259,6 @@ class AbaqusImposedTemperature(ImposedTemperature):
             "*Boundary, op=New",
         ]
         for node in nodes:
-            # if getattr(self, '_temp'):
-            data_section += [f"{node.part.name}-1.{node.key}, 11, 11, {self.temperature}"]
+            data_section += [f"{node.part.name}-1.{node.key}, 11, 11, {self._temperature}"]
         return "\n".join(data_section)
     

@@ -102,7 +102,6 @@ from .bcs import (
 )
 
 from .ics import (
-    AbaqusInitialStress,
     AbaqusInitialTemperature,
 )
 
