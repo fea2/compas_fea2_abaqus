@@ -1,11 +1,14 @@
 from compas_fea2.problem.steps import StaticStep
 from compas_fea2.problem.steps import StaticRiksStep
 
+from compas_fea2.units import no_units
+
 
 class AbaqusStaticStep(StaticStep):
     """"""
 
-    __doc__ += StaticStep.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += StaticStep.__doc__ or ""
     """
     Warning
     -------
@@ -20,7 +23,6 @@ class AbaqusStaticStep(StaticStep):
     the data for the input file for this object is generated at runtime.
 
     """
-    __doc__ += StaticStep.__doc__
 
     def __init__(
         self,
@@ -49,6 +51,8 @@ class AbaqusStaticStep(StaticStep):
         self._stype = "Static"
         self._restart = restart
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -60,94 +64,114 @@ class AbaqusStaticStep(StaticStep):
         -------
         input file data line (str).
         """
-
         return f"""**
-{self._generate_header_section()}
-** - Displacements
-**   -------------
-{self._generate_displacements_section()}
+** STEP: {self._name}
+*Step, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}
+*{self._stype}
+{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._time}
+**
+** - Imposed Displacements
+**   ---------------------
+{'\n'.join([force_field.jobdata for force_field in self.displacements if self.displacements] or ['**'])}
 **
 ** - Loads
 **   -----
-{self._generate_loads_section()}
+{'\n'.join([force_field.jobdata for force_field in self.fields if self.fields] or ['**'])}
 **
 ** - Predefined Fields
 **   -----------------
 **
 ** - Output Requests
 **   ---------------
-{self._generate_output_section()}
+{'\n'.join([output.jobdata for output in self._field_outputs if self._field_outputs] or ['**'])}
 **
 *End Step
-**
-**
 """
 
-    def _generate_header_section(self):
-        data = [
-            f"** STEP: {self._name}",
-            f"*Step, name={self._name}, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}",
-            f"*{self._stype}",
-            f"{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._time}",
-        ]
-        return "\n".join(data)
+    # @no_units
+    # def _generate_header_section(self):
+    #     data = [
+    #         f"** STEP: {self._name}",
+    #         f"*Step, name={self._name}, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}",
+    #         f"*{self._stype}",
+    #         f"{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._time}",
+    #     ]
+    #     return "\n".join(data)
 
-    def _generate_displacements_section(self):
+    # @no_units
+    # def _generate_displacements_section(self):
+    #     return (
+    #         "\n".join(
+    #             [
+    #                 displacement.jobdata(node)
+    #                 for field in self.displacements
+    #                 for node, displacement in field.node_displacement
+    #             ]
+    #         )
+    #         or "**"
+    #     )
 
-        return (
-            "\n".join(
-                [
-                    displacement.jobdata(node)
-                    for field in self.displacements
-                    for node, displacement in field.node_displacement
-                ]
-            )
-            or "**"
-        )
+    # @no_units
+    # def _generate_loads_section(self):
+    #     data = []
+    #     for node, load in self.combination.node_load:
+    #         data.append(load.jobdata(node))
+    #     return "\n".join(data) or "**"
 
-    def _generate_loads_section(self):
-        data = []
-        for node, load in self.combination.node_load:
-            data.append(load.jobdata(node))
-        return "\n".join(data) or "**"
+    # @no_units
+    # def _generate_output_section(self):
+    #     from itertools import groupby
 
-    def _generate_output_section(self):
-        from itertools import groupby
+    #     if self._field_outputs:
+    #         data = [
+    #             "**",
+    #             "*Restart, write, frequency={}".format(self.restart or 0),
+    #             "**",
+    #         ]
+    #         data.append("*Output, field")
+    #         grouped_outputs = {
+    #             k: list(g)
+    #             for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)
+    #         }
+    #         if element_outputs := grouped_outputs.get("element", None):
+    #             data.append("*Element Output, direction=YES")
+    #             data.append(", ".join([output.jobdata() for output in element_outputs]))
+    #         if node_outputs := grouped_outputs.get("node", None):
+    #             data.append("*Node Output")
+    #             data.append(", ".join([output.jobdata() for output in node_outputs]))
+    #         if contact_outputs := grouped_outputs.get("contact", None):
+    #             data.append("*Contact Output")
+    #             data.append(", ".join([output.jobdata() for output in contact_outputs]))
+    #         return "\n".join(data)
+    #     else:
+    #         return "*Output, field, variable=ALL\n**"
 
-        if self._field_outputs:
-            data = ["**", "*Restart, write, frequency={}".format(self.restart or 0), "**"]
-            data.append("*Output, field")
-            grouped_outputs = {k: list(g) for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)}
-            if element_outputs := grouped_outputs.get("element", None):
-                data.append("*Element Output, direction=YES")
-                data.append(", ".join([output.jobdata() for output in element_outputs]))
-            if node_outputs := grouped_outputs.get("node", None):
-                data.append("*Node Output")
-                data.append(", ".join([output.jobdata() for output in node_outputs]))
-            if contact_outputs := grouped_outputs.get("contact", None):
-                data.append("*Contact Output")
-                data.append(", ".join([output.jobdata() for output in contact_outputs]))
-            return "\n".join(data)
-        else:
-            return "*Output, field, variable=ALL\n**"
+    # @no_units
+    # def _generate_history_section(self):
+    #     if self._history_outputs:
+    #         data = []
+    #         for output in self._history_outputs:
+    #             data.append(f"** HISTORY OUTPUT: {output.name}")
+    #             data.append("**")
+    #             data.append("*Output, history, variable=ALL")
+    #             data.append("**")
 
-    def _generate_history_section(self):
-        if self._history_outputs:
-            data = []
-            for output in self._history_outputs:
-                data.append(f"** HISTORY OUTPUT: {output.name}")
-                data.append("**")
-                data.append("*Output, history, variable=ALL")
-                data.append("**")
-
-    def _generate_perturbations_section(self):
-        if self._perturbations:
-            return "\n".join([perturbation.jobdata() for perturbation in self.perturbations])
-        else:
-            return "**"
+    # @no_units
+    # def _generate_perturbations_section(self):
+    #     if self._perturbations:
+    #         return "\n".join(
+    #             [perturbation.jobdata() for perturbation in self.perturbations]
+    #         )
+    #     else:
+    #         return "**"
 
 
 class AbaqusStaticRiksStep(StaticRiksStep):
+    """Abaqus implementation of :class:`StaticRiksStep`.\n"""
+
+    __doc__ = __doc__ or ""
+    __doc__ += StaticRiksStep.__doc__ or ""
+
     def __init__(
         self,
         max_increments=100,
@@ -159,5 +183,14 @@ class AbaqusStaticRiksStep(StaticRiksStep):
         name=None,
         **kwargs,
     ):
-        super().__init__(max_increments, initial_inc_size, min_inc_size, time, nlgeom, modify, name, **kwargs)
+        super().__init__(
+            max_increments,
+            initial_inc_size,
+            min_inc_size,
+            time,
+            nlgeom,
+            modify,
+            name,
+            **kwargs,
+        )
         raise NotImplementedError

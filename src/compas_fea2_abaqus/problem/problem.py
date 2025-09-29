@@ -2,18 +2,21 @@ import os
 from pathlib import Path
 from compas_fea2.problem import Problem
 
-from compas_fea2.utilities._utils import timer
-from compas_fea2.utilities._utils import launch_process
+from compas_fea2.utilities._devtools import timer
+from compas_fea2.utilities._devtools import launch_process
 
 from ..results import results_to_sql
-from ..job.input_file import AbaqusRestartInputFile
+from ..job.input_file import _AbaqusRestartInputFile
 import compas_fea2_abaqus
+
+from compas_fea2.units import no_units
 
 
 class AbaqusProblem(Problem):
     """Abaqus implementation of :class:`Problem`.\n"""
 
-    __doc__ += Problem.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += Problem.__doc__ or ""
 
     def __init__(self, name=None, description=None, **kwargs):
         super(AbaqusProblem, self).__init__(name=name, description=description, **kwargs)
@@ -55,11 +58,21 @@ class AbaqusProblem(Problem):
         """
         if not path.exists():
             raise ValueError("No analysis results found for {!r}".format(self))
-        restart_file = AbaqusRestartInputFile.from_problem(problem=self, start=start, steps=steps)
+        restart_file = _AbaqusRestartInputFile.from_problem(problem=self, start=start, steps=steps)
         restart_file.write_to_file(self.path)
         return restart_file
 
-    def analyse(self, path, exe=None, cpus=1, verbose=False, overwrite=True, user_mat=None, *args, **kwargs):
+    def analyse(
+        self,
+        path,
+        exe=None,
+        cpus=1,
+        verbose=False,
+        overwrite=True,
+        user_mat=None,
+        *args,
+        **kwargs,
+    ):
         """Runs the analysis through abaqus.
 
         Parameters
@@ -91,7 +104,12 @@ class AbaqusProblem(Problem):
         self._check_analysis_path(path, kwargs.get("erase_data", False))
         self.write_input_file()
         cmd = self._build_command(
-            overwrite=overwrite, user_mat=user_mat, exe=exe, path=self.path, name=self.name, cpus=cpus
+            overwrite=overwrite,
+            user_mat=user_mat,
+            exe=exe,
+            path=self.path,
+            name=self.name,
+            cpus=cpus,
         )
         for line in launch_process(cmd_args=cmd, cwd=self.path, verbose=verbose):
             print(line)
@@ -135,9 +153,17 @@ class AbaqusProblem(Problem):
         for line in launch_process(cmd_args=cmd, cwd=self.path, verbose=output):
             print(line)
 
-    @timer(message="Analysis and extraction completed in")
     def analyse_and_extract(
-        self, path, exe=None, cpus=1, output=True, overwrite=True, user_mat=None, fields=None, *args, **kwargs
+        self,
+        path,
+        exe=None,
+        cpus=1,
+        output=True,
+        overwrite=True,
+        user_mat=None,
+        fields=None,
+        *args,
+        **kwargs,
     ):
         """_summary_
 
@@ -168,7 +194,16 @@ class AbaqusProblem(Problem):
         _type_
             _description_
         """
-        self.analyse(path, exe=exe, cpus=cpus, verbose=output, overwrite=overwrite, user_mat=user_mat, *args, **kwargs)
+        self.analyse(
+            path,
+            exe=exe,
+            cpus=cpus,
+            verbose=output,
+            overwrite=overwrite,
+            user_mat=user_mat,
+            *args,
+            **kwargs,
+        )
         return self.extract_results(fields=fields)
 
     # ==========================================================================
@@ -209,7 +244,8 @@ class AbaqusProblem(Problem):
     #                               Job data
     # =============================================================================
 
-    @timer(message="Problem generated in ")
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -221,4 +257,4 @@ class AbaqusProblem(Problem):
         -------
         input file data line (str).
         """
-        return "\n".join([step.jobdata() for step in self._steps_order])
+        return "\n".join([step.jobdata for step in self.steps])

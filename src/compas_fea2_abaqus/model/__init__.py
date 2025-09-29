@@ -22,13 +22,12 @@ from .elements import (
 
 # Abaqus Sections
 from .sections import (
-    AbaqusBeamSection,
+    AbaqusGenericBeamSection,
     AbaqusAngleSection,
     AbaqusBoxSection,
     AbaqusCircularSection,
     AbaqusHexSection,
     AbaqusISection,
-    AbaqusMassSection,
     AbaqusPipeSection,
     AbaqusRectangularSection,
     AbaqusSpringSection,
@@ -114,4 +113,4 @@ from .interactions import (
 )
 
 # Abaqus Interfaces
-from .interfaces import AbaqusInterface
+from .interfaces import AbaqusPartPartInterface

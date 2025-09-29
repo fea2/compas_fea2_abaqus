@@ -1,7 +1,10 @@
 from compas_fea2.model import Part, RigidPart
 from collections import defaultdict
 
+from compas_fea2.units import no_units
 
+
+@no_units
 def jobdata(obj):
     """Generate the string information for the input file.
 
@@ -31,15 +34,16 @@ def jobdata(obj):
 **
 ** - Releases
 **   --------
-{_generate_releases_section(obj) or '**'}
 **
 *End Part"""
 
 
+@no_units
 def _generate_nodes_section(obj):
-    return "\n".join(["*Node"] + [node.jobdata() for node in obj.nodes.sorted])
+    return "\n".join(["*Node"] + [node.jobdata for node in obj.nodes.sorted])
 
 
+@no_units
 def _generate_elements_section(obj):
     part_data = []
     # Write elements, elsets and sections
@@ -59,24 +63,18 @@ def _generate_elements_section(obj):
                     orientation = orientation.split("_")
                 part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
                 for element in sorted(elements, key=lambda x: x.key):
-                    part_data.append(element.jobdata())
+                    part_data.append(element.jobdata)
                 # if not isinstance(obj, RigidPart):
                 part_data.append(section.jobdata(elset_name, orientation=orientation))
     return "\n".join(part_data)
 
 
+@no_units
 def _generate_sets_section(obj):
     return "\n".join([group.jobdata() for group in obj.groups])
 
 
-def _generate_releases_section(obj):
-    if isinstance(obj, Part):
-        if obj.releases:
-            return "\n".join(["*Release"] + [release.jobdata() for release in obj.releases])
-    else:
-        return "**"
-
-
+@no_units
 def _generate_instance_jobdata(obj):
     """Generates the string information for the input file.
 
@@ -135,7 +133,8 @@ def _group_elements(obj):
 class AbaqusPart(Part):
     """Abaqus implementation of :class:`Part`."""
 
-    __doc__ += Part.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += Part.__doc__ or ""
 
     def __init__(self, name=None, **kwargs):
         super(AbaqusPart, self).__init__(name=name, **kwargs)
@@ -146,14 +145,22 @@ class AbaqusPart(Part):
     def _group_elements(self):
         return _group_elements(self)
 
+    @property
+    @no_units
     def jobdata(self):
         return jobdata(self)
 
+    @no_units
     def _generate_instance_jobdata(self):
         return _generate_instance_jobdata(self)
 
 
 class AbaqusRigidPart(RigidPart):
+    """Abaqus implementation of :class:`RigidPart`."""
+
+    __doc__ = __doc__ or ""
+    __doc__ += RigidPart.__doc__ or ""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -178,11 +185,15 @@ class AbaqusRigidPart(RigidPart):
     def _group_elements(self):
         return _group_elements(self)
 
+    @property
+    @no_units
     def jobdata(self):
         return jobdata(self)
 
+    @no_units
     def _generate_rigid_body_jobdata(self):
         return "*Rigid Body, ref node={0}-1.ref_point, elset={0}-1.all_elements".format(self.name)
 
+    @no_units
     def _generate_instance_jobdata(self):
         return _generate_instance_jobdata(self)

@@ -1,13 +1,12 @@
 from compas_fea2.model.sections import SpringSection
 from compas_fea2.model.sections import ConnectorSection
-from compas_fea2.model.sections import BeamSection
+from compas_fea2.model.sections import GenericBeamSection
 from compas_fea2.model.sections import AngleSection
 from compas_fea2.model.sections import BoxSection
 from compas_fea2.model.sections import HexSection
 from compas_fea2.model.sections import ISection
 from compas_fea2.model.sections import CircularSection
 from compas_fea2.model.sections import RectangularSection
-from compas_fea2.model.sections import MassSection
 from compas_fea2.model.sections import ShellSection
 from compas_fea2.model.sections import MembraneSection
 from compas_fea2.model.sections import SolidSection
@@ -17,17 +16,19 @@ from compas_fea2.model.sections import StrutSection
 from compas_fea2.model.sections import TieSection
 from compas_fea2.model.sections import PipeSection
 
+from compas_fea2.units import no_units
 
 # NOTE: these classes are sometimes overwriting the _base ones because Abaqus offers internal ways of computing beam sections' properties
 
 
+@no_units
 def _generate_beams_jobdata(obj, set_name, orientation, stype):
     """Generates the common string information for the input file of all the
     abaqus predefined beam sections.
 
     Parameters
     ----------
-    obj : :class:`compas_fea2.model.sections.BeamSection`
+    obj : :class:`compas_fea2.model.sections.GenericBeamSection`
         Section to write in the input file.
     set_name : str
         Name of the element set to which the section is assigned.
@@ -46,43 +47,51 @@ def _generate_beams_jobdata(obj, set_name, orientation, stype):
 *Beam Section, elset={}, material={}, section={}
 {}
 {}""".format(
-        obj.name, set_name, obj.material.name, stype, ", ".join([str(v) for v in obj._properties]), orientation_line
+        obj.name,
+        set_name,
+        obj.material.name,
+        stype,
+        ", ".join([str(v) for v in obj._properties]),
+        orientation_line,
     )
 
 
 # ==============================================================================
 # 0D
 # ==============================================================================
-class AbaqusMassSection(MassSection):
-    """Abaqus implementation of the :class:`MassSection`.\n"""
+# class AbaqusMassSection(MassSection):
+#     """Abaqus implementation of the :class:`MassSection`.\n"""
 
-    __doc__ += MassSection.__doc__
+#     __doc__ = __doc__ or ""
+#     __doc__ += MassSection.__doc__ or ""
 
-    def __init__(self, mass, name=None, **kwargs):
-        super(AbaqusMassSection, self).__init__(mass, name=name, **kwargs)
+#     def __init__(self, mass, name=None, **kwargs):
+#         super(AbaqusMassSection, self).__init__(mass, name=name, **kwargs)
 
-    def jobdata(self, set_name):
-        """Generates the string information for the input file.
+#     @no_units
+#     def jobdata(self, set_name):
+#         """Generates the string information for the input file.
 
-        Parameters
-        ----------
-        None
+#         Parameters
+#         ----------
+#         None
 
-        Returns
-        -------
-        input file data line (str).
-        """
-        return """** Section: \"{}\"
-*Mass, elset={}
-{}\n""".format(
-            self.name, set_name, self.mass
-        )
+#         Returns
+#         -------
+#         input file data line (str).
+#         """
+#         return """** Section: \"{}\"
+# *Mass, elset={}
+# {}\n""".format(
+#             self.name, set_name, self.mass
+#         )
 
 
 class AbaqusSpringSection(SpringSection):
     """Abaqus implementation of the :class:`SpringSection`.\n"""
 
-    __doc__ += SpringSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += SpringSection.__doc__ or ""
     __doc__ += """
     Warning
     -------
@@ -93,6 +102,7 @@ class AbaqusSpringSection(SpringSection):
     def __init__(self, axial, lateral, rotational, **kwargs):
         super(AbaqusSpringSection, self).__init__(axial, lateral, rotational, **kwargs)
 
+    @no_units
     def jobdata(self, elset):
         return f"*Spring, elset=Springs/Dashpots-{elset}\n{3}\n{self.axial}"
 
@@ -100,7 +110,8 @@ class AbaqusSpringSection(SpringSection):
 class AbaqusConnectorSection(ConnectorSection):
     """Abaqus implementation of the :class:`ConnectorSection`.\n"""
 
-    __doc__ += ConnectorSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ConnectorSection.__doc__ or ""
     __doc__ += """
     Warning
     -------
@@ -108,9 +119,17 @@ class AbaqusConnectorSection(ConnectorSection):
 
     """
 
-    def __init__(self, axial: float = None, lateral: float = None, rotational: float = None, **kwargs):
+    def __init__(
+        self,
+        axial: float = None,
+        lateral: float = None,
+        rotational: float = None,
+        **kwargs,
+    ):
         super(AbaqusConnectorSection, self).__init__(axial=axial, lateral=lateral, rotational=rotational, **kwargs)
 
+    @property
+    @no_units
     def jobdata(self):
         # FIXME: this is a placeholder only working for axial connectors
         data = [f"*Connector Behavior, name={self.name}"]
@@ -124,10 +143,11 @@ class AbaqusConnectorSection(ConnectorSection):
 # ==============================================================================
 
 
-class AbaqusBeamSection(BeamSection):
-    """Abaqus implementation of the :class:`BeamSection`.\n"""
+class AbaqusGenericBeamSection(GenericBeamSection):
+    """Abaqus implementation of the :class:`GenericBeamSection`.\n"""
 
-    __doc__ += BeamSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += GenericBeamSection.__doc__ or ""
     __doc__ += """
     Warning
     -------
@@ -137,7 +157,18 @@ class AbaqusBeamSection(BeamSection):
 
     def __init__(self, *, A, Ixx, Iyy, Ixy, Avx, Avy, J, g0, gw, material, name=None, **kwargs):
         super().__init__(
-            A=A, Ixx=Ixx, Iyy=Iyy, Ixy=Ixy, Avx=Avx, Avy=Avy, J=J, g0=g0, gw=gw, material=material, name=name, **kwargs
+            A=A,
+            Ixx=Ixx,
+            Iyy=Iyy,
+            Ixy=Ixy,
+            Avx=Avx,
+            Avy=Avy,
+            J=J,
+            g0=g0,
+            gw=gw,
+            material=material,
+            name=name,
+            **kwargs,
         )
         raise NotImplementedError("{self.__class__.__name__} is not available in Abaqus")
 
@@ -145,7 +176,8 @@ class AbaqusBeamSection(BeamSection):
 class AbaqusAngleSection(AngleSection):
     """Abaqus implementation of the :class:`AngleSection`.\n"""
 
-    __doc__ += AngleSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += AngleSection.__doc__ or ""
     __doc__ += """
     Note
     ----
@@ -159,6 +191,7 @@ class AbaqusAngleSection(AngleSection):
             t = [t] * 2
         self._properties = [w, h, *t]
 
+    @no_units
     def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, "L")
 
@@ -166,7 +199,8 @@ class AbaqusAngleSection(AngleSection):
 class AbaqusBoxSection(BoxSection):
     """Abaqus implementation of the :class:`BoxSection`.\n"""
 
-    __doc__ += BoxSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += BoxSection.__doc__ or ""
     __doc__ += """Box section.
 
     Note
@@ -185,6 +219,7 @@ class AbaqusBoxSection(BoxSection):
             t = [t] * 4
         self._properties = [w, h, *self._t]
 
+    @no_units
     def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, "box")
 
@@ -192,7 +227,8 @@ class AbaqusBoxSection(BoxSection):
 class AbaqusCircularSection(CircularSection):
     """Abaqus implementation of the :class:`CircularSection`.\n"""
 
-    __doc__ += CircularSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += CircularSection.__doc__ or ""
     __doc__ += """
     Note
     ----
@@ -204,6 +240,7 @@ class AbaqusCircularSection(CircularSection):
         super(AbaqusCircularSection, self).__init__(r, material, name=name, **kwargs)
         self._properties = [r]
 
+    @no_units
     def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, "circ")
 
@@ -211,7 +248,8 @@ class AbaqusCircularSection(CircularSection):
 class AbaqusHexSection(HexSection):
     """Abaqus implementation of the :class:`HexSection`.\n"""
 
-    __doc__ += HexSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += HexSection.__doc__ or ""
     __doc__ += """
     Note
     ----
@@ -228,7 +266,8 @@ class AbaqusHexSection(HexSection):
 class AbaqusISection(ISection):
     """Abaqus implementation of the :class:`ISection`.\n"""
 
-    __doc__ += ISection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ISection.__doc__ or ""
     __doc__ += """I or T section.
 
     Note
@@ -257,7 +296,8 @@ class AbaqusISection(ISection):
 class AbaqusPipeSection(PipeSection):
     """Abaqus implementation of the :class:`PipeSection`.\n"""
 
-    __doc__ += PipeSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += PipeSection.__doc__ or ""
     __doc__ += """
     Note
     ----
@@ -274,7 +314,8 @@ class AbaqusPipeSection(PipeSection):
 class AbaqusRectangularSection(RectangularSection):
     """Abaqus implementation of the :class:`RectangularSection`.\n"""
 
-    __doc__ += RectangularSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += RectangularSection.__doc__ or ""
     __doc__ += """
     Note
     ----
@@ -286,6 +327,7 @@ class AbaqusRectangularSection(RectangularSection):
         super(AbaqusRectangularSection, self).__init__(w=w, h=h, material=material, name=name, **kwargs)
         self._properties = [w, h]
 
+    @no_units
     def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, "rect")
 
@@ -293,7 +335,8 @@ class AbaqusRectangularSection(RectangularSection):
 class AbaqusTrapezoidalSection(TrapezoidalSection):
     """Abaqus implementation of the :class:`TrapezoidalSection`.\n"""
 
-    __doc__ += TrapezoidalSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += TrapezoidalSection.__doc__ or ""
     __doc__ += """
     Warning
     -------
@@ -310,7 +353,8 @@ class AbaqusTrapezoidalSection(TrapezoidalSection):
 class AbaqusTrussSection(TrussSection):
     """Abaqus implementation of the :class:`TrussSection`.\n"""
 
-    __doc__ += TrussSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += TrussSection.__doc__ or ""
     __doc__ += """
     Warning
     -------
@@ -326,7 +370,8 @@ class AbaqusTrussSection(TrussSection):
 class AbaqusStrutSection(StrutSection):
     """Abaqus implementation of the :class:`StrutSection`.\n"""
 
-    __doc__ += StrutSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += StrutSection.__doc__ or ""
     __doc__ += """
     Warning
     -------
@@ -342,7 +387,8 @@ class AbaqusStrutSection(StrutSection):
 class AbaqusTieSection(TieSection):
     """Abaqus implementation of the :class:`TieSection`.\n"""
 
-    __doc__ += TieSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += TieSection.__doc__ or ""
     __doc__ += """
     Warning
     -------
@@ -363,7 +409,8 @@ class AbaqusTieSection(TieSection):
 class AbaqusShellSection(ShellSection):
     """Abaqus implementation of the :class:`ShellSection`.\n"""
 
-    __doc__ += ShellSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ShellSection.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -375,6 +422,7 @@ class AbaqusShellSection(ShellSection):
         super(AbaqusShellSection, self).__init__(t, material, name=name, **kwargs)
         self.int_points = int_points
 
+    @no_units
     def jobdata(self, set_name, **kwargs):
         """Generates the string information for the input file.
 
@@ -396,11 +444,13 @@ class AbaqusShellSection(ShellSection):
 class AbaqusMembraneSection(MembraneSection):
     """Abaqus implementation of the :class:`MembraneSection`.\n"""
 
-    __doc__ += MembraneSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += MembraneSection.__doc__ or ""
 
     def __init__(self, t, material, name=None, **kwargs):
         super(AbaqusMembraneSection, self).__init__(t, material, name=name, **kwargs)
 
+    @no_units
     def jobdata(self, set_name, **kwargs):
         """Generates the string information for the input file.
 
@@ -427,11 +477,13 @@ class AbaqusMembraneSection(MembraneSection):
 class AbaqusSolidSection(SolidSection):
     """Abaqus implementation of the :class:`SolidSection`.\n"""
 
-    __doc__ += SolidSection.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += SolidSection.__doc__ or ""
 
     def __init__(self, material, **kwargs):
         super(AbaqusSolidSection, self).__init__(material, **kwargs)
 
+    @no_units
     def jobdata(self, set_name, **kwargs):
         """Generates the string information for the input file.
 

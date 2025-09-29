@@ -2,18 +2,19 @@
 Note
 ----
 to debug run from terminal:
-abaqus python path_to_\compas_fea2_abaqus\results\odb_extract.py None path_to_odb odb_file_name
+abaqus python path_to_/compas_fea2_abaqus/results/odb_extract.py None path_to_odb odb_file_name
 """
 
 from sqlite3 import Error
 import sqlite3
+from compas_fea2.config import settings
 
 try:
-    # from ..job import *
     import odbAccess
 except Exception as e:
-    print("Error importing odbAccess. Make sure you run this script from Abaqus.")
-    print(e)
+    if settings.VERBOSE:
+        print("Error importing odbAccess. Make sure you run this script from Abaqus.")
+        print(e)
     pass
 
 import os

@@ -1,16 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compas_fea2_abaqus"
+version = "0.1.0"
+description = "Abaqus backend for compas_fea2"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name = "Francesco Ranaudo" }]
+dependencies = ["compas_fea2>=0.3.1"]
+
+[project.entry-points."compas_fea2.backends"]
+abaqus = "compas_fea2_abaqus:load_backend"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["compas_fea2_abaqus*"]
+
 [tool.black]
 line-length = 120
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-testpaths = ["tests", "src/compas_fea2_abaqus"]
-python_files = [
-    "test_*.py",
-    "tests.py"
-]
-addopts = "-ra --strict --doctest-modules --doctest-glob=*.rst --tb=short"
-doctest_optionflags= "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL ALLOW_UNICODE ALLOW_BYTES NUMBER"
-filterwarnings = "ignore::DeprecationWarning"
 
 [tool.isort]
 line_length = 120
@@ -25,3 +37,10 @@ default_section = "THIRDPARTY"
 forced_separate = "test_compas_fea2_abaqus"
 skip = ["__init__.py"]
 
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests", "src/compas_fea2_abaqus"]
+python_files = ["test_*.py", "tests.py"]
+addopts = "-ra --strict --doctest-modules --doctest-glob=*.rst --tb=short"
+doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL ALLOW_UNICODE ALLOW_BYTES NUMBER"
+filterwarnings = "ignore::DeprecationWarning"

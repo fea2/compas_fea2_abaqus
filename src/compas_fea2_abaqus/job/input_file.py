@@ -4,6 +4,8 @@ import compas_fea2_abaqus
 from compas_fea2.job import InputFile
 from compas_fea2.job.input_file import ParametersFile
 
+from compas_fea2.units import no_units
+
 
 class AbaqusInputFile(InputFile):
     """"""
@@ -16,6 +18,8 @@ class AbaqusInputFile(InputFile):
     # Constructor methods
     # ==============================================================================
 
+    @property
+    @no_units
     def jobdata(self):
         """Generate the content of the input file from the Problem object.
 
@@ -48,20 +52,20 @@ class AbaqusInputFile(InputFile):
 **------------------------------------------------------------------
 **------------------------------------------------------------------
 **
-{self.model.jobdata()}**
+{self.model.jobdata}**
 **------------------------------------------------------------------
 **------------------------------------------------------------------
 ** PROBLEM
 **------------------------------------------------------------------
 **------------------------------------------------------------------
-{self.problem.jobdata()}"""
+{self.problem.jobdata}"""
 
 
-class AbaqusRestartInputFile(InputFile):
+class _AbaqusRestartInputFile(InputFile):
     """"""
 
     def __init__(self, start, steps, name=None, **kwargs):
-        super(AbaqusRestartInputFile, self).__init__(name=name, **kwargs)
+        super(_AbaqusRestartInputFile, self).__init__(name=name, **kwargs)
         self._extension = "inp"
         self._start = start
         self._steps = steps
@@ -100,6 +104,8 @@ class AbaqusRestartInputFile(InputFile):
 
         return restart_file
 
+    @property
+    @no_units
     def jobdata(self):
         """Generate the content of the input file from the Problem object.
 
@@ -173,6 +179,7 @@ class AbaqusParametersFile(ParametersFile):
         input_file._registration = problem
         return input_file
 
+    @no_units
     def jobdata(self, opti_problem, smooth):
         """Generate the content of the parameter file from the optimisation
         settings of the Problem object.
@@ -208,13 +215,13 @@ END_
 {opti_problem._design_variables.jobdata()}!
 ! ----------------------------------------------------------------
 ! Design responses
-{''.join([value.jobdata() for value in opti_problem._design_responses.values()])}!
+{"".join([value.jobdata() for value in opti_problem._design_responses.values()])}!
 ! ----------------------------------------------------------------
 ! Objective Function
 {opti_problem._objective_function.jobdata()}!
 ! ----------------------------------------------------------------
 ! Constraints
-{''.join([value.jobdata() for value in opti_problem._constraints.values()])}!
+{"".join([value.jobdata() for value in opti_problem._constraints.values()])}!
 ! ----------------------------------------------------------------
 ! Task
 {opti_problem.jobdata()}!
@@ -224,5 +231,5 @@ END_
 !
 ! ----------------------------------------------------------------
 !
-{smooth.jobdata() if smooth else '!'}
+{smooth.jobdata() if smooth else "!"}
 EXIT"""
