@@ -1,6 +1,7 @@
 from compas_fea2.problem.steps import StaticStep
 from compas_fea2.problem.steps import StaticRiksStep
 from compas_fea2.problem.fields import GravityLoadField
+from compas_fea2.results.fields import NodeFieldResults, ElementFieldResults
 
 
 class AbaqusStaticStep(StaticStep):
@@ -95,7 +96,8 @@ class AbaqusStaticStep(StaticStep):
         return "\n".join(data)
 
     def _generate_displacements_section(self):
-        return (
+        if self.displacements:
+            return (
             "\n".join(
                 [
                     displacement.jobdata(node)
@@ -105,14 +107,18 @@ class AbaqusStaticStep(StaticStep):
             )
             or "**"
         )
+        else:
+            return "**"
 
     def _generate_loads_section(self):
         data = []
-        for node, load in self.combination.node_load:
-            data.append(load.jobdata(node, "CLoad"))
-        for load_field in self.load_fields :
-            if isinstance(load_field, GravityLoadField):
-                data.append(load_field.jobdata())
+        if self.effective_fields:
+            for field in self.effective_fields:
+                if not(isinstance(field, GravityLoadField)):
+                    for node, load in field.node_load:
+                        data.append(load.jobdata(node, "CLoad"))
+                else :
+                    data.append(field.jobdata())
 
         return "\n".join(data) or "**"
 
@@ -167,7 +173,7 @@ class AbaqusStaticStep(StaticStep):
         str
             text section for the input file.
         """
-        # return "**"
+        return "**"
         return "\n".join([ic.jobdata(nodes) for ic, nodes in self.prescribed_fields.items()]) or "**"
         # return "\n".join([ic.jobdata() if isinstance(ic, InitialTemperatureField) else "" for ic, nodes in self.model.ics.items()]) or "**"
 

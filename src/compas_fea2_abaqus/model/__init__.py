@@ -117,7 +117,7 @@ from .interactions import (
 )
 
 # Abaqus Interfaces
-from .interfaces import AbaqusInterface
+from .interfaces import AbaqusPartPartInterface
 
 __all__ = [
     "AbaqusModel",

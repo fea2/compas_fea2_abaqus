@@ -15,7 +15,7 @@ class AbaqusInputFile(InputFile):
     # ==============================================================================
     # Constructor methods
     # ==============================================================================
-
+    @property
     def jobdata(self):
         """Generate the content of the input file from the Problem object.
 

@@ -66,16 +66,12 @@ def _generate_elements_section(obj):
 
 
 def _generate_sets_section(obj):
-    return "**"
+    # return "**"
     return "\n".join([group.jobdata() for group in obj.groups])
 
 
 def _generate_releases_section(obj):
-    # if isinstance(obj, Part):
-    #     # if obj.releases:
-    #     #     return "\n".join(["*Release"] + [release.jobdata() for release in obj.releases])
-    # else:
-        return "**"
+    return "\n".join(release_field.jobdata for release_field in obj.releases)
 
 
 def _generate_instance_jobdata(obj):
@@ -130,9 +126,11 @@ def _group_elements(obj):
         section = el.section
         try:
             if el.ndim == 1:
-                orientation = "_".join(str(i) for i in el.frame.xaxis)
+                orientation = "_".join([str(round(el._orientation[0],2)), str(round(el._orientation[1],2)), str(round(el._orientation[2],2))])
             if el.ndim ==  2 or el.ndim == 3:
-                orientation = "_".join(str(i) for i in el.frame.xaxis) + "_" + "_".join(str(i) for i in el.frame.yaxis)
+                orientation = "_".join([str(round(el._orientation.xaxis.x,2)), str(round(el._orientation.xaxis.y,2)), str(round(el._orientation.xaxis.z,2))]) 
+                + "_" 
+                + "_".join(str(round(el._orientation.yaxis.x,2)), str(round(el._orientation.yaxis.y,2)), str(round(el._orientation.yaxis.z,2))) 
 
         except:  # noqa: E722
             orientation = None

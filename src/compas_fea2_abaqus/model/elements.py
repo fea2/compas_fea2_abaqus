@@ -122,7 +122,6 @@ class AbaqusBeamElement(BeamElement):
         self,
         nodes,
         section,
-        frame=[0.0, 0.0, -1.0],
         type="B3",
         interpolation=1,
         hybrid=None,
@@ -133,7 +132,6 @@ class AbaqusBeamElement(BeamElement):
         super(AbaqusBeamElement, self).__init__(
             nodes=nodes,
             section=section,
-            frame=frame,
             implementation=implementation or "".join([type, str(interpolation), "H" if hybrid else ""]),
             name=name,
             **kwargs,

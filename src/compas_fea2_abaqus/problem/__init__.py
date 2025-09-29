@@ -11,9 +11,9 @@ from .steps import (
 )
 
 # Abaqus Prescribed Fields
-from .fields import (
-    AbaqusPrescribedTemperatureField,
-)
+# from .fields import (
+#     # AbaqusPrescribedTemperatureField,
+# )
 
 # Abaqus Displacements
 from .displacements import (

@@ -1,10 +1,10 @@
 from compas_fea2.model import _Interface
-from compas_fea2.model.interfaces import BoundaryInterface
+from compas_fea2.model.interfaces import BoundaryInterface, PartPartInterface
 from compas_fea2.model import Contact
 from compas_fea2.model import _Constraint
 
 
-class AbaqusInterface(_Interface):
+class AbaqusPartPartInterface(PartPartInterface):
     """Abaqus implementation of :class:`Interface`.
 
     Note
@@ -13,7 +13,7 @@ class AbaqusInterface(_Interface):
 
     """
 
-    __doc__ += _Interface.__doc__
+    __doc__ += PartPartInterface.__doc__
 
     def __init__(
         self,
@@ -25,7 +25,7 @@ class AbaqusInterface(_Interface):
         no_tickness=False,
         **kwargs,
     ):
-        super(AbaqusInterface, self).__init__(master=master, slave=slave, behavior=behavior, **kwargs)
+        super(AbaqusPartPartInterface, self).__init__(master=master, slave=slave, behavior=behavior, **kwargs)
 
         self._small_sliding = ", small sliding" if small_sliding else ""
         self._no_tickness = ", no tickness" if no_tickness else ""
@@ -39,7 +39,7 @@ class AbaqusInterface(_Interface):
 **"""
 
         elif isinstance(self.behavior, _Constraint):
-            return f"{self.behavior.jobdata()}{self._slave.name}_i, {self._master.name}_i\n**"
+            return f"{self.behavior.jobdata()}, {self.master.name}, {self.slave.name}\n**"
 
     def _generate_controls_jobdata(self):
         return f"""**

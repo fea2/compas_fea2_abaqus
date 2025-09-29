@@ -120,16 +120,13 @@ class AbaqusModel(Model):
             data_section.append(part._generate_instance_jobdata())
             if isinstance(part, RigidPart):
                 data_section.append(part._generate_rigid_body_jobdata())
-            for group in part.groups:
-                data_section.append(group.jobdata())
+            # for group in part.groups:
+            #     data_section.append(group.jobdata())
         data_section.append("**\n** CONNECTORS\n**")
         connector_groups = []
         for connector in self.connectors:
             connector_groups.append(ElementsGroup(elements=[connector], name=f"set-{connector.name}"))
             data_section.append(connector.jobdata())
-        data_section.append("**\n** CONSTRAINTS\n**")
-        for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
-            data_section.append(interface._generate_jobdata())
         data_section.append("**\n** INTERFACES\n**")
         interface_groups = set()
         for interface in self.interfaces:
@@ -137,7 +134,10 @@ class AbaqusModel(Model):
             if isinstance(interface, PartPartInterface):
                 interface_groups.add(interface.slave)
         for interface_group in interface_groups:
-            data_section.append(interface_group.jobdata())
+            data_section.append(interface_group.jobdata(assembly=True))
+        data_section.append("**\n** CONSTRAINTS\n**")
+        for interface in filter(lambda i: isinstance(i.behavior, _Constraint), self.interfaces):
+            data_section.append(interface._generate_jobdata())
         # for group in self.partgroups:
         #     data_section.append(group.jobdata(instance=True))
         for group in connector_groups:
@@ -216,7 +216,7 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        interfaces = list(filter(lambda i: isinstance(i, PartPartInterface), self.interfaces))
+        interfaces = list(filter(lambda i: (isinstance(i, PartPartInterface) and not(isinstance(i.behavior, _Constraint))), self.interfaces ))
         return "\n".join(interface._generate_jobdata() for interface in interfaces) if interfaces else "**"
 
     def _generate_bcs_section(self):

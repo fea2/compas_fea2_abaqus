@@ -254,4 +254,4 @@ class AbaqusProblem(Problem):
         -------
         input file data line (str).
         """
-        return "\n".join([step.jobdata() for step in self._steps_order])
+        return "\n".join([step.jobdata() for step in self.steps])

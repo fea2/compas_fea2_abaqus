@@ -5,7 +5,7 @@ from compas_fea2.model.groups import FacesGroup
 from itertools import groupby
 
 
-def jobdata(self, instance):
+def jobdata(self, instance, assembly=False):
     """Generates the common string information for the input file for all the
     groups.
 
@@ -29,6 +29,13 @@ def jobdata(self, instance):
             chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
             for chunk in chunks:
                 data_section.append(", ".join(chunk))
+    elif assembly:
+        data_section.append(line)
+        data = [str(member.part.name)+str(-1.)+str(member.key) for member in self._members]
+        chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
+        for chunk in chunks:
+            data_section.append(", ".join(chunk))
+
     else:
         data_section.append(line)
         data = [str(member.key) for member in self._members]
@@ -53,8 +60,9 @@ class AbaqusNodesGroup(NodesGroup):
         super(AbaqusNodesGroup, self).__init__(members=members, **kwargs)
         self._set_type = "nset"
 
-    def jobdata(self, instance=None):
-        return jobdata(self, instance)
+
+    def jobdata(self, instance=None, **kwargs):
+        return jobdata(self, instance, **kwargs)
 
 
 class AbaqusElementsGroup(ElementsGroup):
@@ -72,8 +80,8 @@ class AbaqusElementsGroup(ElementsGroup):
         super(AbaqusElementsGroup, self).__init__(members=members, **kwargs)
         self._set_type = "elset"
 
-    def jobdata(self, instance=None):
-        return jobdata(self, instance)
+    def jobdata(self, instance=None, **kwargs):
+        return jobdata(self, instance, **kwargs)
 
 
 class AbaqusEdgesGroup(EdgesGroup):

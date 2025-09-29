@@ -7,8 +7,8 @@ from compas_fea2.results.fields import TemperatureFieldResults
 
 
 class AbaqusDisplacementFieldResults(DisplacementFieldResults):
-    def __init__(self, step, *args, **kwargs):
-        super().__init__(step, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.input_name = "U"
         self.output_type = "node"
 
@@ -17,8 +17,8 @@ class AbaqusDisplacementFieldResults(DisplacementFieldResults):
 
 
 class AbaqusReactionFieldResults(ReactionFieldResults):
-    def __init__(self, step, *args, **kwargs):
-        super().__init__(step, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.input_name = "RF"
         self.output_type = "node"
 
@@ -27,8 +27,8 @@ class AbaqusReactionFieldResults(ReactionFieldResults):
 
 
 class AbaqusSectionForcesFieldResults(SectionForcesFieldResults):
-    def __init__(self, step, *args, **kwargs):
-        super().__init__(step, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.input_name = "SF"
         self.output_type = "element"
 
@@ -37,8 +37,8 @@ class AbaqusSectionForcesFieldResults(SectionForcesFieldResults):
 
 
 class AbaqusStressFieldResults(StressFieldResults):
-    def __init__(self, step, *args, **kwargs):
-        super().__init__(step, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.input_name = "S"
         self.output_type = "element"
 
@@ -47,8 +47,8 @@ class AbaqusStressFieldResults(StressFieldResults):
 
 
 class AbaqusContactFieldResults(ContactForcesFieldResults):
-    def __init__(self, step, *args, **kwargs):
-        super().__init__(step, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.input_name = "CFORCE"
         self.output_type = "element"
 
@@ -57,8 +57,8 @@ class AbaqusContactFieldResults(ContactForcesFieldResults):
 
 
 class AbaqusTemperatureFieldResults(TemperatureFieldResults):
-    def __init__(self, step, *args, **kwargs):
-        super().__init__(step, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.input_name = "NT"
         self.output_type = "node"
 

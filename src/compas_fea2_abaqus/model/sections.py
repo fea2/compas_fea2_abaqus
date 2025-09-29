@@ -266,15 +266,18 @@ class AbaqusISection(ISection):
     The section properties are automatically computed by Abaqus.
     """
 
-    def __init__(self, w, h, t, material, l=0, name=None, **kwargs):  # noqa: E741
-        super(AbaqusISection, self).__init__(w, h, t, t, material, name=name, **kwargs)
+    def __init__(self, w, h, ttf, tbf, material, l=0, name=None, **kwargs):  # noqa: E741
+        super(AbaqusISection, self).__init__(w=w, h=h, ttf=ttf, tbf=tbf, material=material, name=name, **kwargs)
         self._stype = "I"
+        t = ttf
         if not isinstance(w, list):
             w = [w] * 2
         if not isinstance(h, list):
             t = [t] * 3
-        self.properties = [l, h, *w, *t]
+        self._properties = [l, h, *w, *t]
 
+    def jobdata(self, set_name, orientation):
+        return _generate_beams_jobdata(self, set_name, orientation, "I")
 
 class AbaqusPipeSection(PipeSection):
     """Abaqus implementation of the :class:`PipeSection`.\n"""

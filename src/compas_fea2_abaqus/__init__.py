@@ -89,7 +89,7 @@ from compas_fea2.model.materials.timber import (  # noqa: E402
 
 # Groups
 from compas_fea2.model.groups import (  # noqa: E402
-    # NodesGroup,
+    NodesGroup,
     ElementsGroup,
     FacesGroup,
     EdgesGroup,
@@ -141,6 +141,10 @@ from compas_fea2.model.ics import (  # noqa: E402
     InitialTemperature,
 )
 
+# Release Field
+from compas_fea2.model.fields import (  # noqa: E402
+    BeamReleaseField
+)
 # Interactions
 from compas_fea2.model.interactions import (  # noqa: E402
     HardContactFrictionPenalty,
@@ -152,7 +156,7 @@ from compas_fea2.model.interactions import (  # noqa: E402
 )
 
 # Interfaces
-# from compas_fea2.model.interfaces import Interface
+from compas_fea2.model.interfaces import PartPartInterface
 
 # Problem
 from compas_fea2.problem import Problem  # noqa: E402
@@ -179,7 +183,7 @@ from compas_fea2.problem.loads import (  # noqa: E402
 # Fields
 from compas_fea2.problem.fields import (  # noqa: E402
     # TemperatureField,
-    PrescribedTemperatureField,
+    # PrescribedTemperatureField,
     GravityLoadField
 )
 
@@ -273,7 +277,7 @@ try:
 
     # Abaqus Groups
     from .model.groups import (
-        # AbaqusNodesGroup,
+        AbaqusNodesGroup,
         AbaqusElementsGroup,
         AbaqusFacesGroup,
         AbaqusEdgesGroup,
@@ -284,6 +288,11 @@ try:
         AbaqusTieConstraint,
         AbaqusBeamMPC,
         AbaqusTieMPC,
+    )
+
+    # Abaqus Interface
+    from .model.interfaces import (
+        AbaqusPartPartInterface
     )
 
     # Abaqus Connectors
@@ -326,6 +335,11 @@ try:
         AbaqusInitialTemperature,
     )
 
+    # Release
+    from .model.fields import (
+        AbaqusBeamReleaseField,
+    )
+
     # Interactions
     from .model.interactions import (
         AbaqusHardContactFrictionPenalty,
@@ -365,7 +379,7 @@ try:
 
     # Abaqus LoadFields
     from .problem.fields import (
-        AbaqusPrescribedTemperatureField,
+        # AbaqusPrescribedTemperatureField,
         AbaqusGravityLoadField
     )
 
@@ -433,7 +447,7 @@ try:
         backend[ThermalElasticIsotropic] = AbaqusThermalElasticIsotropic
         backend[Timber] = AbaqusTimber
 
-        # backend[NodesGroup] = AbaqusNodesGroup
+        backend[NodesGroup] = AbaqusNodesGroup
         backend[ElementsGroup] = AbaqusElementsGroup
         backend[EdgesGroup] = AbaqusEdgesGroup
         backend[FacesGroup] = AbaqusFacesGroup
@@ -441,6 +455,8 @@ try:
         backend[TieConstraint] = AbaqusTieConstraint
         backend[TieMPC] = AbaqusTieMPC
         backend[BeamMPC] = AbaqusBeamMPC
+
+        backend[PartPartInterface] = AbaqusPartPartInterface
 
         backend[SpringConnector] = AbaqusSpringConnector
         backend[ZeroLengthSpringConnector] = AbaqusZeroLengthSpringConnector
@@ -469,6 +485,8 @@ try:
 
         backend[InitialTemperature] = AbaqusInitialTemperature
 
+        backend[BeamReleaseField] = AbaqusBeamReleaseField
+
         backend[HardContactFrictionPenalty] = AbaqusHardContactFrictionPenalty
         backend[HardContactRough] = AbaqusHardContactRough
         backend[LinearContactFrictionPenalty] = AbaqusLinearContactFrictionPenalty
@@ -494,7 +512,7 @@ try:
 
         backend[GeneralDisplacement] = AbaqusGeneralDisplacement
 
-        backend[PrescribedTemperatureField] = AbaqusPrescribedTemperatureField
+        # backend[PrescribedTemperatureField] = AbaqusPrescribedTemperatureField
         backend[GravityLoadField] = AbaqusGravityLoadField
 
         backend[StressFieldResults] = AbaqusStressFieldResults
