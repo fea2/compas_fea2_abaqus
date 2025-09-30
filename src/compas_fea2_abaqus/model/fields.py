@@ -2,6 +2,8 @@
 from compas_fea2.model.fields import BoundaryConditionsField
 from compas_fea2.units import no_units
 
+dofs = ["x", "y", "z", "xx", "yy", "zz"]
+
 class AbaqusBoundaryConditionsField(BoundaryConditionsField):
     """Calculix implementation of :class:`BoundaryConditionsField`.
 
@@ -13,44 +15,33 @@ class AbaqusBoundaryConditionsField(BoundaryConditionsField):
 
     __doc__ = (__doc__ or "") + (BoundaryConditionsField.__doc__ or "")
 
-    def __init__(self, distribution, condition, **kwargs):
+    def __init__(self, distribution, condition, follow=False, modify=False, **kwargs):
         super().__init__(distribution=distribution, condition=condition, **kwargs)
-
+        self._modify = ", OP={}".format(modify) if modify else ", OP=MOD"  # In abaqus the default is MOD
+        self._follow = ", follower" if follow else ""  
+        
     @property
     @no_units
     def jobdata(self):
-        """Generates the string information for the input file."""
-        dofs = ["x", "y", "z", "xx", "yy", "zz"]
-        data = []
-        data.append(self.distribution.jobdata())
-        data.append(f"** Name: {self.name} Type: BC/Rotation \n*Boundary, op=NEW")
-        data.extend([f'{self.distribution.name}, {comp}' for comp, dof in enumerate(dofs, 1) if getattr(self.condition, dof)])
-        return '\n'.join(data) if data else "**"import typing
-from compas_fea2.model.fields import BeamReleaseField
-from compas_fea2.model.elements import _Element1D
+        """Generates the string information for the input file.
 
-class AbaqusBeamReleaseField(BeamReleaseField):
-    """Abaqus implementation of BeamReleaseField."""
-    __doc__ += BeamReleaseField.__doc__
+        Parameters
+        ----------
+        None
 
-    def __init__(self, release, elements, end, name=None, **kwargs):
-        super().__init__(release, elements, end, name, **kwargs)
+        Returns
+        -------
+        input file data line (str).
 
-        if end =='start':
-            self.abaqus_end=['S1']
-        elif end=='end':
-            self.abaqus_end=['S2']
-        elif end=='both':
-            self.abaqus_end=['S1', 'S2']
-        else :
-            raise ValueError('The end of the release is not implemented.')
+        """
 
-    @property
-    def jobdata(self):
-        data=["*Release"]
-        for element in self.elements:
-            for end in self.abaqus_end:
-                for release_direction in self.release.release_directions:
-                    if getattr(self.release, release_direction, None):
-                        data+=[', '.join([str(element.key), end, release_direction])]
-        return '\n'.join(data)
+        data_section = [
+            "** Name: {} Type: Boundary Condition".format(self.name),
+            "*Boundary{}{}".format(self._modify, self._follow),
+        ]
+
+        for node, bc in self.node_bc:
+            for comp, dof in enumerate(dofs, 1):
+                if getattr(bc, dof):
+                    data_section.append(f"{node.part.name}-1.{node.key}, {comp}")
+        return "\n".join(data_section) or "**"

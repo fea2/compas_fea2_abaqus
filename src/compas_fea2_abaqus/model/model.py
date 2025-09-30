@@ -145,11 +145,13 @@ class AbaqusModel(Model):
 
         # Groups/sets defined at the part level
         for part in self._parts:
-            data_section.append(part.jobdata)
+            data_section.append(part._generate_instance_jobdata)
             if isinstance(part, RigidPart):
-                data_section.append(part._generate_rigid_body_jobdata())
-            # for group in part.groups:
-            #     data_section.append(group.jobdata())
+                data_section.append(part._generate_instance_jobdata)
+            for group in part.groups:
+                data_section.append(group.jobdata(instance=True))
+
+        # Connectors
         data_section.append("**\n** CONNECTORS\n**")
         for connector in self.connectors:
             data_section.append(connector.jobdata)

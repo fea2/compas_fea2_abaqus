@@ -86,7 +86,7 @@ class AbaqusStaticStep(StaticStep):
 {self._generate_prescribed_field_section()}
 ** - Output Requests
 **   ---------------
-{'\n'.join([output.jobdata for output in self._field_outputs if self._field_outputs] or ['**'])}
+{self._generate_output_section()}
 **
 *End Step
 """
@@ -121,33 +121,33 @@ class AbaqusStaticStep(StaticStep):
     #         data.append(load.jobdata(node))
     #     return "\n".join(data) or "**"
 
-    # @no_units
-    # def _generate_output_section(self):
-    #     from itertools import groupby
+    @no_units
+    def _generate_output_section(self):
+        from itertools import groupby
 
-    #     if self._field_outputs:
-    #         data = [
-    #             "**",
-    #             "*Restart, write, frequency={}".format(self.restart or 0),
-    #             "**",
-    #         ]
-    #         data.append("*Output, field")
-    #         grouped_outputs = {
-    #             k: list(g)
-    #             for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)
-    #         }
-    #         if element_outputs := grouped_outputs.get("element", None):
-    #             data.append("*Element Output, direction=YES")
-    #             data.append(", ".join([output.jobdata() for output in element_outputs]))
-    #         if node_outputs := grouped_outputs.get("node", None):
-    #             data.append("*Node Output")
-    #             data.append(", ".join([output.jobdata() for output in node_outputs]))
-    #         if contact_outputs := grouped_outputs.get("contact", None):
-    #             data.append("*Contact Output")
-    #             data.append(", ".join([output.jobdata() for output in contact_outputs]))
-    #         return "\n".join(data)
-    #     else:
-    #         return "*Output, field, variable=ALL\n**"
+        if self._field_outputs:
+            data = [
+                "**",
+                "*Restart, write, frequency={}".format(self.restart or 0),
+                "**",
+            ]
+            data.append("*Output, field")
+            grouped_outputs = {
+                k: list(g)
+                for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)
+            }
+            if element_outputs := grouped_outputs.get("element", None):
+                data.append("*Element Output, direction=YES")
+                data.append(", ".join([output.jobdata for output in element_outputs]))
+            if node_outputs := grouped_outputs.get("node", None):
+                data.append("*Node Output")
+                data.append(", ".join([output.jobdata for output in node_outputs]))
+            if contact_outputs := grouped_outputs.get("contact", None):
+                data.append("*Contact Output")
+                data.append(", ".join([output.jobdata for output in contact_outputs]))
+            return "\n".join(data)
+        else:
+            return "*Output, field, variable=ALL\n**"
 
     # @no_units
     # def _generate_history_section(self):

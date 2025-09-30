@@ -167,6 +167,7 @@ class AbaqusPart(Part):
     def jobdata(self):
         return jobdata(self)
 
+    @property
     @no_units
     def _generate_instance_jobdata(self):
         return _generate_instance_jobdata(self)
@@ -207,10 +208,12 @@ class AbaqusRigidPart(RigidPart):
     def jobdata(self):
         return jobdata(self)
 
+    @property
     @no_units
     def _generate_rigid_body_jobdata(self):
         return "*Rigid Body, ref node={0}-1.ref_point, elset={0}-1.all_elements".format(self.name)
 
+    @property
     @no_units
     def _generate_instance_jobdata(self):
         return _generate_instance_jobdata(self)

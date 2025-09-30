@@ -26,7 +26,7 @@ class AbaqusProblem(Problem):
     # =========================================================================
     def _build_command(self, path: str, name: str, **kwargs):
         # Set solver path
-        exe_cmd = os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus")
+        exe_cmd = os.path.join(kwargs.get("exe", None) or "C:/SIMULIA/Commands", "abaqus")
         # Set options
         option_keywords = []
         if kwargs.get("overwrite", None):
@@ -228,7 +228,7 @@ class AbaqusProblem(Problem):
         database_path = database_path or self.path
         database_name = database_name or self.name
         args = [
-            os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus"),
+            os.path.join(kwargs.get("exe", None) or "C:/SIMULIA/Commands", "abaqus"),
             "python",
             Path(results_to_sql.__file__),
             ",".join(fields) if fields else "None",

@@ -16,6 +16,7 @@ from compas_fea2.model.sections import TrapezoidalSection
 from compas_fea2.model.sections import StrutSection
 from compas_fea2.model.sections import TieSection
 from compas_fea2.model.sections import PipeSection
+from compas_fea2.units import _strip_magnitudes
 
 from compas_fea2.units import no_units
 
@@ -52,7 +53,7 @@ def _generate_beams_jobdata(obj, set_name, orientation, stype):
         set_name,
         obj.material.name,
         stype,
-        ", ".join([str(v) for v in obj._properties]),
+        ", ".join([str(_strip_magnitudes(v)) for v in obj._properties]),
         orientation_line,
     )
 
