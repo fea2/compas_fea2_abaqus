@@ -8,7 +8,10 @@ from compas_fea2.model import TetrahedronElement
 from compas_fea2.model import HexahedronElement
 from compas_fea2.model import LinkElement
 
+from compas_fea2.units import no_units
 
+
+@no_units
 def _jobdata(element):
     """Generates the common string information for the input file of all the
     elements.
@@ -36,11 +39,14 @@ def _jobdata(element):
 class AbaqusMassElement(MassElement):
     """Abaqus implementation of :class:`MassElement`\n"""
 
-    __doc__ += MassElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += MassElement.__doc__ or ""
 
     def __init__(self, *, node, section, name=None, **kwargs):
         super(AbaqusMassElement, self).__init__(nodes=[node], section=section, name=name, **kwargs)
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -63,7 +69,8 @@ class AbaqusMassElement(MassElement):
 class AbaqusLinkElement(LinkElement):
     """Abaqus implementation of :class:`LinkElement`\n"""
 
-    __doc__ += LinkElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += LinkElement.__doc__ or ""
 
     def __init__(self, nodes, section, name=None, **kwargs):
         super(AbaqusLinkElement, self).__init__(nodes=nodes, section=section, name=name, **kwargs)
@@ -88,7 +95,8 @@ class AbaqusBeamElement(BeamElement):
 
     """
 
-    __doc__ += BeamElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += BeamElement.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -141,6 +149,8 @@ class AbaqusBeamElement(BeamElement):
         self._hybrid = hybrid
         self._elset = None
 
+    @property
+    @no_units
     def jobdata(self):
         if any(x in self.implementation for x in ["B3", "PIPE"]):
             return _jobdata(self)
@@ -151,7 +161,8 @@ class AbaqusBeamElement(BeamElement):
 class AbaqusTrussElement(TrussElement):
     """Abaqus implementation of :class:`TrussElement`\n"""
 
-    __doc__ += TrussElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += TrussElement.__doc__ or ""
 
     def __init__(self, nodes, section, type="T3D", name=None, **kwargs):
         super(AbaqusTrussElement, self).__init__(
@@ -172,6 +183,8 @@ class AbaqusTrussElement(TrussElement):
         if len(nodes) not in [2, 3]:
             raise ValueError("A truss element with {} nodes cannot be created".format(len(nodes)))
 
+    @property
+    @no_units
     def jobdata(self):
         return getattr(self, "_" + self._type.lower())()
 
@@ -196,7 +209,8 @@ class AbaqusShellElement(ShellElement):
 
     """
 
-    __doc__ += ShellElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ShellElement.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -262,27 +276,35 @@ class AbaqusShellElement(ShellElement):
         self._optional = optional
         self._warping = warping
 
+    @property
+    @no_units
     def jobdata(self):
         return getattr(self, "_" + self._implementation.lower())()
 
+    @no_units
     def _s3(self):
         return _jobdata(self)
 
+    @no_units
     def _dc2d4(self):
         return _jobdata(self)
 
+    @no_units
     def _dc2d3(self):
         return _jobdata(self)
 
     def _s4(self):
         return _jobdata(self)
 
+    @no_units
     def _sc(self):
         raise NotImplementedError()
 
+    @no_units
     def _r3d4(self):
         return _jobdata(self)
 
+    @no_units
     def _r3d3(self):
         return _jobdata(self)
 
@@ -300,7 +322,8 @@ class AbaqusMembraneElement(MembraneElement):
 
     """
 
-    __doc__ += MembraneElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += MembraneElement.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -347,6 +370,8 @@ class AbaqusMembraneElement(MembraneElement):
         if len(self._nodes) not in (3, 4, 6, 8, 9):
             raise ValueError("A membrane element with {} nodes cannot be created.".format(len(nodes)))
 
+    @property
+    @no_units
     def jobdata(self):
         if self._type != "M3D":
             raise ValueError("{} is not a valid implementation model.".format(self._type))
@@ -371,7 +396,8 @@ class _AbaqusElement3D(_Element3D):
 
     """
 
-    __doc__ += _Element3D.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += _Element3D.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -426,6 +452,8 @@ class _AbaqusElement3D(_Element3D):
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
             raise ValueError("A solid element with {} nodes cannot be created.".format(len(nodes)))
 
+    @property
+    @no_units
     def jobdata(self):
         try:
             return getattr(self, "_" + self.implementation[:4])()
@@ -489,7 +517,8 @@ class AbaqusTetrahedronElement(TetrahedronElement):
 
     """
 
-    __doc__ += TetrahedronElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += TetrahedronElement.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -548,6 +577,8 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
             raise ValueError("A solid element with {} nodes cannot be created.".format(len(nodes)))
 
+    @property
+    @no_units
     def jobdata(self):
         try:
             return getattr(
@@ -557,15 +588,19 @@ class AbaqusTetrahedronElement(TetrahedronElement):
         except:  # noqa: E722
             raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
+    @no_units
     def _r3d4(self):
         return _jobdata(self)
 
+    @no_units
     def _c3d4(self):
         return _jobdata(self)
 
+    @no_units
     def _dc3d4(self):
         return _jobdata(self)
 
+    @no_units
     def _c3d10(self):
         raise NotImplementedError
 
@@ -582,7 +617,8 @@ class AbaqusHexahedronElement(HexahedronElement):
 
     """
 
-    __doc__ += HexahedronElement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += HexahedronElement.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -635,11 +671,14 @@ class AbaqusHexahedronElement(HexahedronElement):
         if len(self._nodes) not in (4, 5, 6, 8, 10, 15, 20):
             raise ValueError("A solid element with {} nodes cannot be created.".format(len(nodes)))
 
+    @property
+    @no_units
     def jobdata(self):
         try:
             return getattr(self, "_" + self.implementation[:4].lower())()
         except:  # noqa: E722
             raise ValueError("{} is not a valid implementation.".format(self._implementation))
 
+    @no_units
     def _c3d4(self):
         return _jobdata(self)

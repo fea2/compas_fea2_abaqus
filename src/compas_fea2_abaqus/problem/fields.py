@@ -1,17 +1,49 @@
+from compas_fea2.problem.fields import ForceField
 from compas_fea2.problem.fields import GravityLoadField
-# from compas_fea2.problem.fields import PrescribedTemperatureField
+from compas_fea2.problem.fields import TemperatureField
 
-class AbaqusGravityLoadField(GravityLoadField):
-    """Abaqus implementation of :class:`GravityLoadField`.\n"""
-    __doc__=GravityLoadField.__doc__
-    __doc__+= """
-Nota
-----
-In Abaqus, gevity can only be applied to the entire model.
-"""
-    def __init__(self, g=9.81, load_case='DL', **kwargs):
-        super().__init__(g=g, load_case=load_case, **kwargs)
+from compas_fea2.units import no_units
 
+
+dofs = ["x", "y", "z", "xx", "yy", "zz"]
+
+class AbaqusTemperatureField(TemperatureField):
+    """Calculix implementation of :class:`PrescribedTemperatureField`.\n"""
+
+    __doc__ = (__doc__ or "") + (TemperatureField.__doc__ or "")
+
+    def __init__(self, temperature, distribution, load_case, combination_rank=1, **kwargs):
+        super().__init__(temperature, distribution, load_case, combination_rank=combination_rank, **kwargs)
+
+    @property
+    @no_units
+    def jobdata(self):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+
+        """
+        raise NotImplementedError("Abaqus TemperatureField jobdata not implemented yet.")
+
+
+class AbaqusForceField(ForceField):
+    """Calculix implementation of :class:`ForceField`.\n"""
+
+    __doc__ = (__doc__ or "") + (ForceField.__doc__ or "")
+
+    def __init__(self, loads, distribution, load_case, combination_rank=1, modify=False, follow=False, **kwargs):
+        super().__init__(loads=loads, distribution=distribution, load_case=load_case, combination_rank=combination_rank, **kwargs)
+        self._modify = ", OP={}".format(modify) if modify else ", OP=MOD"  # In abaqus the default is MOD
+        self._follow = ", follower" if follow else ""  
+        
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -31,48 +63,37 @@ In Abaqus, gevity can only be applied to the entire model.
 # class AbaqusPrescribedTemperatureField(PrescribedTemperatureField):
 #     """Abaqus implementation of :class:`PrescribedTemperatureField`.\n"""
 
-#     __doc__ += PrescribedTemperatureField.__doc__
+        data_section = [
+            "** Name: {} Type: Concentrated Force".format(self.name),
+            "*Cload{}{}".format(self._modify, self._follow),
+        ]
 
-#     def __init__(self, temperature=None, step=None, inc=None, name=None, **kwargs):
-#         super(AbaqusPrescribedTemperatureField, self).__init__(temperature=temperature, name=name, **kwargs)
-#         self._ictype = "TEMPERATURE"
-#         if step:
-#             self._step = step
-#         if inc:
-#             self._inc = inc
+        for node, load in self.node_load:
+            for comp, dof in enumerate(dofs, 1):
+                if getattr(load, dof):
+                    data_section.append(f"{node.part.name}-1.{node.key}, {comp}, {getattr(load, dof)}")
+        return "\n".join(data_section) or "**"
 
-#     @classmethod
-#     def from_file(cls, path):
-#         return "**"
+class AbaqusGravityLoadField(GravityLoadField):
+    """Calculix implementation of :class:`GravityLoadField`.\n"""
 
-#     def jobdata(self, nodes):
-#         """Generates the string information for the input file.
+    __doc__ = (__doc__ or "") + (GravityLoadField.__doc__ or "")
 
-#         Parameters
-#         ----------
-#         None
+    def __init__(self,g=9.81, direction=(0, 0, -1), distribution=None, load_case=None, combination_rank=1, **kwargs):
+        super().__init__(g=g, direction=direction, distribution=distribution, load_case=load_case, combination_rank=combination_rank, **kwargs)
+        
+        
+    @property
+    @no_units
+    def jobdata(self):
+        """Generates the string information for the input file.
 
-#         Returns
-#         -------
-#         input file data line (str).
+        Parameters
+        ----------
+        None
 
-#         """
-#         if getattr(self, "_path", None):  # implementation of temperaturefield via an abaqus file output (.odb)
-#             if not (self._step) or not (self._inc):
-#                 raise ValueError(
-#                     "The step and the increment of the field imported from an Abaqus file output must be indicated."
-#                 )
-#             # data_field = [f"""** Name: {self.name} Type: Temperature Field\n*Initial Conditions, type={self._ictype}, file="{self._path}", step={self._step}, inc={self._inc}, interpolate"""]
-#             return f"""** Name: {self.name} Type: Temperature Field\n*{self._ictype}, file="{self._path}", bstep={self._step}, binc={self._inc}, estep={self._step}, einc={self._inc}, interpolate"""
-
-#         data_field = [f"""** Name: {self.name} Type: Temperature Field"""]
-
-#         data_field.append("*{self._ictype}")
-#         for node in nodes:
-#             data_field.append(f"{node.part.name}-1.{node.key}, {self.temperature}")
-#         return "\n".join(data_field)
-#         # data_field = ['** Name: {} Type: Temperature Field'.format(self.name),
-#         #                 '*Temperature']
-#         # for node in nodes:
-#         #     data_field += ['{}-1.{}, {}'.format(node.part.name, node.key, self._t)]
-#         # return '\n'.join(data_field)
+        Returns
+        -------
+        input file data line (str).
+        """
+        return (f"** Name: {self.name} Type: Gravity\n" "*Dload\n" f", GRAV, {self.g}, {self.direction[0]}, {self.direction[1]}, {self.direction[2]}")

@@ -2,13 +2,16 @@ from typing import Iterable
 
 from compas_fea2.problem import GeneralDisplacement
 
+from compas_fea2.units import no_units
+
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
 
 
 class AbaqusGeneralDisplacement(GeneralDisplacement):
     """Abaqus implementation of :class:`GeneralDisplacement`.\n"""
 
-    __doc__ += GeneralDisplacement.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += GeneralDisplacement.__doc__ or ""
     __doc__ += """
     Additional Parameters
     ---------------------
@@ -20,6 +23,7 @@ class AbaqusGeneralDisplacement(GeneralDisplacement):
     def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes="global", **kwargs):
         super(AbaqusGeneralDisplacement, self).__init__(x=x, y=y, z=z, xx=xx, yy=yy, zz=zz, axes=axes, **kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         """Generates the string information for the input file.
 

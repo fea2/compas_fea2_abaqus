@@ -1,10 +1,13 @@
 from compas_fea2.model.materials.timber import Timber
 
+from compas_fea2.units import no_units
+
 
 class AbaqusTimber(Timber):
     """"""
 
-    __doc__ += Timber.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += Timber.__doc__ or ""
 
     def __init__(
         self,
@@ -44,6 +47,8 @@ class AbaqusTimber(Timber):
     #     return AbaqusElasticOrthotropic(Ex=self.Ex, Ey=self.Ey, Ez=self.Ez, vxy=self.vxy, vyz=self.vyz, vzx=self.vzx, Gxy=self.Gxy, Gyz=self.Gyz, Gzx=self.Gzx,
     #                                     density=self.density, name=self.name).jobdata()
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 

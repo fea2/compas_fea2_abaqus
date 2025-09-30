@@ -15,10 +15,13 @@ from compas_fea2.model import RollerBCYZ
 from compas_fea2.model import RollerBCXZ
 from compas_fea2.model.bcs import ImposedTemperature
 
+from compas_fea2.units import no_units
+
 
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
 
 
+@no_units
 def _jobdata(bc, nodes):
     """Generates the string information for the input file.
 
@@ -72,11 +75,13 @@ def _jobdata(bc, nodes):
 class AbaqusGeneralBC(GeneralBC):
     """Abaqus implementation of :class:`compas_fea2.model.GeneralBC`.\n"""
 
-    __doc__ += GeneralBC.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += GeneralBC.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusGeneralBC, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -84,11 +89,13 @@ class AbaqusGeneralBC(GeneralBC):
 class AbaqusFixedBC(FixedBC):
     """Abaqus implementation of :class:`compas_fea2.model.FixedBC`.\n"""
 
-    __doc__ += FixedBC.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += FixedBC.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusFixedBC, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -96,11 +103,13 @@ class AbaqusFixedBC(FixedBC):
 class AbaqusFixedBCX(FixedBCX):
     """Abaqus implementation of :class:`compas_fea2.model.FixedBCX`.\n"""
 
-    __doc__ += FixedBCX.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += FixedBCX.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusFixedBCX, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -108,11 +117,13 @@ class AbaqusFixedBCX(FixedBCX):
 class AbaqusFixedBCY(FixedBCY):
     """Abaqus implementation of :class:`compas_fea2.model.FixedBCY`.\n"""
 
-    __doc__ += FixedBCY.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += FixedBCY.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusFixedBCY, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -120,11 +131,13 @@ class AbaqusFixedBCY(FixedBCY):
 class AbaqusFixedBCZ(FixedBCZ):
     """Abaqus implementation of :class:`compas_fea2.model.FixedBCZ`.\n"""
 
-    __doc__ += FixedBCZ.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += FixedBCZ.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusFixedBCZ, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -132,11 +145,13 @@ class AbaqusFixedBCZ(FixedBCZ):
 class AbaqusPinnedBC(PinnedBC):
     """Abaqus implementation of :class:`compas_fea2.model.PinnedBC`.\n"""
 
-    __doc__ += PinnedBC.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += PinnedBC.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusPinnedBC, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -144,11 +159,13 @@ class AbaqusPinnedBC(PinnedBC):
 class AbaqusClampBCXX(ClampBCXX):
     """Abaqus implementation of :class:`compas_fea2.model.ClampBCXX`.\n"""
 
-    __doc__ += ClampBCXX.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ClampBCXX.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusClampBCXX, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -156,11 +173,13 @@ class AbaqusClampBCXX(ClampBCXX):
 class AbaqusClampBCYY(ClampBCYY):
     """Abaqus implementation of :class:`compas_fea2.model.ClampBCYY`.\n"""
 
-    __doc__ += ClampBCYY.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ClampBCYY.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusClampBCYY, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -168,11 +187,13 @@ class AbaqusClampBCYY(ClampBCYY):
 class AbaqusClampBCZZ(ClampBCZZ):
     """Abaqus implementation of :class:`ClampBCZZ`.\n"""
 
-    __doc__ += ClampBCZZ.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ClampBCZZ.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusClampBCZZ, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -180,11 +201,13 @@ class AbaqusClampBCZZ(ClampBCZZ):
 class AbaqusRollerBCX(RollerBCX):
     """Abaqus implementation of :class:`RollerBCX`.\n"""
 
-    __doc__ += RollerBCX.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += RollerBCX.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusRollerBCX, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -192,11 +215,13 @@ class AbaqusRollerBCX(RollerBCX):
 class AbaqusRollerBCY(RollerBCY):
     """Abaqus implementation of :class:`RollerBCY`.\n"""
 
-    __doc__ += RollerBCY.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += RollerBCY.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusRollerBCY, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -204,11 +229,13 @@ class AbaqusRollerBCY(RollerBCY):
 class AbaqusRollerBCZ(RollerBCZ):
     """Abaqus implementation of :class:`RollerBCZ`.\n"""
 
-    __doc__ += RollerBCZ.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += RollerBCZ.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusRollerBCZ, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -216,11 +243,13 @@ class AbaqusRollerBCZ(RollerBCZ):
 class AbaqusRollerBCXY(RollerBCXY):
     """Abaqus implementation of :class:`RollerBCXY`.\n"""
 
-    __doc__ += RollerBCXY.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += RollerBCXY.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusRollerBCXY, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -228,11 +257,13 @@ class AbaqusRollerBCXY(RollerBCXY):
 class AbaqusRollerBCYZ(RollerBCYZ):
     """Abaqus implementation of :class:`RollerBCYZ`.\n"""
 
-    __doc__ += RollerBCYZ.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += RollerBCYZ.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusRollerBCYZ, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 
@@ -240,11 +271,13 @@ class AbaqusRollerBCYZ(RollerBCYZ):
 class AbaqusRollerBCXZ(RollerBCXZ):
     """Abaqus implementation of :class:`RollerBCXZ`.\n"""
 
-    __doc__ += RollerBCXZ.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += RollerBCXZ.__doc__ or ""
 
     def __init__(self, **kwargs):
         super(AbaqusRollerBCXZ, self).__init__(**kwargs)
 
+    @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
 

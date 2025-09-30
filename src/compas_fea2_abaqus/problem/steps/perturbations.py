@@ -5,7 +5,10 @@ from compas_fea2.problem.steps import LinearStaticPerturbation
 from compas_fea2.problem.steps import SteadyStateDynamic
 from compas_fea2.problem.steps import SubstructureGeneration
 
+from compas_fea2.units import no_units
 
+
+@no_units
 def _jobdata(obj):
     """Generates the string information for the input file.
 
@@ -36,6 +39,8 @@ class AbaqusModalAnalysis(ModalAnalysis):
     def __init__(self, modes=1, name=None, **kwargs):
         super(AbaqusModalAnalysis, self).__init__(modes, name=name, **kwargs)
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -85,6 +90,8 @@ class AbaqusBucklingAnalysis(BucklingAnalysis):
         )
         self._stype = "Buckle"
 
+    @property
+    @no_units
     def jobdata(self):
         return _jobdata(self)
 
@@ -110,6 +117,8 @@ class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
 
         # BUG this depends on the previous step -> loop through the steps order and adjust this parameter
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -143,6 +152,7 @@ class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
 *End Step
 **"""
 
+    @no_units
     def _generate_header_section(self):
         data_section = []
         line = ("** PERTURBATION STEP: {0}\n" "**\n" "*Step, name={0}, nlgeom={1}, perturbation\n" "*Static").format(
@@ -151,6 +161,7 @@ class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
         data_section.append(line)
         return "".join(data_section)
 
+    @no_units
     def _generate_displacements_section(self):
         return (
             "\n".join(
@@ -163,15 +174,18 @@ class AbaqusLinearStaticPerturbation(LinearStaticPerturbation):
             or "**"
         )
 
+    @no_units
     def _generate_loads_section(self):
         # FIXME Loads are not summed between steps
         return "\n".join([load.jobdata(node) for pattern in self.loads for node, load in pattern.node_load]) or "**"
 
+    @no_units
     def _generate_fields_section(self):
         return (
             "\n".join([load.jobdata(node) for pattern in self.load_fields for node, load in pattern.node_load]) or "**"
         )
 
+    @no_units
     def _generate_output_section(self):
         # TODO check restart option
         data_section = [

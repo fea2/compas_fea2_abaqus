@@ -2,18 +2,21 @@ import os
 from pathlib import Path
 from compas_fea2.problem import Problem
 
-from compas_fea2.utilities._utils import timer
-from compas_fea2.utilities._utils import launch_process
+from compas_fea2.utilities._devtools import timer
+from compas_fea2.utilities._devtools import launch_process
 
 from ..results import results_to_sql
-from ..job.input_file import AbaqusRestartInputFile
+from ..job.input_file import _AbaqusRestartInputFile
 import compas_fea2_abaqus
+
+from compas_fea2.units import no_units
 
 
 class AbaqusProblem(Problem):
     """Abaqus implementation of :class:`Problem`.\n"""
 
-    __doc__ += Problem.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += Problem.__doc__ or ""
 
     def __init__(self, name=None, description=None, **kwargs):
         super(AbaqusProblem, self).__init__(name=name, description=description, **kwargs)
@@ -55,7 +58,7 @@ class AbaqusProblem(Problem):
         """
         if not path.exists():
             raise ValueError("No analysis results found for {!r}".format(self))
-        restart_file = AbaqusRestartInputFile.from_problem(problem=self, start=start, steps=steps)
+        restart_file = _AbaqusRestartInputFile.from_problem(problem=self, start=start, steps=steps)
         restart_file.write_to_file(self.path)
         return restart_file
 
@@ -150,7 +153,6 @@ class AbaqusProblem(Problem):
         for line in launch_process(cmd_args=cmd, cwd=self.path, verbose=output):
             print(line)
 
-    @timer(message="Analysis and extraction completed in")
     def analyse_and_extract(
         self,
         path,
@@ -242,7 +244,8 @@ class AbaqusProblem(Problem):
     #                               Job data
     # =============================================================================
 
-    @timer(message="Problem generated in ")
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -254,4 +257,4 @@ class AbaqusProblem(Problem):
         -------
         input file data line (str).
         """
-        return "\n".join([step.jobdata() for step in self.steps])
+        return "\n".join([step.jobdata for step in self.steps])

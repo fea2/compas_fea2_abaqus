@@ -1,7 +1,9 @@
 from compas_fea2.problem import ScalarLoad
 from compas_fea2.problem import VectorLoad
 
-from typing import Iterable
+# from compas_fea2.units import no_units
+
+# from typing import Iterable
 
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
 

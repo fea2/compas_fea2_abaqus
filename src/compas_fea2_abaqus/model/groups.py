@@ -2,9 +2,13 @@ from compas_fea2.model import NodesGroup
 from compas_fea2.model import ElementsGroup
 from compas_fea2.model.groups import EdgesGroup
 from compas_fea2.model.groups import FacesGroup
+from compas_fea2.model.groups import MaterialsGroup
 from itertools import groupby
 
+from compas_fea2.units import no_units
 
+
+@no_units
 def jobdata(self, instance, assembly=False):
     """Generates the common string information for the input file for all the
     groups.
@@ -54,13 +58,14 @@ class AbaqusNodesGroup(NodesGroup):
 
     """
 
-    __doc__ += NodesGroup.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += NodesGroup.__doc__ or ""
 
     def __init__(self, members, **kwargs):
         super(AbaqusNodesGroup, self).__init__(members=members, **kwargs)
         self._set_type = "nset"
 
-
+    @no_units
     def jobdata(self, instance=None, **kwargs):
         return jobdata(self, instance, **kwargs)
 
@@ -74,12 +79,14 @@ class AbaqusElementsGroup(ElementsGroup):
 
     """
 
-    __doc__ += ElementsGroup.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += ElementsGroup.__doc__ or ""
 
     def __init__(self, members, **kwargs):
         super(AbaqusElementsGroup, self).__init__(members=members, **kwargs)
         self._set_type = "elset"
 
+    @no_units
     def jobdata(self, instance=None, **kwargs):
         return jobdata(self, instance, **kwargs)
 
@@ -126,11 +133,14 @@ class AbaqusFacesGroup(FacesGroup):
 
     """
 
-    __doc__ += FacesGroup.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += FacesGroup.__doc__ or ""
 
     def __init__(self, members, **kwargs):
         super(AbaqusFacesGroup, self).__init__(members=members, **kwargs)
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -148,3 +158,23 @@ class AbaqusFacesGroup(FacesGroup):
             lines.append("{}-1.{}, {}".format(face.part.name, face.element.key, face.tag))
         lines.append("**")
         return "\n".join(lines)
+
+class AbaqusMaterialsGroup(MaterialsGroup):
+    """Calculix implementation of :class:`MaterialsGroup`
+
+    Notes
+    -----
+    This is equivalent to a material set in Calculix
+
+    """
+
+    __doc__ = (__doc__ or "") + (MaterialsGroup.__doc__ or "")
+
+    def __init__(self, members, **kwargs):
+        super(AbaqusMaterialsGroup, self).__init__(members=members, **kwargs)
+        self._set_type = "mset"
+
+    @property
+    @no_units
+    def jobdata(self):
+        return '\n'.join([material.jobdata for material in self.members])

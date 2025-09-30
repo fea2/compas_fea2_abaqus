@@ -6,6 +6,8 @@ from compas_fea2.model.interfaces import PartPartInterface, BoundaryInterface
 from compas_fea2.model.bcs import MechanicalBC
 from compas_fea2.utilities._utils import timer
 
+from compas_fea2.units import no_units
+
 
 class AbaqusModel(Model):
     """Abaqus implementation of :class:`Model`.
@@ -16,10 +18,13 @@ class AbaqusModel(Model):
 
     """
 
-    __doc__ += Model.__doc__
+    __doc__ = __doc__ or ""
+    __doc__ += Model.__doc__ or ""
 
     def __init__(self, name=None, description=None, author=None, **kwargs):
-        super(AbaqusModel, self).__init__(name=name, description=description, author=author, **kwargs)
+        super(AbaqusModel, self).__init__(
+            name=name, description=description, author=author, **kwargs
+        )
         self._starting_key = 1
 
     @classmethod
@@ -46,7 +51,8 @@ class AbaqusModel(Model):
     #                               Job data
     # =============================================================================
 
-    @timer(message="Model generated in ")
+    @property
+    @no_units
     def jobdata(self):
         self.assign_keys(restart=True)
         return f"""**
@@ -64,7 +70,7 @@ class AbaqusModel(Model):
 **
 ** MATERIALS
 **
-{self._generate_material_section() or "**"}
+{self.materials.jobdata or "**"}
 **
 ** INTERACTIONS
 **
@@ -81,6 +87,7 @@ class AbaqusModel(Model):
 {self._generate_ics_section() or "**"}
 """
 
+    @no_units
     def _generate_part_section(self):
         """Generate the content relatitive the each DeformablePart for the input file.
 
@@ -97,11 +104,20 @@ class AbaqusModel(Model):
         data_section = []
         for part in self.parts:
             if isinstance(part, RigidPart):
-                part.add_group(ElementsGroup(elements=list(part.elements), name="all_elements"))
-                part.add_group(NodesGroup(nodes=[part.reference_point], name="ref_point"))
-            data_section.append(part.jobdata())
+                part.add_group(
+                    ElementsGroup(
+                        members=list(part.elements), name=f"all_elements_{part.name}"
+                    )
+                )
+                part.add_group(
+                    NodesGroup(
+                        members=[part.reference_point], name=f"ref_point_{part.name}"
+                    )
+                )
+            data_section.append(part.jobdata)
         return "\n".join(data_section)
 
+    @no_units
     def _generate_assembly_section(self):
         """Generate the content of the assembly for the input file.
 
@@ -115,16 +131,30 @@ class AbaqusModel(Model):
             text section for the input file.
         """
 
+        # Header
         data_section = ["*Assembly, name={}".format(self.name)]
+
+        # Nodes and elements
+        data_section.append(
+            f"*NSET,NSET=Nall,GENERATE\n{self._starting_key},{len(self.nodes)}"
+        )
+        data_section.append(
+            f"*ELSET,ELSET=Eall,GENERATE\n{self._starting_key},{len(self.elements)}"
+        )
+        "\n".join(data_section)
+
+        # Groups/sets defined at the part level
         for part in self._parts:
-            data_section.append(part._generate_instance_jobdata())
+            data_section.append(part.jobdata)
             if isinstance(part, RigidPart):
                 data_section.append(part._generate_rigid_body_jobdata())
             # for group in part.groups:
             #     data_section.append(group.jobdata())
         data_section.append("**\n** CONNECTORS\n**")
-        connector_groups = []
         for connector in self.connectors:
+            data_section.append(connector.jobdata)
+
+        # Constraints
             connector_groups.append(ElementsGroup(elements=[connector], name=f"set-{connector.name}"))
             data_section.append(connector.jobdata())
         data_section.append("**\n** INTERFACES\n**")
@@ -146,6 +176,7 @@ class AbaqusModel(Model):
 
         return "\n".join(data_section)
 
+    @no_units
     def _generate_amplitude_section(self):
         data_section = []
         # model amplitudes
@@ -178,9 +209,10 @@ class AbaqusModel(Model):
         """
         data_section = []
         for material in self.materials:
-            data_section.append(material.jobdata())
+            data_section.append(material.jobdata)
         return "\n".join(data_section)
 
+    @no_units
     def _generate_interactions_section(self):
         """Generate the content relatitive to the interactions section for the input
         file.
@@ -203,6 +235,7 @@ class AbaqusModel(Model):
             data.append(connector_section.jobdata())
         return "\n".join(data)
 
+    @no_units
     def _generate_interfaces_section(self):
         """Generate the content relatitive to the interfaces section for the input
         file.
@@ -232,12 +265,9 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        data_section =[]
-        for bcs, nodes in self.bcs_nodes.items():
-            if isinstance(bcs, MechanicalBC):
-                data_section.append(bcs.jobdata(nodes))
-        return "\n".join(data_section) or "**"
+        return "\n".join([bc_filed.jobdata for bc_filed in self.bcs]) or "**"
 
+    @no_units
     def _generate_ics_section(self):
         """Generate the content relatitive to the initial conditions section
         for the input file.
@@ -251,8 +281,23 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        data_section =[]
-        for field in self.ics:
-            for node, ic in field.node_ic:
-                data_section.append(ic.jobdata([node]))
+        return "\n".join([ic.jobdata() for ic in self.ics]) or "**"
+
+    @no_units
+    def _generate_groups_section(self):
+        """Generate the content relatitive to the groups section for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str
+            text section for the input file.
+        """
+        data_section = []
+        for group in self.groups:
+            if isinstance(group, (NodesGroup, ElementsGroup)):
+                data_section.append(group.jobdata)
         return "\n".join(data_section) or "**"
