@@ -214,11 +214,11 @@ class AbaqusBoxSection(BoxSection):
 
     """
 
-    def __init__(self, w, h, t, material, **kwargs):
-        super(AbaqusBoxSection, self).__init__(self, w, h, t, material, **kwargs)
-        if not isinstance(t, list):
-            t = [t] * 4
-        self._properties = [w, h, *self._t]
+    def __init__(self, w, h, tw, tf, material, **kwargs):
+        super(AbaqusBoxSection, self).__init__(w, h, tw, tf, material, **kwargs)
+        if not isinstance(tw, list):
+            tw = [tw] * 4
+        self._properties = [w, h, *tw]
 
     @no_units
     def jobdata(self, set_name, orientation):
@@ -284,7 +284,7 @@ class AbaqusISection(ISection):
     The section properties are automatically computed by Abaqus.
     """
 
-    def __init__(self, w, h, ttf, tbf, material, l=0, name=None, **kwargs):  # noqa: E741
+    def __init__(self, w, h, ttf, tbf, material, l=None, name=None, **kwargs):  # noqa: E741
         super(AbaqusISection, self).__init__(w=w, h=h, ttf=ttf, tbf=tbf, material=material, name=name, **kwargs)
         self._stype = "I"
         t = ttf
@@ -292,7 +292,9 @@ class AbaqusISection(ISection):
             w = [w] * 2
         if not isinstance(h, list):
             t = [t] * 3
-        self._properties = [l, h, *w, *t]
+        if not l:
+            h_crosscenter = h/2
+        self._properties = [h_crosscenter, h, *w, *t]
 
     def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, "I")
