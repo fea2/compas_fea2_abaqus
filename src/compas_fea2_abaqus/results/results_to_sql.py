@@ -7,14 +7,14 @@ abaqus python path_to_/compas_fea2_abaqus/results/odb_extract.py None path_to_od
 
 from sqlite3 import Error
 import sqlite3
-from compas_fea2.config import settings
+# from compas_fea2.config import settings
 
 try:
     import odbAccess
 except Exception as e:
-    if settings.VERBOSE:
-        print("Error importing odbAccess. Make sure you run this script from Abaqus.")
-        print(e)
+    # if settings.VERBOSE:
+    print("Error importing odbAccess. Make sure you run this script from Abaqus.")
+    print(e)
     pass
 
 import os
@@ -227,14 +227,14 @@ def extract_odb_data(database_path, database_name, requested_fields):
     Developers should consult the official guidelines on how to speed up the
     script: http://130.149.89.49:2080/v2016/books/cmd/default.htm?startat=pt05ch09s05.html
 
-    """
-    compas_field_name = {"NT11": "t", "U": "u", "RF": "rf", "SF": 'sf'}
+    """ 
+    compas_field_name = {"NT11": "t", "U": "u", "RF": "rf", "SF":'sf'}
     compas_fields = {'u': ['U', 'UR'], 't':['NT11'], 'rf':['RF', 'RM'], 'sf' : ['SF', 'SM']}
     compas_components_names = {
         "u": ["x", "y", "z", "rx", "ry", "rz"],
         "t": ["temp"],
         "rf": ["x", "y", "z", "rx", "ry", "rz"],
-        "sf": ["n1", "v2", "v3", "t", "m2", "m3"]
+        "sf":["n", "v2", "v3", "m2", "m3", "t"]
     }
     odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
     steps = odb.steps
@@ -258,10 +258,8 @@ def extract_odb_data(database_path, database_name, requested_fields):
                 
                 if table_creation:
                     field_data=default_fields[abaqus_fields_name[0]]
-                    print(abaqus_fields_name[0])
                     invariants_symbolic_constants = field_data.validInvariants
                     invariants_names = [invariants_dict[inv.name] for inv in invariants_symbolic_constants]
-                    print(components_names)
                     insert_field_description(
                         conn,
                         table_name,
@@ -273,7 +271,6 @@ def extract_odb_data(database_path, database_name, requested_fields):
                 
                     dict_values_per_node = {}
                     for abaqus_field in abaqus_fields_name:
-                        print(abaqus_field)
                         field_data=default_fields[abaqus_field]
                         field_data_values= field_data.values
                         for value in field_data_values:
@@ -290,7 +287,6 @@ def extract_odb_data(database_path, database_name, requested_fields):
                                 components_data = (
                                     components_data.tolist() if not (isinstance(components_data, float)) else [components_data]
                                 )
-                            print(components_data)
                             part=value.instance.name[:-2]
                             if part not in dict_values_per_node:
                                 dict_values_per_node[part]={}
@@ -302,11 +298,7 @@ def extract_odb_data(database_path, database_name, requested_fields):
                                 dict_values_per_node[part][key]['components_data'] = dict_values_per_node[part][key]['components_data'] + components_data
                                 # dict_values_per_node[key]['invariants_data'] = dict_values_per_node[key]['invariants_data'] + invariants_data
                     for part, dict1 in dict_values_per_node.items():
-                        print(part)
-                        print(dict1)
                         for key, dict2 in dict1.items():
-                            print(key)
-                            print(dict2)
                             components_data = dict2['components_data']
                             invariants_data = dict2['invariants_data']
                             while len(components_data) < len(components_names):
@@ -396,6 +388,7 @@ if __name__ == "__main__":
     database_path = sys.argv[-2]
     database_name = sys.argv[-1]
     fields = None if sys.argv[-3] == "None" else sys.argv[-3].split(",")
+
 
     extract_odb_data(
         database_path=database_path,
