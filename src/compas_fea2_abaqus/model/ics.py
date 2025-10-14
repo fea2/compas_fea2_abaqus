@@ -1,4 +1,5 @@
 from compas_fea2.model import InitialTemperature
+from compas_fea2.model import InitialStressField
 
 from compas_fea2.units import no_units
 
@@ -7,7 +8,7 @@ class AbaqusInitialTemperature(InitialTemperature):
     """Abaqus implementation of :class:`InitialTemperatureField`\n"""
 
     __doc__ = __doc__ or ""
-    __doc__ += InitialTemperatureField.__doc__ or ""
+    __doc__ += InitialTemperature.__doc__ or ""
 
     def __init__(self, temperature=None, step=None, inc=None, **kwargs):
         super(AbaqusInitialTemperature, self).__init__(temperature, **kwargs)

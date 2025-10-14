@@ -78,7 +78,7 @@ def _generate_sets_section(obj):
 
 @no_units
 def _generate_releases_section(obj):
-    return "\n".join(release_field.jobdata for release_field in obj.releases)
+    return "\n".join(release_field.jobdata for release_field in obj.releases) if obj.releases else "**"
 
 @no_units
 def _generate_instance_jobdata(obj):

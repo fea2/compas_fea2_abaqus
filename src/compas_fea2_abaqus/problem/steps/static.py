@@ -68,17 +68,17 @@ class AbaqusStaticStep(StaticStep):
         """
         return f"""**
 ** STEP: {self._name}
-*Step, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}
+*Step, name={self.name}, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}
 *{self._stype}
 {self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._time}
 **
 ** - Imposed Displacements
 **   ---------------------
-{'\n'.join([force_field.jobdata for force_field in self.displacements if self.displacements] or ['**'])}
+{'\n'.join([force_field.jobdata for force_field in self.displacements] if self.displacements else ['**'])}
 **
 ** - Loads
 **   -----
-{'\n'.join([force_field.jobdata for force_field in self.fields if self.fields] or ['**'])}
+{'\n'.join([force_field.jobdata for force_field in self.fields] if self.fields else ['**'])}
 **
 ** - Predefined Fields
 **   -----------------

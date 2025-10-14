@@ -41,8 +41,8 @@ class AbaqusVectorLoad(VectorLoad):
      the software adds up the loads and create a new load which combines the previous.
 """
 
-    def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, axes="global", modify=False, follow=False,**kwargs):
-        super().__init__(x, y, z, xx, yy, zz, axes, **kwargs)
+    def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, frame=None, modify=False, follow=False,**kwargs):
+        super().__init__(x, y, z, xx, yy, zz, frame, **kwargs)
         self._modify=f", OP={modify}" if modify else ", OP=MOD"  # In abaqus the default is MOD
         self._follow=", follower" if follow else ""
 

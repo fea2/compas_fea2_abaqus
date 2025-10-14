@@ -45,7 +45,7 @@ class AbaqusPartPartInterface(PartPartInterface):
 **"""
 
         elif isinstance(self.behavior, _Constraint):
-            return f"{self.behavior.jobdata()}, {self.master.name}, {self.slave.name}\n**"
+            return f"{self.behavior.jobdata}, {self.master.name}, {self.slave.name}\n**"
 
 
 #     @property
