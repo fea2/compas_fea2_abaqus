@@ -229,12 +229,13 @@ def extract_odb_data(database_path, database_name, requested_fields):
 
     """ 
     compas_field_name = {"NT11": "t", "U": "u", "RF": "rf", "SF":'sf'}
-    compas_fields = {'u': ['U', 'UR'], 't':['NT11'], 'rf':['RF', 'RM'], 'sf' : ['SF', 'SM']}
+    compas_fields = {'u': ['U'], 't':['NT11'], 'rf':['RF'], 'sf' : ['SF', 'SM'], 's':['S']}
     compas_components_names = {
         "u": ["x", "y", "z", "rx", "ry", "rz"],
         "t": ["temp"],
         "rf": ["x", "y", "z", "rx", "ry", "rz"],
-        "sf":["n", "v2", "v3", "m2", "m3", "t"]
+        "sf":["n", "v2", "v3", "m2", "m3", "t"],
+        "s":["s11", "s22", "s33", "s12", "s13", "s23"]
     }
     odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
     steps = odb.steps

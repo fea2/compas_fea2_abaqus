@@ -22,7 +22,7 @@ class AbaqusDisplacementFieldResults(DisplacementFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "U"
+        return "*Node Output\nU"
 
 
 class AbaqusReactionFieldResults(ReactionFieldResults):
@@ -39,7 +39,7 @@ class AbaqusReactionFieldResults(ReactionFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "RF"
+        return "*Node Output\nRF"
 
 
 class AbaqusSectionForcesFieldResults(SectionForcesFieldResults):
@@ -56,7 +56,7 @@ class AbaqusSectionForcesFieldResults(SectionForcesFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "SF"
+        return "*Element Output, direction=YES\nSF"
 
 
 class AbaqusStressFieldResults(StressFieldResults):
@@ -73,7 +73,7 @@ class AbaqusStressFieldResults(StressFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "S"
+        return "*Element Output, direction=YES\nS"
 
 
 class AbaqusContactFieldResults(ContactForcesFieldResults):

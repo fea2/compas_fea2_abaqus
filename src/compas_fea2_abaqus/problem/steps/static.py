@@ -86,11 +86,13 @@ class AbaqusStaticStep(StaticStep):
 {self._generate_prescribed_field_section()}
 ** - Output Requests
 **   ---------------
-{self._generate_output_section()}
+{'\n'.join(["*Restart, write, frequency=0","**", 
+"*Output, field"]+ [output.jobdata for output in self._field_outputs if self._field_outputs] or ['**'])}
 **
 *End Step
 """
 
+    # # {self._generate_output_section()}
     # @no_units
     # def _generate_header_section(self):
     #     data = [
