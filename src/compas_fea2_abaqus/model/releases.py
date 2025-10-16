@@ -28,5 +28,7 @@ class AbaqusBeamEndPinRelease(BeamEndPinRelease):
         ends = {"start": "S1", "end": "S2"}
         dofs = {"m1": "M1", "m2": "M2", "t": "T"}
         return "{},{},{}\n".format(
-            self.element.key, ends[self.location], ", ".join(dofs[dof] for dof in dofs if getattr(self, dof))
+            self.element.key,
+            ends[self.location],
+            ", ".join(dofs[dof] for dof in dofs if getattr(self, dof)),
         )

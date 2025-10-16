@@ -13,6 +13,7 @@ from compas_fea2.model import RollerBCZ
 from compas_fea2.model import RollerBCXY
 from compas_fea2.model import RollerBCYZ
 from compas_fea2.model import RollerBCXZ
+from compas_fea2.model.bcs import ImposedTemperature
 
 from compas_fea2.units import no_units
 
@@ -60,7 +61,10 @@ def _jobdata(bc, nodes):
     input file data line (str).
 
     """
-    data_section = ["** Name: {} Type: BC/Rotation".format(bc.name), "*Boundary, op=NEW"]
+    data_section = [
+        "** Name: {} Type: BC/Rotation".format(bc.name),
+        "*Boundary, op=NEW",
+    ]
     for node in nodes:
         for comp, dof in enumerate(dofs, 1):
             if getattr(bc, dof):
@@ -276,3 +280,18 @@ class AbaqusRollerBCXZ(RollerBCXZ):
     @no_units
     def jobdata(self, nodes):
         return _jobdata(self, nodes)
+
+
+class AbaqusImposedTemperature(ImposedTemperature):
+    def __init__(self, temperature, **kwargs):
+        super().__init__(temperature=temperature, **kwargs)
+
+    def jobdata(self, nodes):
+        data_section = [
+            "** Name: {} Type: Temperature".format(self.name),
+            "*Boundary, op=New",
+        ]
+        for node in nodes:
+            data_section += [f"{node.part.name}-1.{node.key}, 11, 11, {self._temperature}"]
+        return "\n".join(data_section)
+    

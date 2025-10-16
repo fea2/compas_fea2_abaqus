@@ -26,7 +26,7 @@ class AbaqusProblem(Problem):
     # =========================================================================
     def _build_command(self, path: str, name: str, **kwargs):
         # Set solver path
-        exe_cmd = os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus")
+        exe_cmd = os.path.join(kwargs.get("exe", None) or "C:/SIMULIA/Commands", "abaqus")
         # Set options
         option_keywords = []
         if kwargs.get("overwrite", None):
@@ -158,7 +158,7 @@ class AbaqusProblem(Problem):
         path,
         exe=None,
         cpus=1,
-        output=True,
+        verbose=False,
         overwrite=True,
         user_mat=None,
         fields=None,
@@ -198,7 +198,7 @@ class AbaqusProblem(Problem):
             path,
             exe=exe,
             cpus=cpus,
-            verbose=output,
+            verbose=True,
             overwrite=overwrite,
             user_mat=user_mat,
             *args,
@@ -228,7 +228,7 @@ class AbaqusProblem(Problem):
         database_path = database_path or self.path
         database_name = database_name or self.name
         args = [
-            os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus"),
+            os.path.join(kwargs.get("exe", None) or "C:/SIMULIA/Commands", "abaqus"),
             "python",
             Path(results_to_sql.__file__),
             ",".join(fields) if fields else "None",
@@ -238,7 +238,7 @@ class AbaqusProblem(Problem):
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)
 
-        return Path(database_path).joinpath(f"{database_name}-results.db")
+        return [Path(database_path).joinpath(f"{database_name}-results.db")]
 
     # =============================================================================
     #                               Job data

@@ -1,6 +1,7 @@
 from compas_fea2.model.sections import SpringSection
 from compas_fea2.model.sections import ConnectorSection
 from compas_fea2.model.sections import GenericBeamSection
+from compas_fea2.model.sections import GenericBeamSection
 from compas_fea2.model.sections import AngleSection
 from compas_fea2.model.sections import BoxSection
 from compas_fea2.model.sections import HexSection
@@ -15,6 +16,7 @@ from compas_fea2.model.sections import TrapezoidalSection
 from compas_fea2.model.sections import StrutSection
 from compas_fea2.model.sections import TieSection
 from compas_fea2.model.sections import PipeSection
+from compas_fea2.units import _strip_magnitudes
 
 from compas_fea2.units import no_units
 
@@ -51,7 +53,7 @@ def _generate_beams_jobdata(obj, set_name, orientation, stype):
         set_name,
         obj.material.name,
         stype,
-        ", ".join([str(v) for v in obj._properties]),
+        ", ".join([str(_strip_magnitudes(v)) for v in obj._properties]),
         orientation_line,
     )
 
@@ -146,8 +148,7 @@ class AbaqusConnectorSection(ConnectorSection):
 class AbaqusGenericBeamSection(GenericBeamSection):
     """Abaqus implementation of the :class:`GenericBeamSection`.\n"""
 
-    __doc__ = __doc__ or ""
-    __doc__ += GenericBeamSection.__doc__ or ""
+    __doc__ += GenericBeamSection.__doc__
     __doc__ += """
     Warning
     -------
@@ -213,11 +214,11 @@ class AbaqusBoxSection(BoxSection):
 
     """
 
-    def __init__(self, w, h, t, material, **kwargs):
-        super(AbaqusBoxSection, self).__init__(self, w, h, t, material, **kwargs)
-        if not isinstance(t, list):
-            t = [t] * 4
-        self._properties = [w, h, *self._t]
+    def __init__(self, w, h, tw, tf, material, **kwargs):
+        super(AbaqusBoxSection, self).__init__(w, h, tw, tf, material, **kwargs)
+        if not isinstance(tw, list):
+            tw = [tw] * 4
+        self._properties = [w, h, *tw]
 
     @no_units
     def jobdata(self, set_name, orientation):
@@ -283,15 +284,20 @@ class AbaqusISection(ISection):
     The section properties are automatically computed by Abaqus.
     """
 
-    def __init__(self, w, h, t, material, l=0, name=None, **kwargs):
-        super(AbaqusISection, self).__init__(w, h, t, t, material, name=name, **kwargs)
+    def __init__(self, w, h, ttf, tbf, material, l=None, name=None, **kwargs):  # noqa: E741
+        super(AbaqusISection, self).__init__(w=w, h=h, ttf=ttf, tbf=tbf, material=material, name=name, **kwargs)
         self._stype = "I"
+        t = ttf
         if not isinstance(w, list):
             w = [w] * 2
         if not isinstance(h, list):
             t = [t] * 3
-        self.properties = [l, h, *w, *t]
+        if not l:
+            h_crosscenter = h/2
+        self._properties = [h_crosscenter, h, *w, *t]
 
+    def jobdata(self, set_name, orientation):
+        return _generate_beams_jobdata(self, set_name, orientation, "I")
 
 class AbaqusPipeSection(PipeSection):
     """Abaqus implementation of the :class:`PipeSection`.\n"""
@@ -423,7 +429,7 @@ class AbaqusShellSection(ShellSection):
         self.int_points = int_points
 
     @no_units
-    def jobdata(self, set_name, **kwargs):
+    def jobdata(self, set_name, orientation):
         """Generates the string information for the input file.
 
         Parameters
@@ -434,11 +440,38 @@ class AbaqusShellSection(ShellSection):
         -------
         input file data line (str).
         """
-        return """** Section: {}
-*Shell Section, elset={}, material={}
-{}, {}""".format(
-            self.name, set_name, self.material.name, self.t, self.int_points
-        )
+        jobdata = []
+        if orientation:
+            jobdata.append(f"*Orientation, name=Ori_{self.material.name}")
+            # In Abaqus, the *Orientation option define a local (x, y, z) frame of the section
+            # Then, the orthonormal local frame (1,2,3) of the element is defined such as :
+            # the normal is parallel to z-axis and has the same direction
+            # Direction 1 is parallel to x and direction 2 parallel to y
+            # The frame defined in compas_fea2 corresponds directly to the local (1,2,3) frame
+            # This is why below the input for *Orientation is adapted.
+            jobdata.append(
+                orientation[3]
+                + ", "
+                + orientation[4]
+                + ", "
+                + orientation[5]
+                + ", "
+                + str(-float(orientation[0]))
+                + ", "
+                + str(-float(orientation[1]))
+                + ", "
+                + str(-float(orientation[2]))
+            )
+        jobdata.append(f"** Section: {self.name}")
+        if 'C2D' in set_name.split("_")[1]:
+            jobdata.append(f"*Solid Section, elset={set_name}, material={self.material.name}")
+            return "\n".join(jobdata) 
+        else :
+            jobdata.append(f"*Shell Section, elset={set_name}, material={self.material.name}")
+        if orientation:
+            jobdata[-1] += f", orientation=Ori_{self.material.name}"
+        jobdata.append(f"{self.t}, {self.int_points}")
+        return "\n".join(jobdata)
 
 
 class AbaqusMembraneSection(MembraneSection):
@@ -495,8 +528,6 @@ class AbaqusSolidSection(SolidSection):
         -------
         input file data line (str).
         """
-        return """** Section: {}
-*Solid Section, elset={}, material={}
-,""".format(
-            self.name, set_name, self.material.name
-        )
+
+        return f"""** Section: {self.name}
+*Solid Section, elset={set_name}, material={self.material.name}"""

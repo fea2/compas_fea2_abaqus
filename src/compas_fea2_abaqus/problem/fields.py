@@ -2,7 +2,7 @@ from compas_fea2.problem.fields import ForceField
 from compas_fea2.problem.fields import GravityLoadField
 from compas_fea2.problem.fields import TemperatureField
 
-from compas_fea2.units import no_units
+from compas_fea2.units import no_units, m, s
 
 
 dofs = ["x", "y", "z", "xx", "yy", "zz"]
@@ -54,8 +54,21 @@ class AbaqusForceField(ForceField):
         Returns
         -------
         input file data line (str).
-
         """
+        data_section = [
+            "** Name: {} Type: Concentrated Force".format(self.name),
+            "*Cload{}{}".format(self._modify, self._follow),
+        ]
+
+        for node, load in self.node_load:
+            for comp, dof in enumerate(dofs, 1):
+                if getattr(load, dof):
+                    data_section.append(f"{node.part.name}-1.{node.key}, {comp}, {getattr(load, dof)}")
+        return "\n".join(data_section) or "**"
+
+
+# class AbaqusPrescribedTemperatureField(PrescribedTemperatureField):
+#     """Abaqus implementation of :class:`PrescribedTemperatureField`.\n"""
 
         data_section = [
             "** Name: {} Type: Concentrated Force".format(self.name),
@@ -73,7 +86,7 @@ class AbaqusGravityLoadField(GravityLoadField):
 
     __doc__ = (__doc__ or "") + (GravityLoadField.__doc__ or "")
 
-    def __init__(self,g=9.81, direction=(0, 0, -1), distribution=None, load_case=None, combination_rank=1, **kwargs):
+    def __init__(self,g=9.81*m/s**2, direction=(0, 0, -1), distribution=None, load_case=None, combination_rank=1, **kwargs):
         super().__init__(g=g, direction=direction, distribution=distribution, load_case=load_case, combination_rank=combination_rank, **kwargs)
         
         

@@ -3,6 +3,7 @@ from compas_fea2.results.fields import ReactionFieldResults
 from compas_fea2.results.fields import SectionForcesFieldResults
 from compas_fea2.results.fields import StressFieldResults
 from compas_fea2.results.fields import ContactForcesFieldResults
+from compas_fea2.results.fields import TemperatureFieldResults
 
 from compas_fea2.units import no_units
 
@@ -21,7 +22,7 @@ class AbaqusDisplacementFieldResults(DisplacementFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "U"
+        return "*Node Output\nU"
 
 
 class AbaqusReactionFieldResults(ReactionFieldResults):
@@ -38,7 +39,7 @@ class AbaqusReactionFieldResults(ReactionFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "RF"
+        return "*Node Output\nRF"
 
 
 class AbaqusSectionForcesFieldResults(SectionForcesFieldResults):
@@ -55,7 +56,7 @@ class AbaqusSectionForcesFieldResults(SectionForcesFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "SF"
+        return "*Element Output, direction=YES\nSF"
 
 
 class AbaqusStressFieldResults(StressFieldResults):
@@ -72,7 +73,7 @@ class AbaqusStressFieldResults(StressFieldResults):
     @property
     @no_units
     def jobdata(self):
-        return "S"
+        return "*Element Output, direction=YES\nS"
 
 
 class AbaqusContactFieldResults(ContactForcesFieldResults):
@@ -90,3 +91,13 @@ class AbaqusContactFieldResults(ContactForcesFieldResults):
     @no_units
     def jobdata(self):
         return "CFORCE"
+
+
+class AbaqusTemperatureFieldResults(TemperatureFieldResults):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.input_name = "NT"
+        self.output_type = "node"
+
+    def jobdata(self):
+        return "NT"

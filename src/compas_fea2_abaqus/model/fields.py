@@ -2,6 +2,8 @@
 from compas_fea2.model.fields import BoundaryConditionsField
 from compas_fea2.units import no_units
 
+dofs = ["x", "y", "z", "xx", "yy", "zz"]
+
 class AbaqusBoundaryConditionsField(BoundaryConditionsField):
     """Calculix implementation of :class:`BoundaryConditionsField`.
 
@@ -13,16 +15,33 @@ class AbaqusBoundaryConditionsField(BoundaryConditionsField):
 
     __doc__ = (__doc__ or "") + (BoundaryConditionsField.__doc__ or "")
 
-    def __init__(self, distribution, condition, **kwargs):
+    def __init__(self, distribution, condition, follow=False, modify=False, **kwargs):
         super().__init__(distribution=distribution, condition=condition, **kwargs)
-
+        self._modify = ", OP={}".format(modify) if modify else ", OP=MOD"  # In abaqus the default is MOD
+        self._follow = ", follower" if follow else ""  
+        
     @property
     @no_units
     def jobdata(self):
-        """Generates the string information for the input file."""
-        dofs = ["x", "y", "z", "xx", "yy", "zz"]
-        data = []
-        data.append(self.distribution.jobdata())
-        data.append(f"** Name: {self.name} Type: BC/Rotation \n*Boundary, op=NEW")
-        data.extend([f'{self.distribution.name}, {comp}' for comp, dof in enumerate(dofs, 1) if getattr(self.condition, dof)])
-        return '\n'.join(data) if data else "**"
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+
+        """
+
+        data_section = [
+            "** Name: {} Type: Boundary Condition".format(self.name),
+            "*Boundary{}{}".format(self._modify, self._follow),
+        ]
+
+        for node, bc in self.node_bc:
+            for comp, dof in enumerate(dofs, 1):
+                if getattr(bc, dof):
+                    data_section.append(f"{node.part.name}-1.{node.key}, {comp}")
+        return "\n".join(data_section) or "**"
