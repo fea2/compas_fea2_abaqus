@@ -212,7 +212,7 @@ class AbaqusRigidPart(RigidPart):
     @property
     @no_units
     def _generate_rigid_body_jobdata(self):
-        return "*Rigid Body, ref node={0}-1.ref_point, elset={0}-1.all_elements".format(self.name)
+        return "*Rigid Body, ref node={0}-1.ref_point_{0}, elset={0}-1.{0}_ALL_ELEMENTS".format(self.name)
 
     @property
     @no_units

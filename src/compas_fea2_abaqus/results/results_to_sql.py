@@ -231,9 +231,9 @@ def extract_odb_data(database_path, database_name, requested_fields):
     compas_field_name = {"NT11": "t", "U": "u", "RF": "rf", "SF":'sf'}
     compas_fields = {'u': ['U'], 't':['NT11'], 'rf':['RF'], 'sf' : ['SF', 'SM'], 's':['S']}
     compas_components_names = {
-        "u": ["x", "y", "z", "rx", "ry", "rz"],
+        "u": ["x", "y", "z", "xx", "yy", "zz"],
         "t": ["temp"],
-        "rf": ["x", "y", "z", "rx", "ry", "rz"],
+        "rf": ["x", "y", "z", "xx", "yy", "zz"],
         "sf":["n", "v2", "v3", "m2", "m3", "t"],
         "s":["s11", "s22", "s33", "s12", "s13", "s23"]
     }
