@@ -18,7 +18,7 @@ from compas_fea2.model.sections import TieSection
 from compas_fea2.model.sections import PipeSection
 from compas_fea2.units import _strip_magnitudes
 
-from compas_fea2.units import no_units
+from compas_fea2.units import no_units, units_io
 
 # NOTE: these classes are sometimes overwriting the _base ones because Abaqus offers internal ways of computing beam sections' properties
 
@@ -186,6 +186,7 @@ class AbaqusAngleSection(AngleSection):
 
     """
 
+    @units_io(types_in=("length", "length", "length"), types_out=None)
     def __init__(self, w, h, t, material, name=None, **kwargs):
         super(AbaqusAngleSection, self).__init__(w, h, t, material, name=name, **kwargs)
         if not isinstance(t, list):
@@ -214,8 +215,9 @@ class AbaqusBoxSection(BoxSection):
 
     """
 
-    def __init__(self, w, h, tw, tf, material, **kwargs):
-        super(AbaqusBoxSection, self).__init__(w, h, tw, tf, material, **kwargs)
+    @units_io(types_in=("length", "length", "length", "length", "length"), types_out=None)
+    def __init__(self, w, h, tw, tf, r, material, **kwargs):
+        super(AbaqusBoxSection, self).__init__(w=w, h=h, tw=tw, tf=tf, r=r, material=material, **kwargs)
         if not isinstance(tw, list):
             tw = [tw] * 4
         self._properties = [w, h, *tw]
@@ -237,6 +239,7 @@ class AbaqusCircularSection(CircularSection):
 
     """
 
+    @units_io(types_in=("length"), types_out=None)
     def __init__(self, r, material, name=None, **kwargs):
         super(AbaqusCircularSection, self).__init__(r, material, name=name, **kwargs)
         self._properties = [r]
@@ -258,6 +261,7 @@ class AbaqusHexSection(HexSection):
 
     """
 
+    @units_io(types_in=("length", "length"), types_out=None)
     def __init__(self, r, t, material, name=None, **kwargs):
         super(AbaqusHexSection, self).__init__(r, t, material, name=name, **kwargs)
         self._stype = "hex"
@@ -284,6 +288,7 @@ class AbaqusISection(ISection):
     The section properties are automatically computed by Abaqus.
     """
 
+    @units_io(types_in=("length", "length", "length", "length"), types_out=None)
     def __init__(self, w, h, ttf, tbf, material, l=None, name=None, **kwargs):  # noqa: E741
         super(AbaqusISection, self).__init__(w=w, h=h, ttf=ttf, tbf=tbf, material=material, name=name, **kwargs)
         self._stype = "I"
@@ -311,6 +316,7 @@ class AbaqusPipeSection(PipeSection):
 
     """
 
+    @units_io(types_in=("length", "length"), types_out=None)
     def __init__(self, r, t, material, name=None, **kwarg):
         super(AbaqusPipeSection, self).__init__(r, t, material, name=name, **kwarg)
         self._stype = "pipe"
@@ -328,7 +334,7 @@ class AbaqusRectangularSection(RectangularSection):
     The section properties are automatically computed by Abaqus.
 
     """
-
+    @units_io(types_in=("length", "length"), types_out=None)
     def __init__(self, w, h, material, name=None, **kwargs):
         super(AbaqusRectangularSection, self).__init__(w=w, h=h, material=material, name=name, **kwargs)
         self._properties = [w, h]
@@ -350,6 +356,7 @@ class AbaqusTrapezoidalSection(TrapezoidalSection):
 
     """
 
+    @units_io(types_in=("length", "length", "length"), types_out=None)
     def __init__(self, w1, w2, h, material, name=None, **kwargs):
         super(AbaqusTrapezoidalSection, self).__init__(w1, w2, h, material, name=name, **kwargs)
         raise NotImplementedError("{self.__class__.__name__} is not available in Abaqus")
@@ -368,6 +375,7 @@ class AbaqusTrussSection(TrussSection):
 
     """
 
+    @units_io(types_in=("area"), types_out=None)
     def __init__(self, A, material, name=None, **kwargs):
         super(AbaqusTrussSection, self).__init__(A, material, name=name, **kwargs)
         raise NotImplementedError("{self.__class__.__name__} is not available in Abaqus")
@@ -385,6 +393,7 @@ class AbaqusStrutSection(StrutSection):
 
     """
 
+    @units_io(types_in=("area"), types_out=None)
     def __init__(self, A, material, name=None, **kwargs):
         super(AbaqusStrutSection, self).__init__(A, material, name=name, **kwargs)
         raise NotImplementedError("{self.__class__.__name__} is not available in Abaqus")
@@ -402,6 +411,7 @@ class AbaqusTieSection(TieSection):
 
     """
 
+    @units_io(types_in=("area"), types_out=None)
     def __init__(self, A, material, name=None, **kwargs):
         super(AbaqusTieSection, self).__init__(A, material, name=name, **kwargs)
         raise NotImplementedError("{} is not available in Abaqus".format(TieSection.__name__))
@@ -424,6 +434,7 @@ class AbaqusShellSection(ShellSection):
         number of integration points. 5 by default.
     """
 
+    @units_io(types_in=("length",), types_out=None)
     def __init__(self, t, material, int_points=5, name=None, **kwargs):
         super(AbaqusShellSection, self).__init__(t, material, name=name, **kwargs)
         self.int_points = int_points
