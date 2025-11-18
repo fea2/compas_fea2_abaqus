@@ -80,6 +80,7 @@ def _generate_sets_section(obj):
 def _generate_releases_section(obj):
     return "\n".join(release_field.jobdata for release_field in obj.releases_fields) if obj.releases_fields else "**"
 
+
 @no_units
 def _generate_instance_jobdata(obj):
     """Generates the string information for the input file.
@@ -133,11 +134,27 @@ def _group_elements(obj):
         section = el.section
         try:
             if el.ndim == 1:
-                orientation = "_".join([str(round(el._orientation[0],2)), str(round(el._orientation[1],2)), str(round(el._orientation[2],2))])
-            if el.ndim ==  2 or el.ndim == 3:
-                orientation = "_".join([str(round(el._orientation.xaxis.x,2)), str(round(el._orientation.xaxis.y,2)), str(round(el._orientation.xaxis.z,2))]) 
-                + "_" 
-                + "_".join(str(round(el._orientation.yaxis.x,2)), str(round(el._orientation.yaxis.y,2)), str(round(el._orientation.yaxis.z,2))) 
+                orientation = "_".join(
+                    [
+                        str(round(el._orientation[0], 2)),
+                        str(round(el._orientation[1], 2)),
+                        str(round(el._orientation[2], 2)),
+                    ]
+                )
+            if el.ndim == 2 or el.ndim == 3:
+                orientation = "_".join(
+                    [
+                        str(round(el._orientation.xaxis.x, 2)),
+                        str(round(el._orientation.xaxis.y, 2)),
+                        str(round(el._orientation.xaxis.z, 2)),
+                    ]
+                )
+                +"_"
+                +"_".join(
+                    str(round(el._orientation.yaxis.x, 2)),
+                    str(round(el._orientation.yaxis.y, 2)),
+                    str(round(el._orientation.yaxis.z, 2)),
+                )
 
         except:  # noqa: E722
             orientation = None

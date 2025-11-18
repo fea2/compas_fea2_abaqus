@@ -76,7 +76,12 @@ class AbaqusConvection(Convection):
     __doc__ += Convection.__doc__
 
     def __init__(self, h, temperature_value, temperature_amplitude, **kwargs) -> None:
-        super().__init__(h=h, temperature_value=temperature_value, temperature_amplitude=temperature_amplitude, **kwargs)
+        super().__init__(
+            h=h,
+            temperature_value=temperature_value,
+            temperature_amplitude=temperature_amplitude,
+            **kwargs,
+        )
 
     def jobdata(self, master):
         data_interface = []
@@ -87,13 +92,19 @@ class AbaqusConvection(Convection):
         data_interface.append(f"{master._name}_i, F, {self.temperature.scalar_load}, {self.h}")
         return "\n".join(data_interface)
 
+
 class AbaqusRadiation(Radiation):
     """Abaqus implementation of the :class:`HardContactNoFriction`.\n"""
 
     __doc__ += Convection.__doc__
 
     def __init__(self, eps, temperature_value, temperature_amplitude, **kwargs) -> None:
-        super().__init__(eps=eps, temperature_value=temperature_value, temperature_amplitude=temperature_amplitude, **kwargs)
+        super().__init__(
+            eps=eps,
+            temperature_value=temperature_value,
+            temperature_amplitude=temperature_amplitude,
+            **kwargs,
+        )
 
     def jobdata(self, master):
         data_interface = []

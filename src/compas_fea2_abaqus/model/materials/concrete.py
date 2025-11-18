@@ -32,7 +32,7 @@ class AbaqusConcrete(Concrete):
         input file data line (str).
         """
         data_section = []
-        line = ("*Material, name={}\n" "*Density\n" "{},\n" "*Elastic\n" "{}, {}\n" "*Concrete\n").format(
+        line = ("*Material, name={}\n*Density\n{},\n*Elastic\n{}, {}\n*Concrete\n").format(
             self.name, self.density, self.E["E"], self.v["v"]
         )
         data_section.append(line)
@@ -48,7 +48,7 @@ class AbaqusConcrete(Concrete):
             data_section.append(line)
 
         a, b = self.fratios
-        line = ("*Failure ratios\n" "{}, {}").format(a, b)
+        line = ("*Failure ratios\n{}, {}").format(a, b)
         data_section.append(line)
         return "\n".join(data_section)
 
@@ -61,7 +61,16 @@ class AbaqusConcreteSmearedCrack(ConcreteSmearedCrack):
 
     def __init__(self, *, E, v, density, fc, ec, ft, et, fr=[1.16, 0.0836], name=None, **kwargs):
         super(AbaqusConcreteSmearedCrack, self).__init__(
-            E=E, v=v, density=density, fc=fc, ec=ec, ft=ft, et=et, fr=fr, name=name, **kwargs
+            E=E,
+            v=v,
+            density=density,
+            fc=fc,
+            ec=ec,
+            ft=ft,
+            et=et,
+            fr=fr,
+            name=name,
+            **kwargs,
         )
 
     @property
@@ -78,7 +87,7 @@ class AbaqusConcreteSmearedCrack(ConcreteSmearedCrack):
         input file data line (str).
         """
         data_section = []
-        line = ("*Material, name={}\n" "*Density\n" "{},\n" "*Elastic\n" "{}, {}\n" "*Concrete\n").format(
+        line = ("*Material, name={}\n*Density\n{},\n*Elastic\n{}, {}\n*Concrete\n").format(
             self.name, self.density, self.E["E"], self.v["v"]
         )
         data_section.append(line)
@@ -94,7 +103,7 @@ class AbaqusConcreteSmearedCrack(ConcreteSmearedCrack):
             data_section.append(line)
 
         a, b = self.fratios
-        line = ("*Failure ratios\n" "{}, {}").format(a, b)
+        line = ("*Failure ratios\n{}, {}").format(a, b)
         data_section.append(line)
         return "\n".join(data_section)
 
@@ -107,7 +116,14 @@ class AbaqusConcreteDamagedPlasticity(ConcreteDamagedPlasticity):
 
     def __init__(self, *, E, v, density, damage, hardening, stiffening, name=None, **kwargs):
         super(AbaqusConcreteDamagedPlasticity, self).__init__(
-            E=E, v=v, density=density, damage=damage, hardening=hardening, stiffening=stiffening, name=name, **kwargs
+            E=E,
+            v=v,
+            density=density,
+            damage=damage,
+            hardening=hardening,
+            stiffening=stiffening,
+            name=name,
+            **kwargs,
         )
 
     @property

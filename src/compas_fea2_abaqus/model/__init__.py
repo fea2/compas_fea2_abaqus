@@ -87,7 +87,6 @@ from .ics import (
 )
 
 
-
 # Abaqus Interactions
 from .interactions import (
     AbaqusHardContactFrictionPenalty,

@@ -70,4 +70,3 @@ class AbaqusInitialStressField(InitialStressField):
         # for f in self.field:
         #     data_section += ["{}-1.{}, {}".format(f.part.name, f.key, self._field_value)]
         # return "\n".join(data_section)
-

@@ -94,7 +94,7 @@ class AbaqusHeatTransferStep(HeatTransferStep):
             f"{self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._max_inc_size}",
         ]
         return "\n".join(data)
-    
+
     def _generate_imposedTemperature_section(self):
         """Generate the content relatitive to the boundary conditions section
         for the input file.
@@ -109,7 +109,16 @@ class AbaqusHeatTransferStep(HeatTransferStep):
             text section for the input file.
         """
         from compas_fea2.model.bcs import ImposedTemperature
-        return "\n".join([bc.jobdata(nodes) if isinstance(bc, ImposedTemperature) else "**" for bc, nodes in self.model.bcs_nodes.items()]) or "**"
+
+        return (
+            "\n".join(
+                [
+                    bc.jobdata(nodes) if isinstance(bc, ImposedTemperature) else "**"
+                    for bc, nodes in self.model.bcs_nodes.items()
+                ]
+            )
+            or "**"
+        )
 
     def _generate_loads_section(self):
         data = []

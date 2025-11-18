@@ -1,7 +1,6 @@
 from compas_fea2.model.sections import SpringSection
 from compas_fea2.model.sections import ConnectorSection
 from compas_fea2.model.sections import GenericBeamSection
-from compas_fea2.model.sections import GenericBeamSection
 from compas_fea2.model.sections import AngleSection
 from compas_fea2.model.sections import BoxSection
 from compas_fea2.model.sections import HexSection
@@ -298,11 +297,12 @@ class AbaqusISection(ISection):
         if not isinstance(h, list):
             t = [t] * 3
         if not l:
-            h_crosscenter = h/2
+            h_crosscenter = h / 2
         self._properties = [h_crosscenter, h, *w, *t]
 
     def jobdata(self, set_name, orientation):
         return _generate_beams_jobdata(self, set_name, orientation, "I")
+
 
 class AbaqusPipeSection(PipeSection):
     """Abaqus implementation of the :class:`PipeSection`.\n"""
@@ -334,6 +334,7 @@ class AbaqusRectangularSection(RectangularSection):
     The section properties are automatically computed by Abaqus.
 
     """
+
     @units_io(types_in=("length", "length"), types_out=None)
     def __init__(self, w, h, material, name=None, **kwargs):
         super(AbaqusRectangularSection, self).__init__(w=w, h=h, material=material, name=name, **kwargs)
@@ -474,10 +475,10 @@ class AbaqusShellSection(ShellSection):
                 + str(-float(orientation[2]))
             )
         jobdata.append(f"** Section: {self.name}")
-        if 'C2D' in set_name.split("_")[1]:
+        if "C2D" in set_name.split("_")[1]:
             jobdata.append(f"*Solid Section, elset={set_name}, material={self.material.name}")
-            return "\n".join(jobdata) 
-        else :
+            return "\n".join(jobdata)
+        else:
             jobdata.append(f"*Shell Section, elset={set_name}, material={self.material.name}")
         if orientation:
             jobdata[-1] += f", orientation=Ori_{self.material.name}"

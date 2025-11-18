@@ -1,9 +1,8 @@
 from compas_fea2.model import Model, RigidPart
 from compas_fea2.model import ElementsGroup, NodesGroup
-from compas_fea2.model import _Constraint, _Interaction
+from compas_fea2.model import _Constraint
 from compas_fea2.model.interactions import ThermalInteraction
-from compas_fea2.model.interfaces import PartPartInterface, BoundaryInterface
-from compas_fea2.model.bcs import MechanicalBC
+from compas_fea2.model.interfaces import PartPartInterface
 
 from compas_fea2.units import no_units
 
@@ -21,9 +20,7 @@ class AbaqusModel(Model):
     __doc__ += Model.__doc__ or ""
 
     def __init__(self, name=None, description=None, author=None, **kwargs):
-        super(AbaqusModel, self).__init__(
-            name=name, description=description, author=author, **kwargs
-        )
+        super(AbaqusModel, self).__init__(name=name, description=description, author=author, **kwargs)
         self._starting_key = 1
 
     @classmethod
@@ -103,16 +100,8 @@ class AbaqusModel(Model):
         data_section = []
         for part in self.parts:
             if isinstance(part, RigidPart):
-                part.add_group(
-                    ElementsGroup(
-                        members=list(part.elements), name=f"all_elements_{part.name}"
-                    )
-                )
-                part.add_group(
-                    NodesGroup(
-                        members=[part.reference_node], name=f"ref_point_{part.name}"
-                    )
-                )
+                part.add_group(ElementsGroup(members=list(part.elements), name=f"all_elements_{part.name}"))
+                part.add_group(NodesGroup(members=[part.reference_node], name=f"ref_point_{part.name}"))
             data_section.append(part.jobdata)
         return "\n".join(data_section)
 
@@ -134,12 +123,8 @@ class AbaqusModel(Model):
         data_section = ["*Assembly, name={}".format(self.name)]
 
         # Nodes and elements
-        data_section.append(
-            f"*NSET,NSET=Nall,GENERATE\n{self._starting_key},{len(self.nodes)}"
-        )
-        data_section.append(
-            f"*ELSET,ELSET=Eall,GENERATE\n{self._starting_key},{len(self.elements)}"
-        )
+        data_section.append(f"*NSET,NSET=Nall,GENERATE\n{self._starting_key},{len(self.nodes)}")
+        data_section.append(f"*ELSET,ELSET=Eall,GENERATE\n{self._starting_key},{len(self.elements)}")
         "\n".join(data_section)
 
         # Groups/sets defined at the part level
@@ -185,7 +170,7 @@ class AbaqusModel(Model):
         # steps amplitudes
         for problem in self.problems:
             for step in problem.steps:
-                if step.amplitudes :
+                if step.amplitudes:
                     for amplitude in step.amplitudes:
                         data_section.append(f"*Amplitude, name={amplitude.name}")
                         for multiplier, time in amplitude.multipliers_times:
@@ -227,8 +212,8 @@ class AbaqusModel(Model):
         """
         data = []
         for interaction in self.interactions:
-            #Thermal Interactions must be implemented in the step part
-            data.append(interaction.jobdata if not(isinstance(interaction, ThermalInteraction)) else "**")
+            # Thermal Interactions must be implemented in the step part
+            data.append(interaction.jobdata if not (isinstance(interaction, ThermalInteraction)) else "**")
         connector_sections = set([connector.section for connector in self.connectors])
         for connector_section in connector_sections:
             data.append(connector_section.jobdata())
@@ -248,7 +233,12 @@ class AbaqusModel(Model):
         str
             text section for the input file.
         """
-        interfaces = list(filter(lambda i: (isinstance(i, PartPartInterface) and not(isinstance(i.behavior, _Constraint))), self.interfaces ))
+        interfaces = list(
+            filter(
+                lambda i: (isinstance(i, PartPartInterface) and not (isinstance(i.behavior, _Constraint))),
+                self.interfaces,
+            )
+        )
         return "\n".join(interface.jobdata for interface in interfaces) if interfaces else "**"
 
     def _generate_bcs_section(self):

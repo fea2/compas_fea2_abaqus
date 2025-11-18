@@ -52,10 +52,11 @@ class AbaqusTieConstraint(TieConstraint):
     __doc__ = __doc__ or ""
     __doc__ += TieConstraint.__doc__ or ""
 
-    def __init__(self,name=None, adjust='no', position_tolerance=0.001, **kwargs) -> None:
+    def __init__(self, name=None, adjust="no", position_tolerance=0.001, **kwargs) -> None:
         super(AbaqusTieConstraint, self).__init__(name=name, **kwargs)
         self.adjust = adjust
         self.position_tolerance = position_tolerance
+
     @property
     @no_units
     def jobdata(self, master, slave):
@@ -63,8 +64,6 @@ class AbaqusTieConstraint(TieConstraint):
             [
                 "** Constraint: {} Type: Tie".format(self.name),
                 f"*Tie, name={self.name}, adjust={self.adjust}, position tolerance={self.position_tolerance}",
-                f"{master.name}, {slave.name}"
-
+                f"{master.name}, {slave.name}",
             ]
         )
-

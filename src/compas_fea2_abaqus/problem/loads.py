@@ -9,8 +9,10 @@ dofs = ["x", "y", "z", "xx", "yy", "zz"]
 
 scalar_load_types = {}
 
+
 class AbaqusVectorLoad(VectorLoad):
     """Abaqus implementation of :class:`VectorLoad`.\n"""
+
     __doc__ += VectorLoad.__doc__
     """ 
     Additional Parameters
@@ -41,28 +43,39 @@ class AbaqusVectorLoad(VectorLoad):
      the software adds up the loads and create a new load which combines the previous.
 """
 
-    def __init__(self, x=None, y=None, z=None, xx=None, yy=None, zz=None, frame=None, modify=False, follow=False,**kwargs):
+    def __init__(
+        self,
+        x=None,
+        y=None,
+        z=None,
+        xx=None,
+        yy=None,
+        zz=None,
+        frame=None,
+        modify=False,
+        follow=False,
+        **kwargs,
+    ):
         super().__init__(x, y, z, xx, yy, zz, frame, **kwargs)
-        self._modify=f", OP={modify}" if modify else ", OP=MOD"  # In abaqus the default is MOD
-        self._follow=", follower" if follow else ""
+        self._modify = f", OP={modify}" if modify else ", OP=MOD"  # In abaqus the default is MOD
+        self._follow = ", follower" if follow else ""
 
     @property
     def modify(self):
         return self._modify
-    
+
     @property
     def follow(self):
         return self._follow
-    
+
     @property
     def vectorload_types(self):
-        return {"CLoad":"Concentrated Force"}
-    
+        return {"CLoad": "Concentrated Force"}
+
     def jobdata(self, nodes, type):
-        
         data_section = [
             f"** Name: {self.name} Type: {self.vectorload_types[type]}",
-            f"*{type}{self._modify}{self._follow}"
+            f"*{type}{self._modify}{self._follow}",
         ]
         if not isinstance(nodes, Iterable):
             nodes = [nodes]
@@ -75,6 +88,7 @@ class AbaqusVectorLoad(VectorLoad):
 
 class AbaqusScalarLoad(ScalarLoad):
     """Abaqus implementation of :class:`ScalarLoad`.\n"""
+
     __doc__ += ScalarLoad.__doc__
     """ 
     Additional Parameters
@@ -105,25 +119,26 @@ class AbaqusScalarLoad(ScalarLoad):
      the software adds up the loads and create a new load which combines the previous.
 """
 
-    def __init__(self, scalar_load, modify=False, follow=False,**kwargs):
+    def __init__(self, scalar_load, modify=False, follow=False, **kwargs):
         super().__init__(scalar_load, **kwargs)
-        self._modify=f", OP={modify}" if modify else ", OP=MOD"  # In abaqus the default is MOD
-        self._follow=", follower" if follow else ""
+        self._modify = f", OP={modify}" if modify else ", OP=MOD"  # In abaqus the default is MOD
+        self._follow = ", follower" if follow else ""
 
     @property
     def modify(self):
         return self._modify
-    
+
     @property
     def follow(self):
         return self._follow
-    
+
     @property
     def scalarload_types(self):
         return {}
-    
+
     def jobdata(self, nodes, type):
         raise NotImplementedError
+
 
 # class AbaqusHeatFluxLoad(HeatFluxLoad):
 #     """Abaqus implementation of :class:`HeatFluxLoad`.\n"""

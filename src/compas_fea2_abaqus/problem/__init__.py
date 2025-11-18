@@ -21,10 +21,7 @@ from .displacements import (
 )
 
 # Abaqus Loads
-from .loads import (
-    AbaqusVectorLoad,
-    AbaqusScalarLoad
-)
+from .loads import AbaqusVectorLoad, AbaqusScalarLoad
 
 # Abaqus Problem
 from .problem import AbaqusProblem

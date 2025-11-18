@@ -259,8 +259,10 @@ class AbaqusUserMaterial(UserMaterial):
 # Heat Material
 # ==============================================================================
 
+
 class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
     """Abaqus implementation of :class:`ElasticIsotropic`\n"""
+
     __doc__ += ElasticIsotropic.__doc__
 
     def __init__(self, E, v, density, c, k, unilateral=None, name=None, **kwargs):
@@ -296,7 +298,7 @@ class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
         if self.expansion:
             jobdata.append("*Expansion")
             jobdata.append(f"{self.expansion}")
-        
+
         jobdata.append("*Conductivity")
         if isinstance(self.k, list):
             for k, temp in self.k:
@@ -311,4 +313,4 @@ class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
         else:
             jobdata.append(f"{self.c}")
         jobdata.append("**")
-        return '\n'.join(jobdata)
+        return "\n".join(jobdata)

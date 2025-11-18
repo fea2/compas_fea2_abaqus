@@ -1,7 +1,5 @@
 from compas_fea2.problem.steps import StaticStep
 from compas_fea2.problem.steps import StaticRiksStep
-from compas_fea2.problem.fields import GravityLoadField
-from compas_fea2.results.fields import NodeFieldResults, ElementFieldResults
 
 from compas_fea2.units import no_units
 
@@ -68,17 +66,31 @@ class AbaqusStaticStep(StaticStep):
         """
         return f"""**
 ** STEP: {self._name}
-*Step, name={self.name}, nlgeom={'YES' if self._nlgeom else 'NO'}, inc={self._max_increments}
+*Step, name={self.name}, nlgeom={"YES" if self._nlgeom else "NO"}, inc={
+            self._max_increments
+        }
 *{self._stype}
 {self._initial_inc_size}, {self._time}, {self._min_inc_size}, {self._time}
 **
 ** - Imposed Displacements
 **   ---------------------
-{'\n'.join([force_field.jobdata for force_field in self.displacements] if self.displacements else ['**'])}
+{
+            "\n".join(
+                [force_field.jobdata for force_field in self.displacements]
+                if self.displacements
+                else ["**"]
+            )
+        }
 **
 ** - Loads
 **   -----
-{'\n'.join([force_field.jobdata for force_field in self.effective_fields] if self.effective_fields else ['**'])}
+{
+            "\n".join(
+                [force_field.jobdata for force_field in self.effective_fields]
+                if self.effective_fields
+                else ["**"]
+            )
+        }
 **
 ** - Predefined Fields
 **   -----------------
@@ -86,8 +98,17 @@ class AbaqusStaticStep(StaticStep):
 {self._generate_prescribed_field_section()}
 ** - Output Requests
 **   ---------------
-{'\n'.join(["*Restart, write, frequency=0","**", 
-"*Output, field"]+ [output.jobdata for output in self._field_outputs if self._field_outputs] or ['**'])}
+{
+            "\n".join(
+                ["*Restart, write, frequency=0", "**", "*Output, field"]
+                + [
+                    output.jobdata
+                    for output in self._field_outputs
+                    if self._field_outputs
+                ]
+                or ["**"]
+            )
+        }
 **
 *End Step
 """
@@ -134,10 +155,7 @@ class AbaqusStaticStep(StaticStep):
                 "**",
             ]
             data.append("*Output, field")
-            grouped_outputs = {
-                k: list(g)
-                for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)
-            }
+            grouped_outputs = {k: list(g) for k, g in groupby(self._field_outputs, key=lambda x: x.output_type)}
             if element_outputs := grouped_outputs.get("element", None):
                 data.append("*Element Output, direction=YES")
                 data.append(", ".join([output.jobdata for output in element_outputs]))
