@@ -40,6 +40,8 @@ class AbaqusElasticOrthotropic(ElasticOrthotropic):
             **kwargs,
         )
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 
@@ -265,6 +267,8 @@ class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
         super(AbaqusThermalElasticIsotropic, self).__init__(E=E, v=v, density=density, c=c, k=k, name=name, **kwargs)
         self.unilateral = unilateral
 
+    @property
+    @no_units
     def jobdata(self):
         """Generates the string information for the input file.
 

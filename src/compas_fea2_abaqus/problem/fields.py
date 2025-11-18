@@ -37,7 +37,7 @@ class AbaqusForceField(ForceField):
 
     __doc__ = (__doc__ or "") + (ForceField.__doc__ or "")
 
-    def __init__(self, loads, distribution, load_case, combination_rank=1, modify=False, follow=False, **kwargs):
+    def __init__(self, loads, distribution, load_case=None, combination_rank=1, modify=False, follow=False, **kwargs):
         super().__init__(loads=loads, distribution=distribution, load_case=load_case, combination_rank=combination_rank, **kwargs)
         self._modify = ", OP={}".format(modify) if modify else ", OP=MOD"  # In abaqus the default is MOD
         self._follow = ", follower" if follow else ""  

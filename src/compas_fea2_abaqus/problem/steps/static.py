@@ -78,7 +78,7 @@ class AbaqusStaticStep(StaticStep):
 **
 ** - Loads
 **   -----
-{'\n'.join([force_field.jobdata for force_field in self.fields] if self.fields else ['**'])}
+{'\n'.join([force_field.jobdata for force_field in self.effective_fields] if self.effective_fields else ['**'])}
 **
 ** - Predefined Fields
 **   -----------------
