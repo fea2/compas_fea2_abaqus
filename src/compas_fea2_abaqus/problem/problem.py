@@ -227,11 +227,18 @@ class AbaqusProblem(Problem):
         print("\nExtracting data from Abaqus .odb file...")
         database_path = database_path or self.path
         database_name = database_name or self.name
+        if not fields:
+            fields = self.steps[-1].field_outputs
+        field_input = '.'.join([field.field_name+"/"+','.join(field.abaqus_field_names) # compas_field_name/abaqus_fields_names
+                                +'-'
+                                +",".join([abaq_comp+'/'+compas_comp for compas_comp,abaq_comp in field.compas_to_abaqus_component_names.items()# abaqus_component/compas_component
+                                           ]) 
+                                for field in fields])
         args = [
             os.path.join(kwargs.get("exe", None) or "C:/SIMULIA/Commands", "abaqus"),
             "python",
             Path(results_to_sql.__file__),
-            ",".join(fields) if fields else "None",
+            field_input,
             database_path,
             database_name,
         ]
