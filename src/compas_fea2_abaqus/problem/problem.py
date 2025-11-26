@@ -7,7 +7,6 @@ from compas_fea2.utilities._devtools import launch_process
 
 from ..results import results_to_sql
 from ..job.input_file import _AbaqusRestartInputFile
-import compas_fea2_abaqus
 
 from compas_fea2.units import no_units
 
@@ -26,7 +25,7 @@ class AbaqusProblem(Problem):
     # =========================================================================
     def _build_command(self, path: str, name: str, **kwargs):
         # Set solver path
-        exe_cmd = os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus")
+        exe_cmd = os.path.join(kwargs.get("exe", None) or "C:/SIMULIA/Commands", "abaqus")
         # Set options
         option_keywords = []
         if kwargs.get("overwrite", None):
@@ -158,7 +157,7 @@ class AbaqusProblem(Problem):
         path,
         exe=None,
         cpus=1,
-        output=True,
+        verbose=False,
         overwrite=True,
         user_mat=None,
         fields=None,
@@ -198,7 +197,7 @@ class AbaqusProblem(Problem):
             path,
             exe=exe,
             cpus=cpus,
-            verbose=output,
+            verbose=True,
             overwrite=overwrite,
             user_mat=user_mat,
             *args,
@@ -227,18 +226,35 @@ class AbaqusProblem(Problem):
         print("\nExtracting data from Abaqus .odb file...")
         database_path = database_path or self.path
         database_name = database_name or self.name
+        if not fields:
+            fields = self.steps[-1].field_outputs
+        field_input = ".".join(
+            [
+                field.field_name
+                + "/"
+                + ",".join(field.abaqus_field_names)  # compas_field_name/abaqus_fields_names
+                + "-"
+                + ",".join(
+                    [
+                        abaq_comp + "/" + compas_comp
+                        for compas_comp, abaq_comp in field.compas_to_abaqus_component_names.items()  # abaqus_component/compas_component
+                    ]
+                )
+                for field in fields
+            ]
+        )
         args = [
-            os.path.join(kwargs.get("exe", None) or compas_fea2_abaqus.EXE, "abaqus"),
+            os.path.join(kwargs.get("exe", None) or "C:/SIMULIA/Commands", "abaqus"),
             "python",
             Path(results_to_sql.__file__),
-            ",".join(fields) if fields else "None",
+            field_input,
             database_path,
             database_name,
         ]
         for line in launch_process(cmd_args=args, cwd=database_path, verbose=True):
             print(line)
 
-        return Path(database_path).joinpath(f"{database_name}-results.db")
+        return [Path(database_path).joinpath(f"{database_name}-results.db")]
 
     # =============================================================================
     #                               Job data

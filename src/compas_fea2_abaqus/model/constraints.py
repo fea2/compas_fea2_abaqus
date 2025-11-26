@@ -8,7 +8,11 @@ from compas_fea2.units import no_units
 @no_units
 def jobdata(obj):
     return "\n".join(
-        ["** Constraint: {} Type: {}".format(obj.name, obj.constraint_type), "*MPC", "{}, ".format(obj.constraint_type)]
+        [
+            "** Constraint: {} Type: {}".format(obj.name, obj.constraint_type),
+            "*MPC",
+            "{}".format(obj.constraint_type),
+        ]
     )
 
 
@@ -48,13 +52,18 @@ class AbaqusTieConstraint(TieConstraint):
     __doc__ = __doc__ or ""
     __doc__ += TieConstraint.__doc__ or ""
 
-    def __init__(self, name=None, **kwargs) -> None:
+    def __init__(self, name=None, adjust="no", position_tolerance=0.001, **kwargs) -> None:
         super(AbaqusTieConstraint, self).__init__(name=name, **kwargs)
-        self.adjust = "YES"
+        self.adjust = adjust
+        self.position_tolerance = position_tolerance
 
     @property
     @no_units
-    def jobdata(self):
+    def jobdata(self, master, slave):
         return "\n".join(
-            ["** Constraint: {} Type: Tie".format(self.name), "*Tie, name={}\n".format(self.name, self.adjust)]
+            [
+                "** Constraint: {} Type: Tie".format(self.name),
+                f"*Tie, name={self.name}, adjust={self.adjust}, position tolerance={self.position_tolerance}",
+                f"{master.name}, {slave.name}",
+            ]
         )

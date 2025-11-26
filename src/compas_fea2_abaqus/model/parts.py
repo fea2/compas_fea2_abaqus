@@ -22,18 +22,19 @@ def jobdata(obj):
 **
 ** - Nodes
 **   -----
-{_generate_nodes_section(obj) or '**'}
+{_generate_nodes_section(obj) or "**"}
 **
 ** - Elements
 **   --------
-{_generate_elements_section(obj) or '**'}
+{_generate_elements_section(obj) or "**"}
 **
 ** - Sets
 **   ----
-{_generate_sets_section(obj) or '**'}
+{_generate_sets_section(obj) or "**"}
 **
 ** - Releases
 **   --------
+{_generate_releases_section(obj) or "**"}
 **
 *End Part"""
 
@@ -59,7 +60,7 @@ def _generate_elements_section(obj):
                     else "all_elements"
                 )
                 if orientation:
-                    elset_name += "_{}".format(orientation.replace(".", ""))
+                    elset_name += "_{}".format(orientation.replace(".", "").replace("-", ""))
                     orientation = orientation.split("_")
                 part_data.append("*Element, type={}, elset={}".format(implementation, elset_name))
                 for element in sorted(elements, key=lambda x: x.key):
@@ -71,7 +72,13 @@ def _generate_elements_section(obj):
 
 @no_units
 def _generate_sets_section(obj):
+    # return "**"
     return "\n".join([group.jobdata() for group in obj.groups])
+
+
+@no_units
+def _generate_releases_section(obj):
+    return "\n".join(release_field.jobdata for release_field in obj.releases_fields) if obj.releases_fields else "**"
 
 
 @no_units
@@ -97,7 +104,12 @@ def _generate_instance_jobdata(obj):
     -------
     input file data line (str).
     """
-    return "\n".join(["*Instance, name={}-1, part={}".format(obj.name, obj.name), "*End Instance\n**"])
+    return "\n".join(
+        [
+            "*Instance, name={}-1, part={}".format(obj.name, obj.name),
+            "*End Instance\n**",
+        ]
+    )
 
 
 def _group_elements(obj):
@@ -121,8 +133,30 @@ def _group_elements(obj):
         implementation = el._implementation
         section = el.section
         try:
-            orientation = "_".join(str(i) for i in el.frame.xaxis)
-        except:
+            if el.ndim == 1:
+                orientation = "_".join(
+                    [
+                        str(round(el._orientation[0], 2)),
+                        str(round(el._orientation[1], 2)),
+                        str(round(el._orientation[2], 2)),
+                    ]
+                )
+            if el.ndim == 2 or el.ndim == 3:
+                orientation = "_".join(
+                    [
+                        str(round(el._orientation.xaxis.x, 2)),
+                        str(round(el._orientation.xaxis.y, 2)),
+                        str(round(el._orientation.xaxis.z, 2)),
+                    ]
+                )
+                +"_"
+                +"_".join(
+                    str(round(el._orientation.yaxis.x, 2)),
+                    str(round(el._orientation.yaxis.y, 2)),
+                    str(round(el._orientation.yaxis.z, 2)),
+                )
+
+        except:  # noqa: E722
             orientation = None
 
         grouped_elements[implementation][section][orientation].add(el)
@@ -150,6 +184,7 @@ class AbaqusPart(Part):
     def jobdata(self):
         return jobdata(self)
 
+    @property
     @no_units
     def _generate_instance_jobdata(self):
         return _generate_instance_jobdata(self)
@@ -190,10 +225,12 @@ class AbaqusRigidPart(RigidPart):
     def jobdata(self):
         return jobdata(self)
 
+    @property
     @no_units
     def _generate_rigid_body_jobdata(self):
-        return "*Rigid Body, ref node={0}-1.ref_point, elset={0}-1.all_elements".format(self.name)
+        return "*Rigid Body, ref node={0}-1.ref_point_{0}, elset={0}-1.{0}_ALL_ELEMENTS".format(self.name)
 
+    @property
     @no_units
     def _generate_instance_jobdata(self):
         return _generate_instance_jobdata(self)

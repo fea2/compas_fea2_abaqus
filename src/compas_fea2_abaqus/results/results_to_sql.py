@@ -2,19 +2,18 @@
 Note
 ----
 to debug run from terminal:
-abaqus python path_to_/compas_fea2_abaqus/results/odb_extract.py None path_to_odb odb_file_name
+abaqus python path_to_\compas_fea2_abaqus\results\odb_extract.py None path_to_odb odb_file_name
 """
 
 from sqlite3 import Error
 import sqlite3
-from compas_fea2.config import settings
 
 try:
+    # from ..job import *
     import odbAccess
 except Exception as e:
-    if settings.VERBOSE:
-        print("Error importing odbAccess. Make sure you run this script from Abaqus.")
-        print(e)
+    print("Error importing odbAccess. Make sure you run this script from Abaqus.")
+    print(e)
     pass
 
 import os
@@ -156,7 +155,8 @@ def create_field_table(conn, field, components_names, invariants_names):
     # FOREIGN KEY (step) REFERENCES analysis_results (step_name),
     with conn:
         sql = """CREATE TABLE IF NOT EXISTS {} (step text, part text, type text, position text, key integer, {});""".format(
-            field, ", ".join(["{} float".format(c) for c in components_names + invariants_names])
+            field,
+            ", ".join(["{} float".format(c) for c in components_names + invariants_names]),
         )
         _create_table(conn, sql)
 
@@ -192,12 +192,18 @@ def insert_field_results(conn, field, components_data, invariants_data, step, pa
     """
 
     sql = """ INSERT INTO {} VALUES ('{}', '{}', '{}', '{}', {}, {})""".format(
-        field, step, part, key_type, position, int(key), ", ".join([str(c) for c in components_data + invariants_data])
+        field,
+        step,
+        part,
+        key_type,
+        position,
+        int(key),
+        ", ".join([str(c) for c in components_data + invariants_data]),
     )
     return _insert_entry(conn, sql)
 
 
-def extract_odb_data(database_path, database_name, requested_fields):
+def extract_odb_data(database_path, database_name, field):
     """Extracts data from the .odb file for the requested steps and fields.
 
     Parameters
@@ -221,6 +227,21 @@ def extract_odb_data(database_path, database_name, requested_fields):
     script: http://130.149.89.49:2080/v2016/books/cmd/default.htm?startat=pt05ch09s05.html
 
     """
+
+    # create from the field argument, the correspondence table between abaqus results fields and requested compas results fields
+    field_name_comp_abaq = {}
+    field_component_abaq_comp = {}
+    if field:
+        for field_data in field.split("."):
+            field_name_data = field_data.split("-")[0]
+            field_component_data = field_data.split("-")[1]
+            field_name_comp_abaq[field_name_data.split("/")[0]] = field_name_data.split("/")[1].split(",")
+            field_component_abaq_comp[field_name_data.split("/")[0]] = {
+                field_component.split("/")[0]: field_component.split("/")[1]
+                for field_component in field_component_data.split(",")
+            }
+
+    # open the odb file
     odb = odbAccess.openOdb(os.path.join(database_path, "{}.odb".format(database_name)))
     steps = odb.steps
     database = os.path.join(database_path, "{}-results.db".format(database_name))
@@ -232,48 +253,74 @@ def extract_odb_data(database_path, database_name, requested_fields):
         for step_name, step in steps.items():
             frame = step.frames[-1]  # TODO maybe loop through the frames
             default_fields = frame.fieldOutputs
-            for field_name, field_data in default_fields.items():
-                table_name = field_name.split(" ")[0]
-                components_names = list(field_data.componentLabels)
 
-                if any([requested_fields and not table_name in requested_fields, not components_names]):
-                    continue
+            # loop through all the requested compas field
+            for compas_field_name, abaqus_fields_names in field_name_comp_abaq.items():
+                invariants_names = []  # invariants are, for now, not integrated in the table
 
-                invariants_symbolic_constants = field_data.validInvariants
-                invariants_names = [invariants_dict[inv.name] for inv in invariants_symbolic_constants]
+                # initialization of sql table of compas field
                 insert_field_description(
-                    conn, table_name, field_data.description, " ".join(components_names), " ".join(invariants_names)
+                    conn,
+                    compas_field_name,
+                    "",
+                    " ".join(field_component_abaq_comp[compas_field_name].values()),
+                    " ".join(invariants_names),
                 )
-                create_field_table(conn, table_name, components_names, invariants_names)
-                field_data_values = field_data.values
-                for value in field_data_values:
-                    if getattr(value, "nodeLabel"):
-                        key = value.nodeLabel
-                        key_type = "node"
-                    elif getattr(value, "elementLabel"):
-                        key = value.elementLabel
-                        key_type = "element"
-                    else:
-                        raise AttributeError()
-                    position = value.position.name
-                    invariants_data = [getattr(value, inv) for inv in invariants_names]
-                    components_data = value.data
-                    if not isinstance(components_data, list):
-                        components_data = list(components_data)
-                    # BUG for beams the stress values are organised differently. The following is just a patch
-                    while len(components_data) < len(components_names):
-                        components_data.append(0.0)
-                    insert_field_results(
-                        conn,
-                        table_name,
-                        components_data,
-                        invariants_data,
-                        step_name,
-                        value.instance.name[:-2],
-                        key_type,
-                        position,
-                        key,
-                    )
+                create_field_table(
+                    conn,
+                    compas_field_name,
+                    list(field_component_abaq_comp[compas_field_name].values()),
+                    invariants_names,
+                )
+
+                # the data from the different abaqus fields composing the compas field
+                # are assembled in a dictionnary
+                component_data_dict = {}
+                for abaqus_field in abaqus_fields_names:
+                    field_data = default_fields[abaqus_field]
+                    abaqus_components_names = list(field_data.componentLabels)
+                    field_data_values = field_data.values
+                    for value in field_data_values:
+                        if getattr(value, "nodeLabel"):
+                            key = value.nodeLabel
+                            key_type = "node"
+                        elif getattr(value, "elementLabel"):
+                            key = value.elementLabel
+                            key_type = "element"
+                        else:
+                            raise AttributeError()
+                        position = value.position.name
+                        part = value.instance.name[:-2]
+                        if part not in component_data_dict.keys():
+                            component_data_dict[part] = {}
+                        if key not in component_data_dict[part].keys():
+                            component_data_dict[part][key] = {
+                                component: 0 for component in field_component_abaq_comp[compas_field_name].values()
+                            }
+                        component_data_dict[part][key]["key_type"] = key_type
+                        for i in range(len(abaqus_components_names)):
+                            abaqus_component_name = abaqus_components_names[i]
+                            compas_component_name = field_component_abaq_comp[compas_field_name][abaqus_component_name]
+                            component_value = value.data[i]
+                            component_data_dict[part][key][compas_component_name] = component_value
+
+                # results are inserted in the sql table
+                for part, key_data in component_data_dict.items():
+                    for key, component_data in key_data.items():
+                        insert_field_results(
+                            conn,
+                            compas_field_name,
+                            [
+                                component_data_dict[part][key][component]
+                                for component in field_component_abaq_comp[compas_field_name].values()
+                            ],
+                            [],
+                            step_name,
+                            part,
+                            component_data["key_type"],
+                            position,
+                            key,
+                        )
         conn.commit()
 
 
@@ -283,10 +330,12 @@ def extract_odb_data(database_path, database_name, requested_fields):
 # NOTE: this is used while calling the module through abaqus -> !!!DO NOT DELETE!!!
 # NOTE: must be compatible with python 2+.
 if __name__ == "__main__":
-
     # NOTE: the arguments are in the order they are passed
     database_path = sys.argv[-2]
     database_name = sys.argv[-1]
-    fields = None if sys.argv[-3] == "None" else sys.argv[-3].split(",")
+    if len(sys.argv) > 3:
+        field_input = sys.argv[-3]
+    else:
+        field_input = None
 
-    extract_odb_data(database_path=database_path, database_name=database_name, requested_fields=fields)
+    extract_odb_data(database_path=database_path, database_name=database_name, field=field_input)

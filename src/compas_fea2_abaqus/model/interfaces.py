@@ -1,6 +1,6 @@
+from compas_fea2.model.interfaces import BoundaryInterface, PartPartInterface
 from compas_fea2.model import Contact
 from compas_fea2.model import _Constraint
-from compas_fea2.model.interfaces import PartPartInterface
 
 from compas_fea2.units import no_units
 
@@ -43,7 +43,7 @@ class AbaqusPartPartInterface(PartPartInterface):
 **"""
 
         elif isinstance(self.behavior, _Constraint):
-            return f"{self.behavior.jobdata()}{self._slave.name}_i, {self._master.name}_i\n**"
+            return f"{self.behavior.jobdata}, {self.master.name}, {self.slave.name}\n**"
 
 
 #     @property
@@ -52,3 +52,15 @@ class AbaqusPartPartInterface(PartPartInterface):
 #         return f"""**
 # *CONTACT CONTROLS,  STABILIZE, MASTER={self._master.name}_i, SLAVE ={self._slave.name}_i
 # **"""
+
+
+class AbaqusBoundaryInterface(BoundaryInterface):
+    def __init__(
+        master,
+        behavior,
+        **kwargs,
+    ):
+        super().__init__(master=master, behavior=behavior, **kwargs)
+
+    def _generate_jobdata(self):
+        return self.behavior.jobdata(self.master)

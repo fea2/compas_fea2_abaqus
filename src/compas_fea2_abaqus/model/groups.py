@@ -1,5 +1,6 @@
 from compas_fea2.model import NodesGroup
 from compas_fea2.model import ElementsGroup
+from compas_fea2.model.groups import EdgesGroup
 from compas_fea2.model.groups import FacesGroup
 from compas_fea2.model.groups import MaterialsGroup
 from itertools import groupby
@@ -8,7 +9,7 @@ from compas_fea2.units import no_units
 
 
 @no_units
-def jobdata(self, instance):
+def jobdata(self, instance, assembly=False):
     """Generates the common string information for the input file for all the
     groups.
 
@@ -27,11 +28,18 @@ def jobdata(self, instance):
     line = "*{0}, {0}={1}".format(self._set_type, name)
     if instance:
         for part, members in groupby(self._members, key=lambda x: x.part):
-            data_section.append(line + f", instance={part.name + "-1"}")
+            data_section.append(line + f", instance={part.name + '-1'}")
             data = [str(member.key) for member in members]
             chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
             for chunk in chunks:
                 data_section.append(", ".join(chunk))
+    elif assembly:
+        data_section.append(line)
+        data = [str(member.part.name)+str(-1.)+str(member.key) for member in self._members]
+        chunks = [data[x : x + 15] for x in range(0, len(data), 15)]  # split data for readibility
+        for chunk in chunks:
+            data_section.append(", ".join(chunk))
+
     else:
         data_section.append(line)
         data = [str(member.key) for member in self._members]
@@ -58,8 +66,8 @@ class AbaqusNodesGroup(NodesGroup):
         self._set_type = "nset"
 
     @no_units
-    def jobdata(self, instance=None):
-        return jobdata(self, instance)
+    def jobdata(self, instance=None, **kwargs):
+        return jobdata(self, instance, **kwargs)
 
 
 class AbaqusElementsGroup(ElementsGroup):
@@ -79,8 +87,41 @@ class AbaqusElementsGroup(ElementsGroup):
         self._set_type = "elset"
 
     @no_units
-    def jobdata(self, instance=None):
-        return jobdata(self, instance)
+    def jobdata(self, instance=None, **kwargs):
+        return jobdata(self, instance, **kwargs)
+
+
+class AbaqusEdgesGroup(EdgesGroup):
+    """Abaqus implementation of :class:`FacesGroup`
+
+    Notes
+    -----
+    This is equivalent to a `Surface` in Abaqus
+
+    """
+
+    __doc__ += EdgesGroup.__doc__
+
+    def __init__(self, members, **kwargs):
+        super().__init__(members=members, **kwargs)
+
+    def jobdata(self):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str
+            input file data line.
+        """
+        lines = ["*Surface, type=ELEMENT, name={}_i".format(self._name)]
+        for edge in self.edges:
+            lines.append("{}-1.{}, {}".format(edge.part.name, edge.element.key, edge.tag))
+        lines.append("**")
+        return "\n".join(lines)
 
 
 class AbaqusFacesGroup(FacesGroup):
@@ -93,7 +134,7 @@ class AbaqusFacesGroup(FacesGroup):
     """
 
     __doc__ = __doc__ or ""
-    __doc__ += NodesGroup.__doc__ or ""
+    __doc__ += FacesGroup.__doc__ or ""
 
     def __init__(self, members, **kwargs):
         super(AbaqusFacesGroup, self).__init__(members=members, **kwargs)

@@ -1,4 +1,5 @@
 from compas_fea2.model import ElasticIsotropic
+from compas_fea2.model import ThermalElasticIsotropic
 from compas_fea2.model import Stiff
 from compas_fea2.model import ElasticOrthotropic
 from compas_fea2.model import ElasticPlastic
@@ -38,7 +39,34 @@ class AbaqusElasticOrthotropic(ElasticOrthotropic):
             name=name,
             **kwargs,
         )
-        raise NotImplementedError
+
+    @property
+    @no_units
+    def jobdata(self):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+
+        """
+        jobdata = [f"*Material, name={self.name}"]
+
+        if self.density:
+            jobdata.append(f"*Density\n{self.density},")
+
+        jobdata.append(
+            f"*Elastic, type=ENGINEERING CONSTANTS\n{self.Ex}, {self.Ey}, {self.Ez}, {self.vxy}, {self.vzx}, {self.vyz}, {self.Gxy}, {self.Gzx}\n {self.Gyz},"
+        )
+
+        if self.expansion:
+            jobdata.append("*Expansion\n{},".format(self.expansion))
+        jobdata.append("**")
+        return "\n".join(jobdata)
 
 
 class AbaqusElasticIsotropic(ElasticIsotropic):
@@ -225,3 +253,64 @@ class AbaqusUserMaterial(UserMaterial):
         return ("*Material, name={}\n*Density\n{},\n*User Material, constants={}\n{}").format(
             self.name, self.density, len(k), ", ".join(reversed(k))
         )
+
+
+# ==============================================================================
+# Heat Material
+# ==============================================================================
+
+
+class AbaqusThermalElasticIsotropic(ThermalElasticIsotropic):
+    """Abaqus implementation of :class:`ElasticIsotropic`\n"""
+
+    __doc__ += ElasticIsotropic.__doc__
+
+    def __init__(self, E, v, density, c, k, unilateral=None, name=None, **kwargs):
+        super(AbaqusThermalElasticIsotropic, self).__init__(E=E, v=v, density=density, c=c, k=k, name=name, **kwargs)
+        self.unilateral = unilateral
+
+    @property
+    @no_units
+    def jobdata(self):
+        """Generates the string information for the input file.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        input file data line (str).
+
+        """
+        jobdata = ["*Material, name={}".format(self.name)]
+
+        if self.density:
+            jobdata.append("*Density")
+            if isinstance(self.density, list):
+                for density, temp in self.density:
+                    jobdata.append(f"{density}, {temp}")
+            else:
+                jobdata.append(f"{self.density}")
+
+        jobdata.append("*Elastic\n{}, {}".format(self.E, self.v))
+
+        if self.expansion:
+            jobdata.append("*Expansion")
+            jobdata.append(f"{self.expansion}")
+
+        jobdata.append("*Conductivity")
+        if isinstance(self.k, list):
+            for k, temp in self.k:
+                jobdata.append(f"{k}, {temp}")
+        else:
+            jobdata.append(f"{self.k}")
+
+        jobdata.append("*Specific Heat")
+        if isinstance(self.c, list):
+            for c, temp in self.c:
+                jobdata.append(f"{c}, {temp}")
+        else:
+            jobdata.append(f"{self.c}")
+        jobdata.append("**")
+        return "\n".join(jobdata)

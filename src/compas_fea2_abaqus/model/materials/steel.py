@@ -30,12 +30,10 @@ class AbaqusSteel(Steel):
         input file data line (str).
         """
         data_section = []
-        line = ("*Material, name={}\n" "*Density\n" "{},\n" "*Elastic\n" "{}, {}\n" "*Plastic").format(
-            self.name, self.density, self.E, self.v
-        )
+        line = ("*Material, name={}\n*Density\n{},\n*Elastic\n{}, {}").format(self.name, self.density, self.E, self.v)
         data_section.append(line)
 
-        for i, j in zip(self.compression["f"], self.compression["e"]):
-            line = """{}, {}""".format(abs(i), abs(j))
-            data_section.append(line)
+        # for i, j in zip(self.compression["f"], self.compression["e"]):
+        #     line = """{}, {}""".format(abs(i), abs(j))
+        #     data_section.append(line)
         return "\n".join(data_section)

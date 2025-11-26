@@ -1,7 +1,8 @@
 from compas_fea2.model.interactions import HardContactFrictionPenalty
 from compas_fea2.model.interactions import LinearContactFrictionPenalty
 from compas_fea2.model.interactions import HardContactRough
-from compas_fea2.model.interactions import HardContactNoFriction
+from compas_fea2.model.interactions import Convection
+from compas_fea2.model.interactions import Radiation
 
 from compas_fea2.units import no_units
 
@@ -69,12 +70,47 @@ class AbaqusHardContactRough(HardContactRough):
         )
 
 
-class AbaqusHardContactNoFriction(HardContactNoFriction):
+class AbaqusConvection(Convection):
     """Abaqus implementation of the :class:`HardContactNoFriction`.\n"""
 
-    __doc__ = __doc__ or ""
-    __doc__ += HardContactNoFriction.__doc__ or ""
+    __doc__ += Convection.__doc__
 
-    def __init__(self, **kwargs) -> None:
-        super(AbaqusHardContactNoFriction, self).__init__(**kwargs)
-        raise NotImplementedError()
+    def __init__(self, h, temperature_value, temperature_amplitude, **kwargs) -> None:
+        super().__init__(
+            h=h,
+            temperature_value=temperature_value,
+            temperature_amplitude=temperature_amplitude,
+            **kwargs,
+        )
+
+    def jobdata(self, master):
+        data_interface = []
+        data_interface.append(f"** Name: {self.name} Type: Convection interaction")
+        data_interface.append("*Sfilm")
+        if self.temperature.amplitude:
+            data_interface[-1] += f", amplitude={self.temperature.amplitude.name}"
+        data_interface.append(f"{master._name}_i, F, {self.temperature.scalar_load}, {self.h}")
+        return "\n".join(data_interface)
+
+
+class AbaqusRadiation(Radiation):
+    """Abaqus implementation of the :class:`HardContactNoFriction`.\n"""
+
+    __doc__ += Convection.__doc__
+
+    def __init__(self, eps, temperature_value, temperature_amplitude, **kwargs) -> None:
+        super().__init__(
+            eps=eps,
+            temperature_value=temperature_value,
+            temperature_amplitude=temperature_amplitude,
+            **kwargs,
+        )
+
+    def jobdata(self, master):
+        data_interface = []
+        data_interface.append(f"** Name: {self.name} Type: Radiation interaction")
+        data_interface.append("*Sradiate")
+        if self.temperature.amplitude:
+            data_interface[-1] += f", amplitude={self.temperature.amplitude.name}"
+        data_interface.append(f"{master._name}_i, R, {self.temperature.scalar_load}, {self.eps}")
+        return "\n".join(data_interface)
